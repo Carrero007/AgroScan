@@ -8,140 +8,98 @@ namespace AgroScan.Controllers
     [Route("[controller]")]
     public class PlantasController : Controller
     {
-        private readonly ILogger<PlantasController> _logger;
+        private const string ConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=AgroScan;Integrated Security=True";
 
-        private const string ConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=AgroScan;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
-        public PlantasController(ILogger<PlantasController> logger)
-        {
-            _logger = logger;
-        }
-
-        [HttpGet(Name = "GetEmployees")]
+        [HttpGet]
         public IEnumerable<Plantas> Get()
         {
-            List<Plantas> employees = new List<Plantas>();
+            List<Plantas> lista = new List<Plantas>();
 
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
             {
-                string query = "SELECT * FROM Employees";
-                SqlCommand command = new SqlCommand(query, connection);
-                connection.Open();
+                string query = "SELECT * FROM Plantas";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
 
-                SqlDataReader reader = command.ExecuteReader();
+                SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    Plantas employee = new Plantas
+                    lista.Add(new Plantas
                     {
-                        ID = Convert.ToInt32(reader["Id"]),
-                        Name = reader["Name"].ToString(),
-                        Position = reader["Position"].ToString(),
-                        Salary = Convert.ToDecimal(reader["Salary"])
-                    };
-
-                    employees.Add(employee);
+                        PlantaId = (int)reader["PlantaId"],
+                        NomeCientifico = reader["NomeCientifico"].ToString(),
+                        NomePopular = reader["NomePopular"].ToString(),
+                        TipoPlanta = reader["TipoPlanta"].ToString(),
+                        Clima = reader["Clima"].ToString(),
+                        Luminosidade = reader["Luminosidade"].ToString(),
+                        Rega = reader["Rega"].ToString(),
+                        Descricao = reader["Descricao"].ToString()
+                    });
                 }
-
-                reader.Close();
             }
-            return employees;
-        }
-
-        [HttpGet("{id}", Name = "GetEmployeeById")]
-        public ActionResult GetEmployeeById(int id)
-        {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
-            {
-                string query = "SELECT * FROM Employees WHERE Id = @Id";
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@Id", id);
-                connection.Open();
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                if (reader.Read())
-                {
-                    Plantas employee = new Plantas
-                    {
-                        ID = Convert.ToInt32(reader["Id"]),
-                        Name = reader["Name"].ToString(),
-                        Position = reader["Position"].ToString(),
-                        Salary = Convert.ToDecimal(reader["Salary"])
-                    };
-                    reader.Close();
-
-                    return Ok(employee);
-                }
-                reader.Close();
-            }
-
-            return NotFound();
+            return lista;
         }
 
         [HttpPost]
-        public ActionResult CreateEmployee([FromBody] Plantas employee)
+        public IActionResult Create([FromBody] Plantas p)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
             {
-                string query = "INSERT INTO Employees (Name, Position, Salary) VALUES (@Name, @Position, @Salary)";
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@Name", employee.Name);
-                command.Parameters.AddWithValue("@Position", employee.Position);
-                command.Parameters.AddWithValue("@Salary", employee.Salary);
-                connection.Open();
+                string query = @"INSERT INTO Plantas 
+                (NomeCientifico, NomePopular, TipoPlanta, Clima, Luminosidade, Rega, Descricao)
+                VALUES (@n1,@n2,@n3,@n4,@n5,@n6,@n7)";
 
-                int rowsAffected = command.ExecuteNonQuery();
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@n1", p.NomeCientifico);
+                cmd.Parameters.AddWithValue("@n2", p.NomePopular);
+                cmd.Parameters.AddWithValue("@n3", p.TipoPlanta);
+                cmd.Parameters.AddWithValue("@n4", p.Clima);
+                cmd.Parameters.AddWithValue("@n5", p.Luminosidade);
+                cmd.Parameters.AddWithValue("@n6", p.Rega);
+                cmd.Parameters.AddWithValue("@n7", p.Descricao);
 
-                if (rowsAffected > 0)
-                {
-                    return Ok();
-                }
+                conn.Open();
+                cmd.ExecuteNonQuery();
             }
-            return BadRequest();
+
+            return Ok();
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateEmployee(int id, [FromBody] Plantas employee)
+        public IActionResult Update(int id, [FromBody] Plantas p)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
             {
-                string query = "UPDATE Employees SET Name = @Name, Position = @Position, Salary = @Salary WHERE Id = @Id";
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@Id", id);
-                command.Parameters.AddWithValue("@Name", employee.Name);
-                command.Parameters.AddWithValue("@Position", employee.Position);
-                command.Parameters.AddWithValue("@Salary", employee.Salary);
-                connection.Open();
+                string query = @"UPDATE Plantas SET
+                NomeCientifico=@n1, NomePopular=@n2, TipoPlanta=@n3,
+                Clima=@n4, Luminosidade=@n5, Rega=@n6, Descricao=@n7
+                WHERE PlantaId=@id";
 
-                int rowsAffected = command.ExecuteNonQuery();
-
-                if (rowsAffected > 0)
-                {
-                    return Ok();
-                }
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@n1", p.NomeCientifico);
+                conn.Open();
+                cmd.ExecuteNonQuery();
             }
-            return NotFound();
+
+            return Ok();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteEmployee(int id)
+        public IActionResult Delete(int id)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
             {
-                string query = "DELETE FROM Employees WHERE Id = @Id";
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@Id", id);
-                connection.Open();
+                string query = "DELETE FROM Plantas WHERE PlantaId=@id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", id);
 
-                int rowsAffected = command.ExecuteNonQuery();
-
-                if (rowsAffected > 0)
-                {
-                    return Ok();
-                }
+                conn.Open();
+                cmd.ExecuteNonQuery();
             }
-            return NotFound();
+
+            return Ok();
         }
     }
 }
-

@@ -88,10 +88,10 @@ html, body {
 #circle-panel {
     position: fixed;
     top: 50%;
-    width: 115vh;
-    height: 115vh;
-    max-width: 1050px;
-    max-height: 1050px;
+    width: 126vh;
+    height: 126vh;
+    max-width: 1155px;
+    max-height: 1155px;
     border-radius: 50%;
     z-index: 10;
     pointer-events: none;
