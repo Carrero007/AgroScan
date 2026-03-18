@@ -1,10 +1,801 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroDiag — Diagnóstico de Pragas e Doenças para Agricultura Familiar</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde-escuro: #1a3a1f;
+    --verde-medio: #2d6a35;
+    --verde-vivo: #4caf50;
+    --verde-claro: #a8d5ab;
+    --terra: #8b5e3c;
+    --palha: #f5edd6;
+    --creme: #fdf8ef;
+    --branco: #ffffff;
+    --texto: #1a2e1c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--creme);
+    color: var(--texto);
+    font-family: 'Lora', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed; top: 0; left: 0;
+    height: 3px; width: 0%;
+    background: linear-gradient(90deg, var(--verde-vivo), var(--palha), var(--verde-vivo));
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+    z-index: 10000;
+    transition: width 0.1s ease-out;
+    box-shadow: 0 0 10px var(--verde-vivo);
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  /* ── PARTICLES ── */
+  #particles-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(48px);
+    transition: opacity 0.85s cubic-bezier(.22,1,.36,1), transform 0.85s cubic-bezier(.22,1,.36,1);
+  }
+  .reveal.active { opacity: 1; transform: translateY(0); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a3a1f, #2d5a3d, #1a3a1f, #0f2915);
+    background-size: 400% 400%;
+    animation: morphGradient 18s ease infinite;
+    position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 80px 24px 60px;
+    overflow: hidden;
+  }
+  @keyframes morphGradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .parallax-mid {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 110%, #2d6a3555 0%, transparent 70%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%234caf50' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .parallax-front {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(circle at 50% 60%, transparent 25%, rgba(26,58,31,0.65) 100%);
+  }
+
+  .leaf {
+    position: absolute; pointer-events: none; z-index: 1;
+    opacity: 0.2; animation: floatLeaf linear infinite;
+  }
+  @keyframes floatLeaf {
+    0%   { transform: translateY(110vh) rotate(0deg) scale(1); }
+    50%  { transform: translateY(50vh) rotate(180deg) scale(1.1); }
+    100% { transform: translateY(-10vh) rotate(360deg) scale(0.9); }
+  }
+
+  .badge {
+    display: inline-block; background: var(--verde-vivo);
+    color: var(--branco); font-family: 'Syne', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 6px 18px; border-radius: 999px;
+    margin-bottom: 24px; position: relative; z-index: 2;
+    animation: fadeDown 0.6s ease both;
+    box-shadow: 0 4px 16px #4caf5040;
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem); font-weight: 800;
+    color: var(--palha); line-height: 1.05; max-width: 780px;
+    position: relative; z-index: 2;
+    animation: fadeDown 0.7s 0.1s ease both;
+  }
+  .hero-title span { color: var(--verde-vivo); position: relative; display: inline-block; }
+  .hero-title span::after {
+    content: ''; position: absolute; bottom: 2px; left: 0; right: 0;
+    height: 3px; background: var(--verde-vivo); border-radius: 2px;
+    transform: scaleX(0);
+    animation: underlineGrow 0.5s 1.3s ease forwards;
+  }
+  @keyframes underlineGrow { to { transform: scaleX(1); } }
+
+  /* TYPEWRITER */
+  .typewriter-wrap {
+    position: relative; z-index: 2; margin-top: 22px;
+    min-height: 2rem; font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+    color: var(--verde-claro); font-style: italic;
+    animation: fadeDown 0.7s 0.25s ease both;
+  }
+  #typewriter { border-right: 2px solid var(--verde-claro); animation: blink 0.7s infinite; }
+  @keyframes blink {
+    0%,50%   { border-color: var(--verde-claro); }
+    51%,100% { border-color: transparent; }
+  }
+
+  .hero-cta {
+    margin-top: 40px; display: flex; gap: 16px;
+    flex-wrap: wrap; justify-content: center;
+    position: relative; z-index: 2;
+    animation: fadeDown 0.7s 0.4s ease both;
+  }
+
+  /* MAGNETIC BUTTONS */
+  .btn-primary {
+    background: var(--verde-vivo); color: var(--branco);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    padding: 14px 34px; border-radius: 8px; text-decoration: none; display: inline-block;
+    box-shadow: 0 8px 24px #4caf5045;
+    transition: box-shadow 0.2s;
+    will-change: transform;
+  }
+  .btn-primary:hover { box-shadow: 0 12px 36px #4caf5060; }
+  .btn-secondary {
+    background: transparent; color: var(--palha);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    padding: 14px 34px; border-radius: 8px; text-decoration: none; display: inline-block;
+    border: 2px solid #ffffff30;
+    transition: border-color 0.2s, color 0.2s;
+    will-change: transform;
+  }
+  .btn-secondary:hover { border-color: var(--verde-claro); color: var(--verde-claro); }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* scroll hint */
+  .scroll-hint {
+    position: absolute; bottom: 32px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: #ffffff50; font-family: 'Syne', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    animation: bounce 2s infinite; z-index: 2;
+  }
+  .scroll-hint svg { width: 20px; opacity: 0.5; }
+  @keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ── PHONE MOCKUP ── */
+  .phone-wrap {
+    margin-top: 48px; position: relative; z-index: 2;
+    animation: fadeDown 0.9s 0.55s ease both;
+  }
+  .phone {
+    width: 220px; background: #0d1f0f; border-radius: 36px; padding: 12px;
+    box-shadow: 0 40px 80px #00000070, inset 0 0 0 2px #4caf5030; margin: 0 auto;
+  }
+  .phone-screen {
+    background: var(--verde-escuro); border-radius: 26px; overflow: hidden;
+    aspect-ratio: 9/16; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20px 16px; gap: 14px; position: relative;
+  }
+  .phone-screen::before {
+    content: ''; position: absolute; top: -40px; left: -40px; right: -40px; height: 200px;
+    background: radial-gradient(ellipse, #4caf5020, transparent 70%); pointer-events: none;
+  }
+  .phone-icon-wrap {
+    width: 64px; height: 64px; background: var(--verde-vivo); border-radius: 18px;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+    animation: pulse 2.5s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 #4caf5055; }
+    50%      { box-shadow: 0 0 0 16px #4caf5000; }
+  }
+  .phone-label {
+    font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700;
+    color: var(--palha); text-align: center; line-height: 1.3;
+  }
+  .phone-chip {
+    background: #4caf5025; border: 1px solid #4caf5050; border-radius: 999px;
+    padding: 4px 12px; font-size: 0.62rem; color: var(--verde-claro);
+    font-family: 'Syne', sans-serif;
+  }
+  .phone-bar {
+    width: 100%; background: #4caf5015; border-radius: 8px;
+    padding: 8px 10px; font-size: 0.6rem; color: #a8d5ab90;
+    font-family: 'Syne', sans-serif; text-align: left;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .phone-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--verde-vivo); }
+
+  /* ── SECTIONS BASE ── */
+  section { padding: 80px 24px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-family: 'Syne', sans-serif; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--verde-medio); margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 800;
+    color: var(--verde-escuro); line-height: 1.1; margin-bottom: 20px;
+  }
+  .section-text { font-size: 1.05rem; line-height: 1.8; color: #3a4d3b; max-width: 620px; }
+
+  /* ── PROBLEMA ── */
+  .problema { background: var(--palha); }
+  .problema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; margin-top: 56px; }
+  .stat-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .stat-card {
+    background: var(--branco); border-radius: 16px; padding: 24px 20px;
+    border-left: 4px solid var(--verde-vivo); box-shadow: 0 4px 20px #1a3a1f0d;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px #1a3a1f18; }
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800;
+    color: var(--verde-medio); line-height: 1;
+  }
+  .count-anim { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--verde-medio); }
+  .stat-desc { font-size: 0.82rem; color: #5a6b5c; margin-top: 6px; line-height: 1.4; }
+
+  /* ── COMO FUNCIONA ── */
+  .como { background: var(--verde-escuro); }
+  .como .section-label { color: var(--verde-claro); }
+  .como .section-title { color: var(--palha); }
+  .como .section-text  { color: var(--verde-claro); }
+  .steps {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 24px; margin-top: 56px; position: relative;
+  }
+  .steps::before {
+    content: ''; position: absolute; top: 36px; left: 60px; right: 60px;
+    height: 2px; background: linear-gradient(to right, var(--verde-vivo), #4caf5020);
+  }
+  .step {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
+    opacity: 0; transform: translateX(-24px);
+    transition: opacity 0.6s cubic-bezier(.22,1,.36,1), transform 0.6s cubic-bezier(.22,1,.36,1);
+  }
+  .step.visible { opacity: 1; transform: translateX(0); }
+  .step-num {
+    width: 72px; height: 72px; background: var(--verde-medio); border-radius: 20px;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+    position: relative; z-index: 1; transition: transform 0.25s;
+  }
+  .step:hover .step-num { transform: scale(1.1) rotate(-4deg); }
+  .step-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--palha); }
+  .step-desc { font-size: 0.88rem; color: #93c196; line-height: 1.6; }
+
+  /* ── FUNCIONALIDADES ── */
+  .funcionalidades { background: var(--creme); }
+  .feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; margin-top: 56px; }
+  .feat-card {
+    background: var(--branco); border-radius: 20px; padding: 32px 28px;
+    border: 1px solid #e8f0e8; position: relative; overflow: hidden;
+    transform-style: preserve-3d; cursor: default;
+    transition: box-shadow 0.25s;
+    will-change: transform;
+  }
+  .feat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--verde-vivo); transform: scaleX(0);
+    transition: transform 0.35s; transform-origin: left;
+  }
+  .feat-card:hover { box-shadow: 0 20px 48px #1a3a1f18; }
+  .feat-card:hover::before { transform: scaleX(1); }
+  .feat-icon { font-size: 2.4rem; margin-bottom: 16px; display: block; }
+  .feat-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--verde-escuro); margin-bottom: 8px; }
+  .feat-desc { font-size: 0.88rem; color: #5a6b5c; line-height: 1.65; }
+
+  /* ── IMPACTO ── */
+  .impacto { background: linear-gradient(135deg, #2d6a35 0%, #1a3a1f 100%); position: relative; overflow: hidden; }
+  .impacto::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M0 0h30v30H0V0zm30 30h30v30H30V30z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .impacto .section-label { color: var(--verde-claro); }
+  .impacto .section-title { color: var(--palha); }
+  .impacto-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 56px; }
+  .impacto-card {
+    background: #ffffff0d; border: 1px solid #ffffff18; border-radius: 20px;
+    padding: 36px 28px; text-align: center; backdrop-filter: blur(6px);
+    transition: transform 0.35s cubic-bezier(.22,1,.36,1), background 0.35s;
+  }
+  .impacto-card:hover { transform: translateY(-8px); background: #ffffff18; }
+  .impacto-icon { font-size: 3rem; margin-bottom: 18px; }
+  .impacto-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--palha); margin-bottom: 10px; }
+  .impacto-desc { font-size: 0.88rem; color: #93c196; line-height: 1.65; }
+
+  /* ── TCC INFO ── */
+  .tcc-info { background: var(--palha); }
+  .tcc-box {
+    background: var(--branco); border-radius: 24px; padding: 48px;
+    box-shadow: 0 8px 40px #1a3a1f10;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;
+  }
+  .tcc-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #e8f5e8; color: var(--verde-medio);
+    border-radius: 8px; padding: 6px 14px;
+    font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; margin-bottom: 12px;
+  }
+  .tcc-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+  .tcc-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 0.92rem; color: #3a4d3b; line-height: 1.5;
+    opacity: 0; transform: translateX(-20px);
+    transition: opacity 0.55s ease-out, transform 0.55s ease-out;
+  }
+  .tcc-list li.visible { opacity: 1; transform: translateX(0); }
+  .tcc-list li::before {
+    content: '✓'; color: var(--verde-vivo); font-weight: 700;
+    font-family: 'Syne', sans-serif; flex-shrink: 0; margin-top: 1px;
+  }
+  .tech-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .chip {
+    background: var(--palha); border: 1px solid #c8ddc8; border-radius: 8px;
+    padding: 6px 14px; font-family: 'Syne', sans-serif; font-size: 0.78rem;
+    color: var(--verde-escuro); font-weight: 700;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .chip:hover { transform: translateY(-3px); background: #e8f5e8; box-shadow: 0 4px 12px #1a3a1f15; }
+
+  /* ── FOOTER ── */
+  footer { background: var(--verde-escuro); padding: 48px 24px 36px; text-align: center; }
+  .footer-logo { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--palha); letter-spacing: -0.02em; margin-bottom: 8px; }
+  .footer-logo span { color: var(--verde-vivo); }
+  .footer-sub { font-size: 0.85rem; color: #93c196; font-style: italic; }
+  .footer-line { margin: 28px auto; max-width: 400px; height: 1px; background: #ffffff15; }
+  .footer-copy { font-family: 'Syne', sans-serif; font-size: 0.72rem; color: #4a6b4c; letter-spacing: 0.08em; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .steps { grid-template-columns: 1fr 1fr; }
+    .steps::before { display: none; }
+    .feat-grid { grid-template-columns: 1fr 1fr; }
+    .problema-grid { grid-template-columns: 1fr; }
+    .impacto-grid { grid-template-columns: 1fr; }
+    .tcc-box { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 580px) {
+    .steps { grid-template-columns: 1fr; }
+    .feat-grid { grid-template-columns: 1fr; }
+    .stat-cards { grid-template-columns: 1fr; }
+    .tcc-box { padding: 28px 20px; }
+  }
+</style>
 </head>
 <body>
 
+<!-- PROGRESS BAR -->
+<div id="progress-bar"></div>
+
+<!-- PARTICLES CANVAS -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ── HERO ── -->
+<section class="hero" id="hero">
+  <div class="parallax-mid" data-speed="0.25"></div>
+  <div class="parallax-front" data-speed="0.55"></div>
+
+  <div class="leaf" style="left:6%;font-size:30px;animation-duration:13s;animation-delay:-2s">🌿</div>
+  <div class="leaf" style="left:20%;font-size:20px;animation-duration:17s;animation-delay:-9s">🍃</div>
+  <div class="leaf" style="left:72%;font-size:26px;animation-duration:15s;animation-delay:-4s">🌿</div>
+  <div class="leaf" style="left:88%;font-size:18px;animation-duration:19s;animation-delay:-7s">🍃</div>
+  <div class="leaf" style="left:52%;font-size:15px;animation-duration:22s;animation-delay:-13s">🌱</div>
+  <div class="leaf" style="left:38%;font-size:22px;animation-duration:11s;animation-delay:-5s">🍃</div>
+
+  <span class="badge">🌾 Trabalho de Conclusão de Curso</span>
+
+  <h1 class="hero-title">
+    <span>AgroDiag</span><br>
+    Diagnóstico Inteligente<br>para o Campo
+  </h1>
+
+  <!-- TYPEWRITER -->
+  <div class="typewriter-wrap"><span id="typewriter"></span></div>
+
+  <div class="hero-cta">
+    <a href="login.html" class="btn-primary magnetic">Ver como funciona</a>
+    <a href="#funcionalidade" class="btn-secondary magnetic">Funcionalidades</a>
+  </div>
+
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-icon-wrap">📸</div>
+        <div class="phone-label">Tire uma foto<br>da sua planta</div>
+        <div class="phone-chip">🔍 Analisando...</div>
+        <div class="phone-bar"><div class="phone-dot"></div>Míldio detectado — 94%</div>
+        <div class="phone-bar"><div class="phone-dot" style="background:#f5edd6"></div>Calda bordalesa · agroecológico</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    Rolar
+  </div>
+</section>
+
+<!-- ── PROBLEMA ── -->
+<section class="problema reveal" id="problema">
+  <div class="container">
+    <div class="problema-grid">
+      <div>
+        <p class="section-label">O Problema</p>
+        <h2 class="section-title">Cada dia sem diagnóstico custa colheita</h2>
+        <p class="section-text">
+          Agricultores familiares perdem até 40% da produção por não conseguir identificar pragas e doenças a tempo. O acesso a engenheiros agrônomos é caro, lento e geograficamente limitado. A solução precisa estar no bolso — funcionar no campo, offline, em linguagem simples.
+        </p>
+      </div>
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-num"><span class="count-anim" data-target="77" data-suffix="%">0</span></div>
+          <div class="stat-desc">dos estabelecimentos rurais brasileiros são de agricultura familiar</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num"><span class="count-anim" data-target="40" data-suffix="%">0</span></div>
+          <div class="stat-desc">de perda de produção por pragas e doenças não diagnosticadas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num"><span class="count-anim" data-target="5" data-prefix="+" data-suffix=" mi">0</span></div>
+          <div class="stat-desc">de famílias dependem da agricultura familiar no Brasil</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="font-size:1.3rem">Sem acesso</div>
+          <div class="stat-desc">a técnicos especializados na maioria dos municípios rurais</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMO FUNCIONA ── -->
+<section class="como reveal" id="como-funciona">
+  <div class="container">
+    <p class="section-label">Fluxo do Aplicativo</p>
+    <h2 class="section-title">Simples como tirar uma foto</h2>
+    <p class="section-text">Quatro passos para o agricultor obter o diagnóstico e a solução — sem precisar de internet.</p>
+    <div class="steps" id="steps-list">
+      <div class="step">
+        <div class="step-num">📸</div>
+        <div class="step-title">1. Fotografar</div>
+        <div class="step-desc">O produtor aponta a câmera para a folha, caule ou fruto afetado e tira uma foto.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">🧠</div>
+        <div class="step-title">2. Identificar</div>
+        <div class="step-desc">O modelo de visão computacional (embarcado no dispositivo) analisa a imagem offline.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">🌿</div>
+        <div class="step-title">3. Diagnosticar</div>
+        <div class="step-desc">O app exibe o nome da praga ou doença com ícone e linguagem acessível, sem jargão técnico.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">💊</div>
+        <div class="step-title">4. Tratar</div>
+        <div class="step-desc">Sugestões de tratamento agroecológico e de baixo custo, com ingredientes de fácil acesso.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FUNCIONALIDADES ── -->
+<section class="funcionalidades reveal" id="funcionalidades">
+  <div class="container">
+    <p class="section-label">Funcionalidades</p>
+    <h2 class="section-title">Feito para quem trabalha no campo</h2>
+    <div class="feat-grid">
+      <div class="feat-card card-3d">
+        <span class="feat-icon">📶</span>
+        <div class="feat-title">100% Offline</div>
+        <div class="feat-desc">O modelo de IA roda diretamente no celular, sem precisar de internet. Funciona em zonas rurais sem sinal.</div>
+      </div>
+      <div class="feat-card card-3d">
+        <span class="feat-icon">💬</span>
+        <div class="feat-title">Linguagem Simples</div>
+        <div class="feat-desc">Interface com ícones e textos curtos. Nenhum termo técnico sem explicação. Acessível para qualquer nível de escolaridade.</div>
+      </div>
+      <div class="feat-card card-3d">
+        <span class="feat-icon">🌱</span>
+        <div class="feat-title">Tratamentos Agroecológicos</div>
+        <div class="feat-desc">Receitas com ingredientes caseiros e de baixo custo. Prioridade para soluções sem agrotóxicos sintéticos.</div>
+      </div>
+      <div class="feat-card card-3d">
+        <span class="feat-icon">🔬</span>
+        <div class="feat-title">Visão Computacional</div>
+        <div class="feat-desc">Modelo treinado com imagens reais de plantações brasileiras para alta precisão no diagnóstico.</div>
+      </div>
+      <div class="feat-card card-3d">
+        <span class="feat-icon">📚</span>
+        <div class="feat-title">Base de Conhecimento Local</div>
+        <div class="feat-desc">Pragas e doenças mapeadas para as culturas mais comuns da agricultura familiar brasileira.</div>
+      </div>
+      <div class="feat-card card-3d">
+        <span class="feat-icon">📋</span>
+        <div class="feat-title">Histórico de Diagnósticos</div>
+        <div class="feat-desc">O produtor pode registrar e acompanhar o histórico de saúde de suas plantas ao longo das safras.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── IMPACTO ── -->
+<section class="impacto reveal" id="impacto">
+  <div class="container">
+    <p class="section-label">Impacto Esperado</p>
+    <h2 class="section-title">Tecnologia que transforma vidas no campo</h2>
+    <div class="impacto-grid">
+      <div class="impacto-card">
+        <div class="impacto-icon">🌾</div>
+        <div class="impacto-title">Segurança Alimentar</div>
+        <div class="impacto-desc">Menor perda de produção significa mais alimento na mesa das famílias e para as comunidades locais.</div>
+      </div>
+      <div class="impacto-card">
+        <div class="impacto-icon">💰</div>
+        <div class="impacto-title">Renda Familiar</div>
+        <div class="impacto-desc">Diagnóstico precoce reduz custos com defensivos e aumenta a produtividade sem aumentar despesas.</div>
+      </div>
+      <div class="impacto-card">
+        <div class="impacto-icon">🌍</div>
+        <div class="impacto-title">Sustentabilidade</div>
+        <div class="impacto-desc">Tratamentos agroecológicos preservam o solo, a biodiversidade e a saúde dos agricultores.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TCC INFO ── -->
+<section class="tcc-info reveal" id="tcc">
+  <div class="container">
+    <div class="tcc-box">
+      <div>
+        <span class="tcc-tag">📖 Sobre o TCC</span>
+        <p class="section-label">Projeto Acadêmico</p>
+        <h2 class="section-title" style="font-size:2rem;">O que este trabalho aborda</h2>
+        <ul class="tcc-list" id="tcc-list">
+          <li>Desenvolvimento de modelo de visão computacional para classificação de doenças em plantas</li>
+          <li>Criação de dataset com imagens de culturas da agricultura familiar brasileira</li>
+          <li>Design de interface acessível e inclusiva para usuários com baixa escolaridade digital</li>
+          <li>Implementação offline com modelo embarcado (TensorFlow Lite / ONNX)</li>
+          <li>Curadoria de tratamentos agroecológicos validados agronomicamente</li>
+          <li>Testes de usabilidade com agricultores familiares reais</li>
+        </ul>
+      </div>
+      <div>
+        <span class="tcc-tag">⚙️ Tecnologias</span>
+        <p class="section-label" style="margin-top:16px;">Stack &amp; Ferramentas</p>
+        <div class="tech-chips">
+          <span class="chip">Python</span>
+          <span class="chip">TensorFlow</span>
+          <span class="chip">React Native</span>
+          <span class="chip">TFLite</span>
+          <span class="chip">Transfer Learning</span>
+          <span class="chip">PlantVillage Dataset</span>
+          <span class="chip">EfficientNet</span>
+          <span class="chip">SQLite</span>
+          <span class="chip">Expo</span>
+          <span class="chip">UX Research</span>
+        </div>
+        <p class="section-text" style="margin-top:28px;font-size:0.9rem;">
+          O projeto combina <strong>inteligência artificial embarcada</strong>, <strong>design centrado no usuário</strong> e <strong>conhecimento agroecológico</strong> para democratizar o acesso a diagnósticos fitossanitários no Brasil.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="reveal">
+  <div class="footer-logo"><span>Agro</span>Diag</div>
+  <div class="footer-sub">Tecnologia a serviço de quem alimenta o Brasil</div>
+  <div class="footer-line"></div>
+  <div class="footer-copy">TCC · Diagnóstico de Pragas e Doenças para Agricultura Familiar · Visão Computacional &amp; Mobile</div>
+</footer>
+
+<script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. PROGRESS BAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total    = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = (scrolled / total * 100) + '%';
+}, { passive: true });
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   2. PARALLAX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const heroEl   = document.getElementById('hero');
+const pLayers  = heroEl.querySelectorAll('[data-speed]');
+window.addEventListener('scroll', () => {
+  const s = window.pageYOffset;
+  pLayers.forEach(l => {
+    l.style.transform = `translateY(${s * parseFloat(l.dataset.speed)}px)`;
+  });
+}, { passive: true });
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   3. TYPEWRITER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const phrases = [
+  'Fotografia → Diagnóstico → Tratamento',
+  'Inteligência Artificial no campo 🤖',
+  'Funciona 100% offline 📵',
+  'Agroecologia acessível a todos 🌱',
+  'Tecnologia que alimenta o Brasil 🇧🇷'
+];
+let pIdx = 0, cIdx = 0, deleting = false;
+const twEl = document.getElementById('typewriter');
+function typeWriter() {
+  const phrase = phrases[pIdx];
+  twEl.textContent = deleting
+    ? phrase.substring(0, --cIdx)
+    : phrase.substring(0, ++cIdx);
+  let speed = deleting ? 38 : 75;
+  if (!deleting && cIdx === phrase.length) { speed = 2400; deleting = true; }
+  else if (deleting && cIdx === 0)         { deleting = false; pIdx = (pIdx + 1) % phrases.length; speed = 420; }
+  setTimeout(typeWriter, speed);
+}
+typeWriter();
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   4. FLOATING PARTICLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const canvas = document.getElementById('particles-canvas');
+const ctx    = canvas.getContext('2d');
+
+function resizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+  constructor(initial) {
+    this.x  = Math.random() * canvas.width;
+    this.y  = initial ? Math.random() * canvas.height : canvas.height + 10;
+    this.sz = Math.random() * 3.5 + 1;
+    this.vy = Math.random() * 0.7 + 0.25;
+    this.vx = (Math.random() - 0.5) * 0.35;
+    this.a  = Math.random() * 0.28 + 0.04;
+    this.leaf = Math.random() > 0.55;
+  }
+  update() {
+    this.y -= this.vy; this.x += this.vx;
+    if (this.y < -10) { this.y = canvas.height + 10; this.x = Math.random() * canvas.width; }
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.a;
+    ctx.fillStyle   = this.leaf ? '#4caf5099' : '#fdf8ef55';
+    ctx.beginPath();
+    if (this.leaf) ctx.ellipse(this.x, this.y, this.sz, this.sz * 2.3, Math.PI / 4, 0, Math.PI * 2);
+    else           ctx.arc(this.x, this.y, this.sz, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+const particles = Array.from({ length: 65 }, (_, i) => new Particle(i < 40));
+(function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   5. SCROLL REVEAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.07 });
+document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   6. COUNTER ANIMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const cntObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el     = entry.target;
+    const target = parseInt(el.dataset.target);
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const step   = target / (1800 / 16);
+    let cur = 0;
+    const tick = () => {
+      cur = Math.min(cur + step, target);
+      el.textContent = prefix + Math.floor(cur) + suffix;
+      if (cur < target) requestAnimationFrame(tick);
+    };
+    tick();
+    cntObs.unobserve(el);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.count-anim').forEach(el => cntObs.observe(el));
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   7. 3D CARD HOVER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+document.querySelectorAll('.card-3d').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r  = card.getBoundingClientRect();
+    const rx = ((e.clientY - r.top)  / r.height - 0.5) *  14;
+    const ry = ((e.clientX - r.left) / r.width  - 0.5) * -14;
+    card.style.transition = 'transform 0.08s ease-out, box-shadow 0.25s';
+    card.style.transform  = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.04,1.04,1.04)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transition = 'transform 0.55s cubic-bezier(.22,1,.36,1), box-shadow 0.25s';
+    card.style.transform  = 'perspective(800px) rotateX(0) rotateY(0) scale3d(1,1,1)';
+  });
+});
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   8. STAGGERED LIST — STEPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const stpObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.querySelectorAll('.step').forEach((s, i) => {
+      setTimeout(() => s.classList.add('visible'), i * 170);
+    });
+    stpObs.unobserve(entry.target);
+  });
+}, { threshold: 0.1 });
+const stepsEl = document.getElementById('steps-list');
+if (stepsEl) stpObs.observe(stepsEl);
+
+/* STAGGERED LIST — TCC */
+const tccObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.querySelectorAll('li').forEach((li, i) => {
+      setTimeout(() => li.classList.add('visible'), i * 110);
+    });
+    tccObs.unobserve(entry.target);
+  });
+}, { threshold: 0.1 });
+const tccList = document.getElementById('tcc-list');
+if (tccList) tccObs.observe(tccList);
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   9. MAGNETIC BUTTONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+document.querySelectorAll('.magnetic').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    const x = (e.clientX - r.left - r.width  / 2) * 0.3;
+    const y = (e.clientY - r.top  - r.height / 2) * 0.3;
+    btn.style.transition = 'transform 0.1s ease-out';
+    btn.style.transform  = `translate(${x}px, ${y}px)`;
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transition = 'transform 0.45s cubic-bezier(.22,1,.36,1)';
+    btn.style.transform  = 'translate(0,0)';
+  });
+});
+</script>
 </body>
 </html>
