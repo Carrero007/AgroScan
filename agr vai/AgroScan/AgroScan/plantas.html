@@ -1,198 +1,673 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <meta charset="utf-8" />
-    <title>Plantas</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan — Plantas</title>
+    <link rel="stylesheet" href="plantas.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .page-header-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--accent), #4a7a60);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 6px 16px rgba(110,154,129,0.3);
+            flex-shrink: 0;
+        }
+
+        .page-header h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .page-header p {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 2px 0 0;
+        }
+
+        .nav-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: var(--surface);
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+            .nav-bar a {
+                padding: 9px 16px;
+                border-radius: 9px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-soft);
+                text-decoration: none;
+                transition: all 0.2s;
+                white-space: nowrap;
+            }
+
+                .nav-bar a:hover {
+                    background: rgba(127,154,79,0.1);
+                    color: var(--primary);
+                }
+
+                .nav-bar a.active {
+                    background: var(--primary);
+                    color: white;
+                }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            color: var(--text-soft);
+        }
+
+            .tab:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+            }
+
+            .tab.active {
+                background: var(--primary);
+                border-color: var(--primary);
+                color: white;
+            }
+
+        .tab-content {
+            display: none;
+        }
+
+            .tab-content.active {
+                display: block;
+                animation: fadeUp 0.3s ease;
+            }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            padding: 9px 14px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            font-family: inherit;
+            transition: 0.2s;
+            min-width: 220px;
+            background: var(--surface);
+            color: var(--text);
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(127,154,79,0.15);
+            }
+
+        /* Cards de planta (grid view) */
+        .plantas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .planta-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+            .planta-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 28px rgba(31,0,13,0.1);
+                border-color: var(--primary-soft);
+            }
+
+        .planta-card-head {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .planta-card-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(127,154,79,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .planta-card-nome {
+            font-weight: 700;
+            font-size: 15px;
+            line-height: 1.3;
+        }
+
+        .planta-card-sci {
+            font-size: 12px;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 2px;
+        }
+
+        .planta-card-info {
+            font-size: 13px;
+            color: var(--text-soft);
+            line-height: 1.7;
+        }
+
+            .planta-card-info span {
+                display: inline-block;
+                margin-right: 10px;
+            }
+
+        .planta-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 10px;
+        }
+
+        .tag-sm {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .tag-med {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .tag-com {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .tag-tox {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Detail drawer */
+        .detail-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 100;
+        }
+
+            .detail-overlay.open {
+                display: block;
+            }
+
+        .detail-drawer {
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;
+            background: var(--surface);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+            overflow-y: auto;
+            padding: 28px 24px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 101;
+        }
+
+        .detail-overlay.open .detail-drawer {
+            transform: translateX(0);
+        }
+
+        .drawer-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--border);
+            border: none;
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .drawer-nome {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .drawer-sci {
+            font-size: 14px;
+            color: var(--muted);
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .info-chip {
+            background: rgba(127,154,79,0.07);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 13px;
+        }
+
+            .info-chip .lbl {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: var(--muted);
+                display: block;
+            }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 16px 0 8px;
+        }
+
+            .section-title::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+
+        .text-block {
+            background: rgba(127,154,79,0.04);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 10px 10px 0;
+            padding: 10px 14px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text-soft);
+        }
+
+        /* Diagnósticos */
+        .diag-item {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .diag-item-info {
+            flex: 1;
+        }
+
+        .diag-item-nome {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .diag-item-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .badge-risk {
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .risk-alto {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .risk-medio {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .risk-baixo {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        /* Empty */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--muted);
+        }
+
+            .empty-state .es-icon {
+                font-size: 56px;
+                margin-bottom: 12px;
+                display: block;
+            }
+
+            .empty-state p {
+                font-size: 15px;
+            }
+
+        @media (max-width: 600px) {
+            .plantas-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-drawer {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="topnav" id="myTopnav">
-        <a href="dashboard.html">Página Inicial</a>
-        <a href="employee.html">Funcionário</a>
-        <a href="sobre.html">Sobre Nós</a>
-        <a href="logout.html">Sair</a>
-        <a href="javascript:void(0);" class="icon" onclick="menu()">
-            <i class="fa fa-bars"></i>
-        </a>
+    <div class="container">
+
+        <nav class="nav-bar">
+            <a href="identificar-planta.html">🔍 Identificar</a>
+            <a href="diagnosticar-planta.html">🩺 Diagnosticar</a>
+            <a href="plantacoes.html">🌱 Plantações</a>
+            <a href="plantas.html" class="active">📋 Plantas</a>
+        </nav>
+
+        <div class="page-header">
+            <div class="page-header-icon">📋</div>
+            <div>
+                <h1>Plantas & Diagnósticos</h1>
+                <p>Consulte o catálogo de plantas e histórico de diagnósticos</p>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('plantas', this)">🌿 Catálogo de Plantas</div>
+            <div class="tab" onclick="switchTab('diagnosticos', this)">🩺 Histórico de Diagnósticos</div>
+        </div>
+
+        <!-- TAB: PLANTAS -->
+        <div id="tab-plantas" class="tab-content active">
+            <div class="toolbar">
+                <span id="contador-plantas" style="font-size:14px;color:var(--muted);font-weight:600;"></span>
+                <input class="search-input" id="searchPlantas" placeholder="🔍 Buscar por nome..." oninput="filtrarPlantas()">
+            </div>
+            <div class="plantas-grid" id="plantasGrid"></div>
+            <div class="empty-state" id="emptyPlantas" style="display:none">
+                <span class="es-icon">🌱</span>
+                <p>Nenhuma planta encontrada.</p>
+                <p style="font-size:13px;margin-top:8px;">Use a página <a href="identificar-planta.html" style="color:var(--primary);font-weight:600;">Identificar</a> para adicionar.</p>
+            </div>
+        </div>
+
+        <!-- TAB: DIAGNÓSTICOS -->
+        <div id="tab-diagnosticos" class="tab-content">
+            <div class="toolbar">
+                <span id="contador-diags" style="font-size:14px;color:var(--muted);font-weight:600;"></span>
+                <input class="search-input" id="searchDiags" placeholder="🔍 Buscar diagnóstico..." oninput="filtrarDiags()">
+            </div>
+            <div id="diagsLista"></div>
+            <div class="empty-state" id="emptyDiags" style="display:none">
+                <span class="es-icon">🩺</span>
+                <p>Nenhum diagnóstico salvo ainda.</p>
+                <p style="font-size:13px;margin-top:8px;">Use a página <a href="diagnosticar-planta.html" style="color:var(--primary);font-weight:600;">Diagnosticar</a> para analisar plantas.</p>
+            </div>
+        </div>
+
     </div>
-    <div class="geral">
-        <h2>Funcionários</h2>
 
-        <table id="employeesTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Posição</th>
-                    <th>Salário</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+    <!-- Detail Drawer -->
+    <div class="detail-overlay" id="detailOverlay" onclick="fecharDrawer()">
+        <div class="detail-drawer" onclick="event.stopPropagation()">
+            <button class="drawer-close" onclick="fecharDrawer()">✕</button>
+            <div class="drawer-nome" id="dr-nome">—</div>
+            <div class="drawer-sci" id="dr-sci">—</div>
 
-        <h2>Adicionar Funcionário</h2>
-        <form id="addEmployeeForm">
-            <label for="name">Nome:</label>
-            <input type="text" id="name" required>
+            <div class="info-row" id="dr-chips"></div>
 
-            <label for="position">Posição:</label>
-            <input type="text" id="position" required>
+            <div class="section-title" id="dr-tags-section" style="display:none">🏷️ Atributos</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="dr-tags"></div>
 
-            <label for="salary">Salário:</label>
-            <input type="number" id="salary" step="0.01" required>
+            <div class="section-title">📝 Descrição</div>
+            <div class="text-block" id="dr-descricao">—</div>
 
-            <button type="submit">Adicionar</button>
-        </form>
-        <h2>Atualizar Funcionário</h2>
-        <form id="updateEmployeeForm">
-            <label for="updateId">ID do Funcionário:</label>
-            <input type="number" id="updateId" required>
-
-            <label for="updateName">Nome:</label>
-            <input type="text" id="updateName" required>
-
-            <label for="updatePosition">Posição:</label>
-            <input type="text" id="updatePosition" required>
-
-            <label for="updateSalary">Salário:</label>
-            <input type="number" id="updateSalary" step="0.01" required>
-
-            <button type="submit">Atualizar</button>
-        </form>
-
-        <h2>Excluir Funcionário</h2>
-        <form id="deleteEmployeeForm">
-            <label for="deleteId">ID do Funcionário:</label>
-            <input type="number" id="deleteId" required>
-
-            <button type="submit">Excluir</button>
-        </form>
+            <div id="dr-usos-section">
+                <div class="section-title">🌾 Usos</div>
+                <div class="text-block" id="dr-usos">—</div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        let todasPlantas = [], todosDiags = [];
+
+        function switchTab(name, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            el.classList.add('active');
+        }
+
+        // ── Plantas ──
+        async function carregarPlantas() {
+            try {
+                const res = await fetch('/Plantas');
+                if (!res.ok) throw new Error();
+                todasPlantas = await res.json();
+                renderPlantas(todasPlantas);
+            } catch { document.getElementById('emptyPlantas').style.display = 'block'; }
+        }
+
+        function filtrarPlantas() {
+            const q = document.getElementById('searchPlantas').value.toLowerCase();
+            renderPlantas(todasPlantas.filter(p =>
+                (p.nomePopular || '').toLowerCase().includes(q) ||
+                (p.nomeCientifico || '').toLowerCase().includes(q) ||
+                (p.tipoPlanta || '').toLowerCase().includes(q)
+            ));
+        }
+
+        function renderPlantas(lista) {
+            const grid = document.getElementById('plantasGrid');
+            const empty = document.getElementById('emptyPlantas');
+            document.getElementById('contador-plantas').textContent = lista.length + ' planta(s)';
+
+            if (!lista.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+
+            grid.innerHTML = lista.map(p => `
+                <div class="planta-card" onclick="abrirDrawer(${p.plantaId})">
+                    <div class="planta-card-head">
+                        <div class="planta-card-icon">
+                            ${p.ehToxica ? '⚠️' : p.ehComestivel ? '🍃' : p.ehMedicinal ? '🌿' : '🌱'}
+                        </div>
+                        <div>
+                            <div class="planta-card-nome">${esc(p.nomePopular || p.nomeCientifico)}</div>
+                            <div class="planta-card-sci">${esc(p.nomeCientifico)}</div>
+                        </div>
+                    </div>
+                    <div class="planta-card-info">
+                        ${p.tipoPlanta ? `<span>📌 ${esc(p.tipoPlanta)}</span>` : ''}
+                        ${p.clima ? `<span>🌤 ${esc(p.clima)}</span>` : ''}
+                        ${p.rega ? `<span>💧 ${esc(p.rega)}</span>` : ''}
+                    </div>
+                    <div class="planta-card-tags">
+                        ${p.ehMedicinal ? '<span class="tag-sm tag-med">Medicinal</span>' : ''}
+                        ${p.ehComestivel ? '<span class="tag-sm tag-com">Comestível</span>' : ''}
+                        ${p.ehToxica ? '<span class="tag-sm tag-tox">Tóxica</span>' : ''}
+                    </div>
+                </div>`).join('');
+        }
+
+        function abrirDrawer(id) {
+            const p = todasPlantas.find(x => x.plantaId === id);
+            if (!p) return;
+
+            document.getElementById('dr-nome').textContent = p.nomePopular || p.nomeCientifico;
+            document.getElementById('dr-sci').textContent = p.nomeCientifico || '';
+            document.getElementById('dr-descricao').textContent = p.descricao || '—';
+            document.getElementById('dr-usos').textContent = p.usos || '—';
+
+            document.getElementById('dr-usos-section').style.display = p.usos ? '' : 'none';
+
+            const chips = [
+                p.tipoPlanta ? ['Tipo', p.tipoPlanta] : null,
+                p.cicloVida ? ['Ciclo', p.cicloVida] : null,
+                p.clima ? ['Clima', p.clima] : null,
+                p.luminosidade ? ['Luz', p.luminosidade] : null,
+                p.rega ? ['Rega', p.rega] : null,
+                p.tipoSolo ? ['Solo', p.tipoSolo] : null,
+                p.familia ? ['Família', p.familia] : null,
+                p.origem ? ['Origem', p.origem] : null,
+            ].filter(Boolean);
+
+            document.getElementById('dr-chips').innerHTML = chips.map(([l, v]) =>
+                `<div class="info-chip"><span class="lbl">${l}</span>${esc(v)}</div>`
+            ).join('');
+
+            const tagsEl = document.getElementById('dr-tags');
+            const tagsSection = document.getElementById('dr-tags-section');
+            tagsEl.innerHTML = [
+                p.ehMedicinal ? '<span class="tag-sm tag-med">🌿 Medicinal</span>' : '',
+                p.ehComestivel ? '<span class="tag-sm tag-com">🍽️ Comestível</span>' : '',
+                p.ehToxica ? '<span class="tag-sm tag-tox">⚠️ Tóxica</span>' : ''
+            ].join('');
+            tagsSection.style.display = (p.ehMedicinal || p.ehComestivel || p.ehToxica) ? '' : 'none';
+
+            document.getElementById('detailOverlay').classList.add('open');
+        }
+
+        function fecharDrawer() { document.getElementById('detailOverlay').classList.remove('open'); }
+
+        // ── Diagnósticos ──
+        async function carregarDiags() {
+            try {
+                const res = await fetch('/Groq/diagnosticos');
+                if (!res.ok) throw new Error();
+                todosDiags = await res.json();
+                renderDiags(todosDiags);
+            } catch { document.getElementById('emptyDiags').style.display = 'block'; }
+        }
+
+        function filtrarDiags() {
+            const q = document.getElementById('searchDiags').value.toLowerCase();
+            renderDiags(todosDiags.filter(d =>
+                (d.nomeDoenca || '').toLowerCase().includes(q) ||
+                (d.nomeCientifico || '').toLowerCase().includes(q)
+            ));
+        }
+
+        function renderDiags(lista) {
+            const el = document.getElementById('diagsLista');
+            const empty = document.getElementById('emptyDiags');
+            document.getElementById('contador-diags').textContent = lista.length + ' diagnóstico(s)';
+
+            if (!lista.length) { el.innerHTML = ''; empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+
+            el.innerHTML = lista.map(d => {
+                const risco = (d.riscoPropagacao || '').toLowerCase();
+                const cor = risco === 'alto' ? 'risk-alto' : risco === 'medio' ? 'risk-medio' : 'risk-baixo';
+                const data = new Date(d.dataDiagnostico).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                return `
+                <div class="diag-item">
+                    <div class="diag-item-info">
+                        <div class="diag-item-nome">${esc(d.nomeDoenca || '—')}</div>
+                        <div class="diag-item-meta">
+                            ${d.nomeCientifico ? `<em>${esc(d.nomeCientifico)}</em> · ` : ''}
+                            Confiança: ${d.confianca}% · ${data}
+                        </div>
+                    </div>
+                    <span class="badge-risk ${cor}">${risco.charAt(0).toUpperCase() + risco.slice(1) || '?'}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        carregarPlantas();
+        carregarDiags();
+    </script>
 </body>
 </html>
-
-<script>
-    function getEmployees() {
-        fetch('https://localhost:7238/employee')
-            .then(response => response.json())
-            .then(data => {
-                const employeesTable = document.getElementById('employeesTable');
-                const tbody = employeesTable.querySelector('tbody');
-                tbody.innerHTML = '';
-
-                data.forEach(employee => {
-                    const row = document.createElement('tr');
-
-                    const idCell = document.createElement('td');
-                    idCell.textContent = employee.id;
-                    row.appendChild(idCell);
-
-                    const nameCell = document.createElement('td');
-                    nameCell.textContent = employee.name;
-                    row.appendChild(nameCell);
-
-                    const positionCell = document.createElement('td');
-                    positionCell.textContent = employee.position;
-                    row.appendChild(positionCell);
-
-                    const salaryCell = document.createElement('td');
-                    salaryCell.textContent = employee.salary;
-                    row.appendChild(salaryCell);
-                    const actionsCell = document.createElement('td');
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Excluir';
-                    deleteButton.addEventListener('click', () => deleteEmployee(employee.id));
-                    actionsCell.appendChild(deleteButton);
-                    row.appendChild(actionsCell);
-
-                    tbody.appendChild(row);
-                });
-            });
-    }
-
-    function addEmployee(event) {
-        event.preventDefault();
-
-        const name = document.getElementById('name').value;
-        const position = document.getElementById('position').value;
-        const salary = parseFloat(document.getElementById('salary').value);
-
-        const employee = {
-            Name: name,
-            Position: position,
-            Salary: salary
-        };
-
-        fetch('https://localhost:7238/Employee', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(employee)
-        })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById('name').value = '';
-                    document.getElementById('position').value = '';
-                    document.getElementById('salary').value = '';
-                    getEmployees();
-                }
-            });
-    }
-
-    function updateEmployee(event) {
-        event.preventDefault();
-
-        const id = parseInt(document.getElementById('updateId').value);
-        const name = document.getElementById('updateName').value;
-        const position = document.getElementById('updatePosition').value;
-        const salary = parseFloat(document.getElementById('updateSalary').value);
-
-        const employee = {
-            Name: name,
-            Position: position,
-            Salary: salary
-        };
-
-        fetch(`https://localhost:7238/employee/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(employee)
-        })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById('updateId').value = '';
-                    document.getElementById('updateName').value = '';
-                    document.getElementById('updatePosition').value = '';
-                    document.getElementById('updateSalary').value = '';
-                    getEmployees();
-                }
-            });
-    }
-
-    function deleteEmployee(id) {
-        fetch(`https://localhost:7238/employee/${id}`, {
-            method: 'DELETE'
-        })
-            .then(response => {
-                if (response.ok) {
-                    getEmployees();
-                }
-            });
-    }
-    document.getElementById('addEmployeeForm').addEventListener('submit', addEmployee);
-    document.getElementById('updateEmployeeForm').addEventListener('submit', updateEmployee);
-    document.getElementById('deleteEmployeeForm').addEventListener('submit', event => {
-        event.preventDefault();
-        const id = parseInt(document.getElementById('deleteId').value);
-        deleteEmployee(id);
-    });
-
-    getEmployees();
-</script>
-
-<script src="app.js"></script>
