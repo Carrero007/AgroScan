@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Cadastro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="auth.css" />
+</head>
+<body class="page-cadastro">
+
+    <div id="app">
+
+        <!-- ═══════════════════════════════════════
+             CÍRCULO — fica à ESQUERDA no cadastro
+        ═══════════════════════════════════════ -->
+        <div id="circle-panel">
+            <div class="circle-ring"></div>
+            <div id="circle-content">
+                <span class="circle-eyebrow">Novo por aqui?</span>
+                <h2 class="circle-headline">Comece sua<br><em>jornada</em></h2>
+                <p class="circle-desc">Crie sua conta gratuitamente e tenha acesso a ferramentas de gestão agrícola pensadas para o produtor rural.</p>
+                <div class="circle-pills">
+                    <span class="circle-pill">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2l1.6 3.3L13 6l-2.5 2.4.6 3.6L8 10.3l-3.1 1.7.6-3.6L3 6l3.4-.7z" /></svg>
+                        Gratuito
+                    </span>
+                    <span class="circle-pill">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 8A5 5 0 1 1 3 8" /><path d="M8 3v5l3 2" /></svg>
+                        Cadastro rápido
+                    </span>
+                    <span class="circle-pill">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2l5 2v5c0 3-5 5-5 5S3 12 3 9V4z" /></svg>
+                        Seguro
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════
+             FORMULÁRIO — fica à DIREITA no cadastro
+        ═══════════════════════════════════════ -->
+        <div class="form-panel" id="formPanel">
+            <div class="form-wrap">
+
+                <div class="brand">
+                    <div class="brand-mark">🌿</div>
+                    <span class="brand-name">Agro<strong>Scan</strong></span>
+                </div>
+
+                <h1 class="form-title">Criar conta</h1>
+                <p class="form-sub">Preencha os dados para começar</p>
+
+                <div class="field">
+                    <label>Nome completo</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="5" r="3" /><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" /></svg>
+                        <input type="text" id="nome" placeholder="Seu nome completo" />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>CPF</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6h12" /></svg>
+                        <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Senha</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
+                        <input type="password" id="senha" placeholder="Mínimo 4 caracteres" />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>
+                        WhatsApp
+                        <span class="optional">(opcional)</span>
+                    </label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1.5A6.5 6.5 0 1 1 3.1 12L1 15l3.2-1.8A6.5 6.5 0 0 1 8 1.5z" /></svg>
+                        <input type="text" id="whatsapp" placeholder="(00) 00000-0000" maxlength="15" />
+                    </div>
+                </div>
+
+                <button class="btn-geo" id="btnGeo" onclick="pegarLocalizacao()">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="3" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" /></svg>
+                    Capturar localização
+                </button>
+                <p id="status"></p>
+
+                <button class="btn-main" onclick="cadastrar()">
+                    Criar conta
+                    <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+                </button>
+
+                <p class="switch-link">
+                    Já tem conta? <a href="login.html" id="linkLogin">Entrar</a>
+                </p>
+
+            </div>
+        </div>
+
+    </div><!-- /#app -->
+
+    <script>
+        /* ── Máscaras ── */
+        document.getElementById('cpf').addEventListener('input', function () {
+            let v = this.value.replace(/\D/g, '').slice(0, 11);
+            if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+            else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,3})/, '$1.$2');
+            this.value = v;
+        });
+
+        document.getElementById('whatsapp').addEventListener('input', function () {
+            let v = this.value.replace(/\D/g, '').slice(0, 11);
+            if (v.length > 6) v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+            else if (v.length > 2) v = v.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+            this.value = v;
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const from = sessionStorage.getItem('agro-from');
+            sessionStorage.removeItem('agro-from');
+            const form = document.getElementById('formPanel');
+
+            if (from === 'login') {
+                form.classList.add('form-enter-right');
+            } else {
+                form.classList.add('form-enter-left');
+            }
+
+            document.getElementById('circle-content').classList.add('circle-content-reveal');
+        });
+
+        document.getElementById('linkLogin').addEventListener('click', function (e) {
+            e.preventDefault();
+            sessionStorage.setItem('agro-from', 'cadastro');
+            const form = document.getElementById('formPanel');
+            form.classList.add('form-exit-right');
+            setTimeout(() => { window.location.href = 'login.html'; }, 420);
+        });
+
+        /* ── Geolocalização ── */
+        let latitude = null, longitude = null;
+
+        function pegarLocalizacao() {
+            if (!navigator.geolocation) { alert('Geolocalização não suportada.'); return; }
+            const btn = document.getElementById('btnGeo');
+            btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/></svg> Aguardando...`;
+            btn.disabled = true;
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    latitude = pos.coords.latitude;
+                    longitude = pos.coords.longitude;
+                    document.getElementById('status').textContent = '📍 ' + latitude.toFixed(4) + ', ' + longitude.toFixed(4);
+                    btn.innerHTML = `✓ Localização capturada`;
+                    btn.classList.add('captured');
+                    btn.disabled = false;
+                },
+                () => {
+                    btn.innerHTML = `📍 Capturar localização`;
+                    btn.disabled = false;
+                    alert('Não foi possível obter a localização.');
+                }
+            );
+        }
+
+        /* ── Cadastro API ── */
+        function cadastrar() {
+            const nome = document.getElementById('nome').value.trim();
+            const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+            const senha = document.getElementById('senha').value;
+            const whats = document.getElementById('whatsapp').value.replace(/\D/g, '') || null;
+            if (nome.length < 3) { alert('Nome deve ter ao menos 3 caracteres.'); return; }
+            if (cpf.length !== 11) { alert('CPF deve ter 11 dígitos.'); return; }
+            if (senha.length < 4) { alert('Senha deve ter ao menos 4 caracteres.'); return; }
+            fetch('https://localhost:7238/api/login/cadastrar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Nome: nome, CPF: cpf, Senha: senha, Whatsapp: whats, Latitude: latitude, Longitude: longitude })
+            })
+                .then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t); }); return r.json(); })
+                .then(() => { alert('Cadastro realizado!'); window.location.href = 'login.html'; })
+                .catch(err => alert('Erro: ' + err.message));
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') cadastrar(); });
+    </script>
+</body>
+</html>

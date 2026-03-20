@@ -1,0 +1,1432 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <style>
+            /* ═══════════════════════════════════════
+           TOKENS
+        ═══════════════════════════════════════ */
+            :root {
+                /* Paleta base */
+                --c1: #c0b698;
+                --c2: #647e37;
+                --c3: #300013; /* vinho — uso pontual apenas */
+                --c4: #6e9a81;
+                --c5: #d2c8a7;
+                --c6: #d8cfb4;
+                --c7: #a89f82;
+                --c8: #4f652c;
+                --c9: #7f9a4f;
+                --c10: #1f000d; /* vinho quase preto — NÃO usado como bg */
+                --c11: #4a1a2a;
+                --c12: #88b29b;
+                --c13: #567c67;
+                --c14: #e6ddc3;
+                --c15: #b5ab8c;
+                --c16: #5b6f4a;
+                --c17: #7a8f6d;
+                --c18: #3e2a33;
+                --c19: #9c9475;
+                --c20: #2f3e2a;
+                /* ── BACKGROUNDS — pretos neutros ── */
+                --bg: #080808;
+                --bg2: #0f0f0f;
+                --bg3: #141414;
+                --surface: #181818;
+                --surface2: #1e1e1e;
+                --surface3: #222222;
+                /* ── BORDAS ── */
+                --border: #252525;
+                --border2: #2e2e2e;
+                --border3: #333333;
+                /* ── ACENTO PRINCIPAL: verdes da paleta ── */
+                --accent: var(--c2); /* verde campo */
+                --accent2: var(--c9); /* verde limão */
+                --accent3: var(--c4); /* verde salva */
+                /* ── TEXTOS: tons bege/areia da paleta ── */
+                --text: var(--c6); /* bege claro */
+                --text2: var(--c15); /* bege médio */
+                --text3: var(--c19); /* terroso apagado */
+                --text-inv: #080808;
+                /* ── SEMÂNTICOS ── */
+                --warm: var(--c1); /* bege dourado — destaques warm */
+                --warm2: var(--c5); /* areia — títulos */
+                /* ── VINHO: apenas alertas críticos ── */
+                --wine-badge-bg: #30001320;
+                --wine-badge-border: #30001350;
+                --wine-badge-text: #c06080;
+                /* ── OUTROS STATUS ── */
+                --amber: #c9983a;
+                --red: #b84040;
+                --sidebar-w: 244px;
+                --nav-h: 60px;
+                --r: 13px;
+                --r-sm: 8px;
+            }
+
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: 'DM Sans', sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                min-height: 100vh;
+            }
+
+            /* ═══════════════════════════════════════
+           TOPNAV
+        ═══════════════════════════════════════ */
+            .topnav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 200;
+                height: var(--nav-h);
+                background: var(--bg2);
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+            }
+
+            .nav-brand-area {
+                width: var(--sidebar-w);
+                display: flex;
+                align-items: center;
+                padding: 0 18px;
+                border-right: 1px solid var(--border);
+                height: 100%;
+                flex-shrink: 0;
+                gap: 10px;
+            }
+
+            .hamburger {
+                display: none;
+                background: none;
+                border: none;
+                color: var(--text3);
+                font-size: 19px;
+                cursor: pointer;
+                padding: 5px 7px;
+                border-radius: 6px;
+                transition: background .15s, color .15s;
+                flex-shrink: 0;
+            }
+
+                .hamburger:hover {
+                    background: var(--surface2);
+                    color: var(--text);
+                }
+
+            .nav-logo-wrap {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                text-decoration: none;
+            }
+
+            .nav-logo {
+                width: 30px;
+                height: 30px;
+                border-radius: 7px;
+                background: linear-gradient(135deg, var(--accent), var(--accent3));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 15px;
+            }
+
+            .nav-brand {
+                font-family: 'Playfair Display', serif;
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--warm2);
+                letter-spacing: -.2px;
+            }
+
+                .nav-brand em {
+                    color: var(--accent2);
+                    font-style: normal;
+                }
+
+            .nav-right {
+                margin-left: auto;
+                padding-right: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .nav-notif {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                cursor: pointer;
+                position: relative;
+                transition: background .15s;
+            }
+
+                .nav-notif:hover {
+                    background: var(--surface2);
+                }
+
+            .notif-dot {
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--accent2);
+                border: 2px solid var(--bg2);
+            }
+
+            .nav-user {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 40px;
+                padding: 5px 12px 5px 5px;
+                cursor: pointer;
+                transition: background .15s;
+            }
+
+                .nav-user:hover {
+                    background: var(--surface2);
+                }
+
+            .nav-avatar {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--c8), var(--c4));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 11px;
+                font-weight: 700;
+                color: var(--text-inv);
+            }
+
+            .nav-user-name {
+                font-size: 13px;
+                font-weight: 500;
+                color: var(--text2);
+            }
+
+            /* ═══════════════════════════════════════
+           SIDEBAR
+        ═══════════════════════════════════════ */
+            .sidebar {
+                position: fixed;
+                top: var(--nav-h);
+                left: 0;
+                bottom: 0;
+                width: var(--sidebar-w);
+                background: var(--bg2);
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                padding: 18px 10px 18px;
+                overflow-y: auto;
+                z-index: 150;
+                transition: transform .26s cubic-bezier(.4,0,.2,1);
+            }
+
+            .sidebar-label {
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 1.8px;
+                text-transform: uppercase;
+                color: var(--text3);
+                padding: 0 10px;
+                margin: 18px 0 5px;
+                display: block;
+            }
+
+                .sidebar-label:first-child {
+                    margin-top: 0;
+                }
+
+            .slink {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                padding: 9px 11px;
+                border-radius: var(--r-sm);
+                color: var(--text3);
+                font-size: 13px;
+                font-weight: 500;
+                text-decoration: none;
+                cursor: pointer;
+                transition: all .14s;
+                border: 1px solid transparent;
+            }
+
+                .slink:hover {
+                    background: var(--surface2);
+                    color: var(--text2);
+                }
+
+                .slink.active {
+                    background: var(--surface2);
+                    border-color: var(--border3);
+                    color: var(--accent2);
+                }
+
+            .slink-icon {
+                width: 17px;
+                text-align: center;
+                font-size: 14px;
+                flex-shrink: 0;
+            }
+
+            .slink-badge {
+                margin-left: auto;
+                font-size: 10px;
+                font-weight: 700;
+                border-radius: 99px;
+                padding: 1px 7px;
+            }
+                /* vinho apenas no badge de alertas críticos */
+                .slink-badge.wine {
+                    background: var(--wine-badge-bg);
+                    border: 1px solid var(--wine-badge-border);
+                    color: var(--wine-badge-text);
+                }
+
+                .slink-badge.green {
+                    background: #647e3718;
+                    border: 1px solid #647e3728;
+                    color: var(--accent2);
+                }
+
+            .sidebar-bottom {
+                margin-top: auto;
+                padding-top: 14px;
+                border-top: 1px solid var(--border);
+            }
+
+            /* ═══════════════════════════════════════
+           BACKDROP
+        ═══════════════════════════════════════ */
+            .backdrop {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: #00000080;
+                z-index: 140;
+            }
+
+                .backdrop.show {
+                    display: block;
+                }
+
+            /* ═══════════════════════════════════════
+           LAYOUT
+        ═══════════════════════════════════════ */
+            .main {
+                margin-left: var(--sidebar-w);
+                padding-top: var(--nav-h);
+                min-height: 100vh;
+            }
+
+            .page {
+                max-width: 1060px;
+                margin: 0 auto;
+                padding: 32px 26px 64px;
+            }
+
+            /* ═══════════════════════════════════════
+           PAGE HEADER
+        ═══════════════════════════════════════ */
+            .page-eyebrow {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                color: var(--accent2);
+                margin-bottom: 7px;
+            }
+
+            .page-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 30px;
+                font-weight: 800;
+                color: var(--warm2);
+                letter-spacing: -.3px;
+                margin-bottom: 5px;
+                line-height: 1.2;
+            }
+
+            .page-sub {
+                font-size: 13.5px;
+                color: var(--text3);
+                line-height: 1.6;
+                margin-bottom: 30px;
+            }
+
+            /* ═══════════════════════════════════════
+           DIVIDER
+        ═══════════════════════════════════════ */
+            .divider {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin: 26px 0 16px;
+            }
+
+                .divider span {
+                    font-size: 9.5px;
+                    font-weight: 700;
+                    letter-spacing: 1.6px;
+                    text-transform: uppercase;
+                    color: var(--text3);
+                    flex-shrink: 0;
+                }
+
+                .divider::after {
+                    content: '';
+                    flex: 1;
+                    height: 1px;
+                    background: var(--border);
+                }
+
+            /* ═══════════════════════════════════════
+           STATS
+        ═══════════════════════════════════════ */
+            .stats {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 11px;
+                margin-bottom: 26px;
+            }
+
+            .stat {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--r);
+                padding: 16px 18px;
+                position: relative;
+                overflow: hidden;
+                animation: fadeUp .35s ease both;
+                transition: transform .17s, border-color .17s;
+            }
+
+                .stat:hover {
+                    transform: translateY(-2px);
+                    border-color: var(--border3);
+                }
+
+                .stat::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 2px;
+                }
+                /* listras coloridas — só nos stats, uso sutil */
+                .stat.sg::before {
+                    background: linear-gradient(90deg, var(--c8), var(--c9));
+                }
+
+                .stat.sw::before {
+                    background: linear-gradient(90deg, var(--c7), var(--c1));
+                }
+
+                .stat.ss::before {
+                    background: linear-gradient(90deg, var(--c13), var(--c4));
+                }
+                /* vinho APENAS no stat de alerta crítico */
+                .stat.sv::before {
+                    background: linear-gradient(90deg, var(--c11), var(--c3));
+                }
+
+                .stat:nth-child(1) {
+                    animation-delay: .04s
+                }
+
+                .stat:nth-child(2) {
+                    animation-delay: .08s
+                }
+
+                .stat:nth-child(3) {
+                    animation-delay: .12s
+                }
+
+                .stat:nth-child(4) {
+                    animation-delay: .16s
+                }
+
+            .stat-icon {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+
+            .stat-num {
+                font-family: 'Playfair Display', serif;
+                font-size: 34px;
+                font-weight: 800;
+                letter-spacing: -1px;
+                line-height: 1;
+            }
+
+            .stat.sg .stat-num {
+                color: var(--c9);
+            }
+
+            .stat.sw .stat-num {
+                color: var(--c1);
+            }
+
+            .stat.ss .stat-num {
+                color: var(--c12);
+            }
+            /* vinho no número de doenças detectadas */
+            .stat.sv .stat-num {
+                color: var(--wine-badge-text);
+            }
+
+            .stat-label {
+                font-size: 11.5px;
+                color: var(--text3);
+                margin-top: 5px;
+            }
+
+            .stat-trend {
+                font-size: 10.5px;
+                margin-top: 7px;
+                color: var(--text3);
+            }
+
+                .stat-trend.up {
+                    color: var(--c9);
+                }
+
+                .stat-trend.down {
+                    color: var(--amber);
+                }
+
+            /* ═══════════════════════════════════════
+           NAV CARDS
+        ═══════════════════════════════════════ */
+            .nav-cards {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                margin-bottom: 26px;
+            }
+
+            .nav-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--r);
+                padding: 20px 18px 50px;
+                text-decoration: none;
+                display: block;
+                position: relative;
+                overflow: hidden;
+                transition: transform .18s, border-color .18s, box-shadow .18s;
+                animation: fadeUp .35s ease both;
+            }
+
+                .nav-card:nth-child(1) {
+                    animation-delay: .06s
+                }
+
+                .nav-card:nth-child(2) {
+                    animation-delay: .1s
+                }
+
+                .nav-card:nth-child(3) {
+                    animation-delay: .14s
+                }
+
+                .nav-card::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 2px;
+                }
+
+            .nc-g::after {
+                background: linear-gradient(90deg, var(--c8), var(--c9));
+            }
+
+            .nc-s::after {
+                background: linear-gradient(90deg, var(--c13), var(--c4));
+            }
+
+            .nc-w::after {
+                background: linear-gradient(90deg, var(--c7), var(--c1));
+            }
+
+            .nav-card:hover {
+                transform: translateY(-3px);
+            }
+
+            .nc-g:hover {
+                border-color: #7f9a4f40;
+                box-shadow: 0 8px 28px #7f9a4f14;
+            }
+
+            .nc-s:hover {
+                border-color: #6e9a8140;
+                box-shadow: 0 8px 28px #6e9a8114;
+            }
+
+            .nc-w:hover {
+                border-color: #c0b69840;
+                box-shadow: 0 8px 28px #c0b69814;
+            }
+
+            .nav-card-emoji {
+                font-size: 28px;
+                margin-bottom: 11px;
+                display: block;
+            }
+
+            .nav-card-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--warm2);
+                margin-bottom: 6px;
+            }
+
+            .nav-card-desc {
+                font-size: 12px;
+                color: var(--text3);
+                line-height: 1.55;
+            }
+
+            .nav-card-footer {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 10px 18px;
+                border-top: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 11px;
+                font-weight: 600;
+                transition: all .17s;
+            }
+
+            .nc-g .nav-card-footer {
+                color: var(--c9);
+            }
+
+            .nc-s .nav-card-footer {
+                color: var(--c12);
+            }
+
+            .nc-w .nav-card-footer {
+                color: var(--c1);
+            }
+
+            .nav-arrow {
+                transition: transform .17s;
+            }
+
+            .nav-card:hover .nav-arrow {
+                transform: translateX(4px);
+            }
+
+            /* ═══════════════════════════════════════
+           MAIN GRID
+        ═══════════════════════════════════════ */
+            .main-grid {
+                display: grid;
+                grid-template-columns: 1fr 300px;
+                gap: 14px;
+                align-items: start;
+            }
+
+            /* ═══════════════════════════════════════
+           CARD
+        ═══════════════════════════════════════ */
+            .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--r);
+                padding: 20px;
+            }
+
+            .card-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--warm2);
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                margin-bottom: 15px;
+            }
+
+            .cicon {
+                width: 27px;
+                height: 27px;
+                border-radius: 7px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                flex-shrink: 0;
+            }
+
+            .cicon-g {
+                background: #647e3716;
+            }
+
+            .cicon-s {
+                background: #6e9a8116;
+            }
+
+            .cicon-w {
+                background: #c0b69816;
+            }
+
+            .cicon-a {
+                background: #c9983a16;
+            }
+
+            /* ═══════════════════════════════════════
+           RECENT
+        ═══════════════════════════════════════ */
+            .recent-list {
+                list-style: none;
+            }
+
+            .recent-item {
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                padding: 10px 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+                .recent-item:last-child {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+
+            .recent-thumb {
+                width: 36px;
+                height: 36px;
+                border-radius: 9px;
+                background: var(--bg3);
+                border: 1px solid var(--border2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 17px;
+                flex-shrink: 0;
+            }
+
+            .recent-body {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .recent-name {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .recent-meta {
+                font-size: 11px;
+                color: var(--text3);
+                margin-top: 2px;
+            }
+
+            .badge {
+                font-size: 9px;
+                font-weight: 800;
+                letter-spacing: .6px;
+                padding: 2px 7px;
+                border-radius: 99px;
+                flex-shrink: 0;
+                text-transform: uppercase;
+                border: 1px solid;
+            }
+            /* vinho apenas no badge ALTO (risco crítico) */
+            .b-crit {
+                background: var(--wine-badge-bg);
+                border-color: var(--wine-badge-border);
+                color: var(--wine-badge-text);
+            }
+
+            .b-amber {
+                background: #c9983a16;
+                border-color: #c9983a28;
+                color: var(--amber);
+            }
+
+            .b-green {
+                background: #647e3716;
+                border-color: #647e3728;
+                color: var(--c9);
+            }
+
+            /* ═══════════════════════════════════════
+           CLIMA
+        ═══════════════════════════════════════ */
+            .weather-card {
+                border: 1px solid var(--border);
+                border-radius: var(--r);
+                overflow: hidden;
+                margin-bottom: 12px;
+                animation: fadeUp .35s .26s ease both;
+            }
+
+            .weather-body {
+                background: var(--surface);
+                padding: 18px;
+            }
+
+            .weather-head-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 14px;
+            }
+
+            .weather-head-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--warm2);
+                display: flex;
+                align-items: center;
+                gap: 7px;
+            }
+
+            .weather-city {
+                margin-left: auto;
+                font-size: 11px;
+                color: var(--text3);
+            }
+
+            .weather-main {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 14px;
+            }
+
+            .weather-emoji {
+                font-size: 40px;
+                line-height: 1;
+            }
+
+            .weather-temp {
+                font-family: 'Playfair Display', serif;
+                font-size: 44px;
+                font-weight: 800;
+                color: var(--warm2);
+                letter-spacing: -2px;
+                line-height: 1;
+            }
+
+            .weather-desc {
+                font-size: 11.5px;
+                color: var(--text3);
+                margin-top: 4px;
+            }
+
+            .weather-pills {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .wpill {
+                background: var(--bg3);
+                border: 1px solid var(--border2);
+                border-radius: 99px;
+                padding: 3px 9px;
+                font-size: 11px;
+                color: var(--text2);
+            }
+            /* vinho apenas no alerta meteorológico crítico */
+            .weather-alert {
+                padding: 11px 18px;
+                border-top: 1px solid var(--border);
+                background: var(--bg3);
+            }
+
+                .weather-alert.crit {
+                    background: var(--wine-badge-bg);
+                    border-top-color: var(--wine-badge-border);
+                }
+
+            .weather-alert-title {
+                font-size: 11px;
+                font-weight: 700;
+                color: var(--text2);
+                margin-bottom: 2px;
+            }
+
+            .weather-alert.crit .weather-alert-title {
+                color: var(--wine-badge-text);
+            }
+
+            .weather-alert-desc {
+                font-size: 11.5px;
+                color: var(--text3);
+                line-height: 1.5;
+            }
+
+            .weather-loading {
+                background: var(--surface);
+                padding: 30px 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .spinner {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                border: 2px solid var(--border3);
+                border-top-color: var(--accent2);
+                animation: spin .7s linear infinite;
+                flex-shrink: 0;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .weather-loading-text {
+                font-size: 12.5px;
+                color: var(--text3);
+            }
+
+            /* ═══════════════════════════════════════
+           ALERTAS
+        ═══════════════════════════════════════ */
+            .alerts {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .alert-item {
+                background: var(--bg3);
+                border: 1px solid var(--border);
+                border-left-width: 2px;
+                border-radius: var(--r-sm);
+                padding: 9px 12px;
+            }
+            /* vinho apenas no alerta máximo urgência */
+            .al-crit {
+                border-left-color: var(--wine-badge-text);
+            }
+
+            .al-amber {
+                border-left-color: var(--amber);
+            }
+
+            .al-sage {
+                border-left-color: var(--c4);
+            }
+
+            .alert-name {
+                font-size: 12.5px;
+                font-weight: 600;
+                color: var(--text);
+                margin-bottom: 2px;
+            }
+
+            .alert-sub {
+                font-size: 11px;
+                color: var(--text3);
+            }
+
+            /* ═══════════════════════════════════════
+           ANIM
+        ═══════════════════════════════════════ */
+            @keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(9px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* ═══════════════════════════════════════
+           SCROLLBAR
+        ═══════════════════════════════════════ */
+            ::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--border2);
+                border-radius: 2px;
+            }
+
+            /* ═══════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════ */
+            @media (max-width: 860px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                }
+
+                    .sidebar.open {
+                        transform: translateX(0);
+                        box-shadow: 6px 0 24px #00000060;
+                    }
+
+                .main {
+                    margin-left: 0;
+                }
+
+                .nav-brand-area {
+                    width: auto;
+                    border-right: none;
+                    padding-left: 10px;
+                }
+
+                .hamburger {
+                    display: flex;
+                    align-items: center;
+                }
+            }
+
+            @media (max-width: 860px) {
+                .main-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 680px) {
+                .nav-cards {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 680px) {
+                .stats {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @media (max-width: 380px) {
+                .stats {
+                    grid-template-columns: 1fr;
+                }
+
+                .page-title {
+                    font-size: 24px;
+                }
+
+                .page {
+                    padding: 20px 14px 56px;
+                }
+            }
+    </style>
+</head>
+<body>
+
+    <!-- TOPNAV -->
+    <nav class="topnav">
+        <div class="nav-brand-area">
+            <button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+            <a class="nav-logo-wrap" href="dashboard.html">
+                <div class="nav-logo">🌿</div>
+                <span class="nav-brand">Agro<em>Scan</em></span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <div class="nav-notif" title="Notificações">
+                🔔<div class="notif-dot"></div>
+            </div>
+            <div class="nav-user">
+                <div class="nav-avatar" id="avatarInitial">J</div>
+                <span class="nav-user-name" id="userNome">Carregando...</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BACKDROP -->
+    <div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <span class="sidebar-label">Principal</span>
+        <a class="slink active" href="dashboard.html">
+            <span class="slink-icon">🏠</span> Início
+        </a>
+        <a class="slink" href="analisarplanta.html">
+            <span class="slink-icon">🔬</span> Analisar planta
+        </a>
+        <a class="slink" href="identificarplanta.html">
+            <span class="slink-icon">🔍</span> Identificar planta
+        </a>
+        <a class="slink" href="plantacoes.html">
+            <span class="slink-icon">🌿</span> Plantações
+            <span class="slink-badge green">12</span>
+        </a>
+
+        <span class="sidebar-label">Monitoramento</span>
+        <a class="slink" href="#">
+            <span class="slink-icon">⚠️</span> Alertas
+            <!-- badge vinho: alerta crítico -->
+            <span class="slink-badge wine">3</span>
+        </a>
+        <a class="slink" href="#">
+            <span class="slink-icon">📋</span> Histórico
+        </a>
+        <a class="slink" href="#">
+            <span class="slink-icon">📊</span> Relatórios
+        </a>
+
+        <div class="sidebar-bottom">
+            <span class="sidebar-label" style="margin-top:0">Conta</span>
+            <a class="slink" href="#"><span class="slink-icon">⚙️</span> Configurações</a>
+            <a class="slink" href="logout.html" style="color:#5a3030"
+               onmouseover="this.style.color='var(--wine-badge-text)'"
+               onmouseout="this.style.color='#5a3030'">
+                <span class="slink-icon">↩</span> Sair
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+        <div class="page">
+
+            <div class="page-eyebrow">Bem‑vindo de volta 👋</div>
+            <h1 class="page-title" id="welcomeTitle">Dashboard</h1>
+            <p class="page-sub">Acompanhe o estado das suas lavouras, alertas e análises recentes.</p>
+
+            <!-- STATS -->
+            <div class="stats">
+                <div class="stat sg">
+                    <div class="stat-icon">🌿</div>
+                    <div class="stat-num">12</div>
+                    <div class="stat-label">Plantações ativas</div>
+                    <div class="stat-trend up">↑ 2 este mês</div>
+                </div>
+                <div class="stat sw">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-num">3</div>
+                    <div class="stat-label">Alertas ativos</div>
+                    <div class="stat-trend down">↑ 1 novo hoje</div>
+                </div>
+                <div class="stat ss">
+                    <div class="stat-icon">🔬</div>
+                    <div class="stat-num">47</div>
+                    <div class="stat-label">Análises realizadas</div>
+                    <div class="stat-trend up">↑ 5 esta semana</div>
+                </div>
+                <!-- vinho aqui: doenças = dado crítico -->
+                <div class="stat sv">
+                    <div class="stat-icon">🦠</div>
+                    <div class="stat-num">2</div>
+                    <div class="stat-label">Doenças detectadas</div>
+                    <div class="stat-trend">Em tratamento</div>
+                </div>
+            </div>
+
+            <!-- FERRAMENTAS -->
+            <div class="divider"><span>Ferramentas</span></div>
+
+            <div class="nav-cards">
+                <a class="nav-card nc-g" href="analisar.html">
+                    <span class="nav-card-emoji">🔬</span>
+                    <div class="nav-card-title">Analisar planta</div>
+                    <div class="nav-card-desc">Envie uma foto e nossa IA identifica pragas, doenças e indica o melhor tratamento.</div>
+                    <div class="nav-card-footer">Abrir ferramenta <span class="nav-arrow">→</span></div>
+                </a>
+                <a class="nav-card nc-s" href="identificar.html">
+                    <span class="nav-card-emoji">🔍</span>
+                    <div class="nav-card-title">Identificar planta</div>
+                    <div class="nav-card-desc">Descubra a espécie, características botânicas e cuidados de qualquer planta pela foto.</div>
+                    <div class="nav-card-footer">Abrir ferramenta <span class="nav-arrow">→</span></div>
+                </a>
+                <a class="nav-card nc-w" href="plantacoes.html">
+                    <span class="nav-card-emoji">🌿</span>
+                    <div class="nav-card-title">Plantações</div>
+                    <div class="nav-card-desc">Cadastre e gerencie seus talhões, culturas e histórico de intervenções.</div>
+                    <div class="nav-card-footer">Gerenciar <span class="nav-arrow">→</span></div>
+                </a>
+            </div>
+
+            <!-- VISÃO GERAL -->
+            <div class="divider"><span>Visão geral</span></div>
+
+            <div class="main-grid">
+
+                <!-- Análises recentes -->
+                <div class="card" style="animation: fadeUp .35s .2s ease both;">
+                    <div class="card-title">
+                        <div class="cicon cicon-g">📋</div>
+                        Análises recentes
+                    </div>
+                    <ul class="recent-list">
+                        <li class="recent-item">
+                            <div class="recent-thumb">🌱</div>
+                            <div class="recent-body">
+                                <div class="recent-name">Soja — Talhão 3</div>
+                                <div class="recent-meta">Hoje, 09:14 · Ferrugem asiática</div>
+                            </div>
+                            <!-- vinho: risco alto -->
+                            <span class="badge b-crit">Alto</span>
+                        </li>
+                        <li class="recent-item">
+                            <div class="recent-thumb">🌽</div>
+                            <div class="recent-body">
+                                <div class="recent-name">Milho — Talhão 1</div>
+                                <div class="recent-meta">Ontem, 15:30 · Cercosporiose</div>
+                            </div>
+                            <span class="badge b-amber">Médio</span>
+                        </li>
+                        <li class="recent-item">
+                            <div class="recent-thumb">🍅</div>
+                            <div class="recent-body">
+                                <div class="recent-name">Tomate — Estufa A</div>
+                                <div class="recent-meta">3 dias atrás · Mosca-branca</div>
+                            </div>
+                            <span class="badge b-amber">Médio</span>
+                        </li>
+                        <li class="recent-item">
+                            <div class="recent-thumb">☕</div>
+                            <div class="recent-body">
+                                <div class="recent-name">Café — Gleba 2</div>
+                                <div class="recent-meta">5 dias atrás · Broca do café</div>
+                            </div>
+                            <span class="badge b-green">Tratado</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Coluna direita -->
+                <div style="display:flex;flex-direction:column;gap:12px;">
+
+                    <!-- CLIMA -->
+                    <div class="weather-card">
+                        <div id="weatherContent">
+                            <div class="weather-loading">
+                                <div class="spinner"></div>
+                                <span class="weather-loading-text">Carregando clima...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ALERTAS -->
+                    <div class="card" style="animation: fadeUp .35s .32s ease both;">
+                        <div class="card-title">
+                            <div class="cicon cicon-a">🔔</div>
+                            Alertas
+                        </div>
+                        <div class="alerts">
+                            <!-- vinho: alerta de urgência máxima -->
+                            <div class="alert-item al-crit">
+                                <div class="alert-name">Reaplicar fungicida</div>
+                                <div class="alert-sub">Talhão 3 — Soja · Vence amanhã</div>
+                            </div>
+                            <div class="alert-item al-amber">
+                                <div class="alert-name">Monitorar milho</div>
+                                <div class="alert-sub">Talhão 1 — Cercosporiose ativa</div>
+                            </div>
+                            <div class="alert-item al-sage">
+                                <div class="alert-name">Irrigação programada</div>
+                                <div class="alert-sub">Estufa A · Hoje às 18h</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div><!-- /main-grid -->
+
+        </div>
+    </div><!-- /main -->
+
+    <script>
+        /* ── SIDEBAR ── */
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('backdrop').classList.toggle('show');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('backdrop').classList.remove('show');
+        }
+
+        /* ── USUÁRIO ── lê do localStorage igual ao app.js ── */
+        function carregarUsuario() {
+            const nome = localStorage.getItem('userNome') || 'Usuário';
+            const loc = localStorage.getItem('userCidade') || localStorage.getItem('userLocalizacao') || null;
+
+            document.getElementById('userNome').textContent = nome;
+            document.getElementById('welcomeTitle').textContent = 'Olá, ' + nome.split(' ')[0];
+            document.getElementById('avatarInitial').textContent = nome.charAt(0).toUpperCase();
+
+            carregarClima(loc);
+        }
+
+        /* ── CLIMA ── */
+        async function carregarClima(localizacao) {
+            let lat, lon, nomeCidade;
+            try {
+                if (localizacao) {
+                    const geo = await fetch(
+                        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(localizacao)}&format=json&limit=1`,
+                        { headers: { 'Accept-Language': 'pt-BR' } }
+                    ).then(r => r.json());
+                    if (geo.length) {
+                        lat = parseFloat(geo[0].lat);
+                        lon = parseFloat(geo[0].lon);
+                        nomeCidade = geo[0].display_name.split(',').slice(0, 2).join(',').trim();
+                    }
+                }
+                if (!lat) {
+                    const pos = await new Promise((res, rej) =>
+                        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 })
+                    );
+                    lat = pos.coords.latitude; lon = pos.coords.longitude;
+                    const rev = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+                        { headers: { 'Accept-Language': 'pt-BR' } }
+                    ).then(r => r.json());
+                    const a = rev.address || {};
+                    nomeCidade = (a.city || a.town || a.village || 'Sua localização') + (a.state ? ', ' + a.state : '');
+                }
+            } catch {
+                lat = -22.8238; lon = -47.2699; nomeCidade = 'Sumaré, SP';
+            }
+            await fetchClima(lat, lon, nomeCidade);
+        }
+
+        async function fetchClima(lat, lon, cidade) {
+            try {
+                const data = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+                    `&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability` +
+                    `&wind_speed_unit=kmh&timezone=America%2FSao_Paulo`
+                ).then(r => r.json());
+                const c = data.current;
+                const { emoji, desc } = climaInfo(c.weather_code);
+                const alerta = gerarAlerta(c.weather_code, c.relative_humidity_2m, c.temperature_2m, c.precipitation_probability);
+                renderClima({
+                    emoji, desc, temp: Math.round(c.temperature_2m), umidade: c.relative_humidity_2m,
+                    vento: Math.round(c.wind_speed_10m), chuva: c.precipitation_probability || 0, cidade, alerta
+                });
+            } catch {
+                document.getElementById('weatherContent').innerHTML = `
+              <div class="weather-body">
+                <div class="weather-head-row">
+                  <span class="weather-head-title">🌤️ Clima</span>
+                  <span class="weather-city">📍 ${cidade}</span>
+                </div>
+                <p style="font-size:12px;color:var(--text3);padding:8px 0;">Não foi possível carregar o clima.</p>
+              </div>`;
+            }
+        }
+
+        function climaInfo(code) {
+            const m = [
+                [[0], '☀️', 'Céu limpo'],
+                [[1, 2], '🌤️', 'Parcialmente nublado'],
+                [[3], '☁️', 'Nublado'],
+                [[45, 48], '🌫️', 'Neblina'],
+                [[51, 53, 55], '🌦️', 'Garoa'],
+                [[61, 63, 65], '🌧️', 'Chuva'],
+                [[80, 81, 82], '🌧️', 'Pancadas de chuva'],
+                [[95], '⛈️', 'Trovoada'],
+                [[96, 99], '⛈️', 'Tempestade com granizo'],
+            ];
+            for (const [codes, emoji, desc] of m) if (codes.includes(code)) return { emoji, desc };
+            return { emoji: '🌡️', desc: 'Variável' };
+        }
+
+        function gerarAlerta(code, umidade, temp, chuva) {
+            // vinho apenas em tempestade (máxima criticidade)
+            if ([95, 96, 99].includes(code))
+                return { crit: true, title: '⛈️ Alerta de Tempestade', desc: 'Suspenda operações de campo. Risco de danos às lavouras.' };
+            if (umidade > 78 && temp > 18 && temp < 30)
+                return { crit: false, title: '⚠️ Alerta Agrícola', desc: 'Alta umidade favorece doenças fúngicas. Monitore suas lavouras.' };
+            if (chuva > 60)
+                return { crit: false, title: '🌧️ Chuva provável', desc: `${chuva}% de chance de chuva. Planeje suas aplicações.` };
+            if (temp > 36)
+                return { crit: false, title: '🌡️ Calor extremo', desc: 'Evite aplicações entre 10h–16h.' };
+            return null;
+        }
+
+        function renderClima({ emoji, desc, temp, umidade, vento, chuva, cidade, alerta }) {
+            const alertaHtml = alerta ? `
+            <div class="weather-alert${alerta.crit ? ' crit' : ''}">
+              <div class="weather-alert-title">${alerta.title}</div>
+              <div class="weather-alert-desc">${alerta.desc}</div>
+            </div>` : '';
+
+            document.getElementById('weatherContent').innerHTML = `
+            <div class="weather-body">
+              <div class="weather-head-row">
+                <span class="weather-head-title">🌤️ Clima atual</span>
+                <span class="weather-city">📍 ${cidade}</span>
+              </div>
+              <div class="weather-main">
+                <span class="weather-emoji">${emoji}</span>
+                <div>
+                  <div class="weather-temp">${temp}°C</div>
+                  <div class="weather-desc">${desc}</div>
+                </div>
+              </div>
+              <div class="weather-pills">
+                <span class="wpill">💧 ${umidade}%</span>
+                <span class="wpill">💨 ${vento} km/h</span>
+                <span class="wpill">🌧️ ${chuva}%</span>
+              </div>
+            </div>
+            ${alertaHtml}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', carregarUsuario);
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>

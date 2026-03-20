@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Plantações</title>
+    <link rel="stylesheet" href="plantas.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 Plantações</h1>
+        <div class="form">
+            <input id="nomeCientifico" placeholder="Nome Científico">
+            <input id="nomePopular" placeholder="Nome Popular">
+            <input id="tipo" placeholder="Tipo">
+            <input id="clima" placeholder="Clima">
+            <input id="luminosidade" placeholder="Luminosidade">
+            <input id="rega" placeholder="Rega">
+            <input id="descricao" placeholder="Descrição">
+            <button onclick="adicionar()">Adicionar</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome Popular</th>
+                    <th>Nome Científico</th>
+                    <th>Tipo</th>
+                    <th>Clima</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="lista"></tbody>
+        </table>
+    </div>
+    <script>
+        const API = "/Plantas";
+
+        function carregar() {
+            fetch(API)
+                .then(r => r.json())
+                .then(data => {
+                    let html = "";
+                    data.forEach(p => {
+                        html += `<tr>
+                                <td>${p.nomePopular}</td>
+                                <td>${p.nomeCientifico}</td>
+                                <td>${p.tipoPlanta}</td>
+                                <td>${p.clima}</td>
+                                <td>
+                                    <button onclick="deletar(${p.plantaId})">Excluir</button>
+                                </td>
+                            </tr>`;
+                    });
+                    document.getElementById("lista").innerHTML = html;
+                });
+        }
+
+        function adicionar() {
+            const data = {
+                nomeCientifico: document.getElementById("nomeCientifico").value,
+                nomePopular: document.getElementById("nomePopular").value,
+                tipoPlanta: document.getElementById("tipo").value,
+                clima: document.getElementById("clima").value,
+                luminosidade: document.getElementById("luminosidade").value,
+                rega: document.getElementById("rega").value,
+                descricao: document.getElementById("descricao").value
+            };
+            fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            }).then(() => carregar());
+        }
+
+        function deletar(id) {
+            if (confirm("Excluir esta planta?")) {
+                fetch(API + "/" + id, { method: "DELETE" })
+                    .then(() => carregar());
+            }
+        }
+
+        carregar();
+    </script>
+</body>
+</html>
