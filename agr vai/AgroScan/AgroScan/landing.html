@@ -793,7 +793,7 @@
                 }
 
                 /* ─────────────────────────────────────────
-           HOW IT WORKS
+           HOW IT WORKS — flip cards
         ───────────────────────────────────────── */
                 .section-como {
                     background: var(--c-ink);
@@ -810,11 +810,8 @@
                 .steps-grid {
                     display: grid;
                     grid-template-columns: repeat(4, 1fr);
-                    gap: 2px;
+                    gap: 20px;
                     margin-top: 56px;
-                    background: rgba(255,255,255,0.07);
-                    border-radius: var(--r-xl);
-                    overflow: hidden;
                 }
 
                 @media (max-width: 860px) {
@@ -829,57 +826,114 @@
                     }
                 }
 
+                /* card flip */
                 .step-item {
-                    background: var(--c-ink);
-                    padding: 36px 28px;
                     position: relative;
+                    height: 260px;
+                    border-radius: 18px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    perspective: 1000px;
+                    background: rgba(255,255,255,0.05);
+                    box-shadow: 0 0 0 4px rgba(255,255,255,0.06);
+                    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                                box-shadow 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     opacity: 0;
                     transform: translateY(20px);
-                    transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
                 }
 
-                    .step-item.in {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
+                .step-item.in {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                .step-item:hover {
+                    transform: scale(1.04) translateY(0);
+                    box-shadow: 0 0 0 4px rgba(79,201,122,0.3);
+                }
+
+                /* frente — ícone + número */
+                .step-front {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 18px;
+                    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                                opacity 0.4s ease;
+                }
+
+                .step-item:hover .step-front {
+                    transform: scale(0);
+                    opacity: 0;
+                }
 
                 .step-number {
                     font-family: var(--font-mono);
                     font-size: 0.65rem;
-                    color: rgba(255,255,255,0.2);
-                    letter-spacing: 0.12em;
-                    margin-bottom: 20px;
+                    color: var(--c-accent);
+                    letter-spacing: 0.18em;
+                    text-transform: uppercase;
                 }
 
                 .step-icon {
-                    width: 52px;
-                    height: 52px;
-                    background: rgba(79,201,122,0.12);
-                    border-radius: 14px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 22px;
-                    margin-bottom: 20px;
-                    transition: background 0.25s, transform 0.25s;
+                    font-size: 3.2rem;
+                    line-height: 1;
+                    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 }
 
-                .step-item:hover .step-icon {
-                    background: rgba(79,201,122,0.22);
-                    transform: scale(1.05);
-                }
-
-                .step-title {
+                .step-title-front {
                     font-family: var(--font-display);
-                    font-size: 1.15rem;
+                    font-size: 1.2rem;
                     color: #fff;
-                    margin-bottom: 10px;
+                    letter-spacing: -0.01em;
                 }
 
-                .step-desc {
-                    font-size: 0.83rem;
-                    color: rgba(255,255,255,0.4);
+                /* verso — aparece no hover com rotateX */
+                .step-content {
+                    position: absolute;
+                    inset: 0;
+                    padding: 28px 24px;
+                    box-sizing: border-box;
+                    background: linear-gradient(145deg, #1e6b3a, #0e2c1a);
+                    transform: rotateX(-90deg);
+                    transform-origin: bottom;
+                    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 12px;
+                    border-radius: 18px;
+                }
+
+                .step-item:hover .step-content {
+                    transform: rotateX(0deg);
+                }
+
+                .step-content-num {
+                    font-family: var(--font-mono);
+                    font-size: 0.6rem;
+                    color: var(--c-accent);
+                    letter-spacing: 0.18em;
+                    text-transform: uppercase;
+                }
+
+                .step-content-title {
+                    font-family: var(--font-display);
+                    font-size: 1.5rem;
+                    color: #fff;
+                    line-height: 1.1;
+                    letter-spacing: -0.02em;
+                    margin: 0;
+                }
+
+                .step-content-desc {
+                    font-size: 0.85rem;
+                    color: rgba(255,255,255,0.65);
                     line-height: 1.65;
+                    margin: 0;
                 }
 
                 /* ─────────────────────────────────────────
@@ -913,7 +967,7 @@
 
                 .bento-grid {
                     display: grid;
-                    grid-template-columns: repeat(6, 1fr);
+                    grid-template-columns: repeat(3, 1fr);
                     grid-template-rows: auto;
                     gap: 16px;
                     margin-top: 56px;
@@ -951,77 +1005,80 @@
                         opacity: 1;
                     }
 
-                /* grid placements */
-                .bento-a {
-                    grid-column: span 3;
-                    grid-row: span 1;
-                }
-                /* offline — wide */
-                .bento-b {
-                    grid-column: span 2;
-                }
+                /* grid placements — todos iguais, 1 coluna cada */
+                .bento-a { grid-column: span 1; }
+                .bento-b { grid-column: span 1; }
+                .bento-c { grid-column: span 1; }
+                .bento-d { grid-column: span 1; }
+                .bento-e { grid-column: span 1; }
+                .bento-f { grid-column: span 1; }
 
-                .bento-c {
-                    grid-column: span 1;
-                }
-
-                .bento-d {
-                    grid-column: span 2;
-                }
-
-                .bento-e {
-                    grid-column: span 2;
-                }
-
-                .bento-f {
-                    grid-column: span 2;
-                }
-
-                @media (max-width: 960px) {
+                @media (max-width: 860px) {
                     .bento-grid {
-                        grid-template-columns: repeat(4, 1fr);
-                    }
-
-                    .bento-a {
-                        grid-column: span 4;
-                    }
-
-                    .bento-b {
-                        grid-column: span 2;
-                    }
-
-                    .bento-c {
-                        grid-column: span 2;
-                    }
-
-                    .bento-d, .bento-e, .bento-f {
-                        grid-column: span 2;
+                        grid-template-columns: repeat(2, 1fr);
                     }
                 }
 
-                @media (max-width: 600px) {
-                    .bento-grid {
-                        grid-template-columns: 1fr 1fr;
-                        gap: 12px;
-                    }
-
-                    .bento-a {
-                        grid-column: span 2;
-                    }
-
-                    .bento-b, .bento-c, .bento-d, .bento-e, .bento-f {
-                        grid-column: span 1;
-                    }
-                }
-
-                @media (max-width: 380px) {
+                @media (max-width: 520px) {
                     .bento-grid {
                         grid-template-columns: 1fr;
                     }
+                }
 
-                    .bento-a, .bento-b, .bento-c, .bento-d, .bento-e, .bento-f {
-                        grid-column: span 1;
-                    }
+                /* ── Efeito uiverse nos bento cards ── */
+                .bento-card {
+                    background: rgba(255,255,255,0.04);
+                    border: 1px solid rgba(255,255,255,0.08);
+                    border-radius: 20px;
+                    padding: 32px 28px;
+                    position: relative;
+                    overflow: hidden;
+                    transition: transform 0.35s var(--ease-out), border-color 0.35s;
+                    z-index: 0;
+                }
+
+                /* bolha de hover — expande do canto superior direito */
+                .bento-card::before {
+                    content: '';
+                    position: absolute;
+                    z-index: -1;
+                    top: -20px;
+                    right: -20px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #1e6b3a, #2d9155);
+                    transform: scale(1);
+                    transform-origin: 50% 50%;
+                    transition: transform 0.5s ease-out;
+                }
+
+                .bento-card:hover::before {
+                    transform: scale(22);
+                }
+
+                /* cantoneira do hover */
+                .bento-go-corner {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 2.2em;
+                    height: 2.2em;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: linear-gradient(135deg, #1e6b3a, #2d9155);
+                    border-radius: 0 20px 0 28px;
+                    transition: opacity 0.3s;
+                    z-index: 1;
+                }
+
+                .bento-go-arrow {
+                    color: rgba(255,255,255,0.8);
+                    font-size: 0.9rem;
+                    margin-top: -3px;
+                    margin-right: -3px;
+                    font-family: courier, sans;
                 }
 
                 .bento-icon {
@@ -1029,6 +1086,13 @@
                     margin-bottom: 18px;
                     display: block;
                     line-height: 1;
+                    position: relative;
+                    z-index: 1;
+                    transition: transform 0.35s var(--ease-out);
+                }
+
+                .bento-card:hover .bento-icon {
+                    transform: scale(1.1);
                 }
 
                 .bento-title {
@@ -1037,62 +1101,57 @@
                     color: #fff;
                     margin-bottom: 10px;
                     line-height: 1.2;
+                    position: relative;
+                    z-index: 1;
+                    transition: color 0.45s ease-out;
                 }
 
                 .bento-desc {
                     font-size: 0.82rem;
                     color: rgba(255,255,255,0.38);
                     line-height: 1.7;
+                    position: relative;
+                    z-index: 1;
+                    transition: color 0.45s ease-out;
                 }
 
-                /* Featured card (offline) — extra flair */
-                .bento-a {
-                    background: linear-gradient(135deg, rgba(30,107,58,0.4) 0%, rgba(14,26,15,0.6) 100%);
-                    border-color: rgba(79,201,122,0.2);
-                    display: flex;
-                    flex-direction: column;
+                .bento-card:hover .bento-desc {
+                    color: rgba(255,255,255,0.82);
                 }
 
-                    .bento-a .bento-title {
-                        font-size: 1.4rem;
-                    }
-
-                .offline-badge-strip {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 7px;
-                    margin-top: auto;
-                    padding-top: 24px;
+                .bento-source {
+                    display: block;
+                    margin-top: 12px;
                     font-family: var(--font-mono);
-                    font-size: 0.68rem;
-                    color: var(--c-accent);
-                    letter-spacing: 0.1em;
+                    font-size: 0.6rem;
+                    color: rgba(255,255,255,0.25);
+                    letter-spacing: 0.08em;
+                    position: relative;
+                    z-index: 1;
+                    transition: color 0.45s ease-out;
                 }
 
-                .offline-badge-dot {
-                    width: 8px;
-                    height: 8px;
-                    border-radius: 50%;
-                    background: var(--c-accent);
-                    animation: pulse-dot 2s infinite;
+                .bento-card:hover .bento-source {
+                    color: rgba(255,255,255,0.5);
                 }
 
-                /* Small accent card */
+                /* card A — mesmo estilo dos outros */
+                .bento-a {
+                    border-color: rgba(79,201,122,0.2);
+                }
+                .bento-a .bento-title { font-size: 1.15rem; }
+                .bento-a::before { background: linear-gradient(135deg, #0e4a24, #1e6b3a); }
+
+                /* card C — pequeno accent */
                 .bento-c {
-                    background: rgba(79,201,122,0.08);
+                    background: rgba(79,201,122,0.06);
                     border-color: rgba(79,201,122,0.15);
-                    display: flex;
-                    flex-direction: column;
-                    align-items: flex-start;
-                    justify-content: space-between;
                 }
-
-                    .bento-c .bento-icon {
-                        font-size: 2.4rem;
-                    }
+                .bento-c .bento-icon { font-size: 2.4rem; }
+                .bento-c::before { background: linear-gradient(135deg, #145c2e, #1e8044); }
 
                 /* ─────────────────────────────────────────
-           IMPACT — editorial full-bleed rows
+           IMPACT — cards estilo uiverse
         ───────────────────────────────────────── */
                 .section-impact {
                     background: var(--c-bg);
@@ -1105,167 +1164,174 @@
 
                 .impact-rows {
                     margin-top: 56px;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 20px;
                 }
 
+                @media (max-width: 860px) {
+                    .impact-rows {
+                        grid-template-columns: 1fr;
+                    }
+                }
+
+                /* entrada por scroll */
                 .impact-row {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    min-height: 280px;
-                    border-radius: var(--r-xl);
-                    overflow: hidden;
-                    margin-bottom: 16px;
                     opacity: 0;
                     transform: translateY(24px);
-                    transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
-                }
-
-                    .impact-row.in {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-
-                @media (max-width: 700px) {
-                    .impact-row {
-                        grid-template-columns: 1fr;
-                        min-height: auto;
-                    }
-                }
-
-                .impact-row-visual {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 5rem;
+                    transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out), filter 0.4s var(--ease-out), scale 0.4s var(--ease-out);
                     position: relative;
-                    min-height: 200px;
+                    height: 340px;
+                    border-radius: var(--r-xl);
+                    overflow: hidden;
+                    display: grid;
+                    place-content: center;
+                    cursor: pointer;
                 }
 
-                    .impact-row-visual::before {
-                        content: '';
-                        position: absolute;
-                        inset: 0;
-                        background: inherit;
-                        filter: brightness(0.85);
-                    }
+                .impact-row.in {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
 
-                    .impact-row-visual span {
-                        position: relative;
-                        z-index: 1;
-                    }
+                /* blur nos vizinhos */
+                .impact-rows:hover > .impact-row:not(:hover) {
+                    filter: blur(4px);
+                    opacity: 0.55;
+                    transform: scale(0.97);
+                }
+                .impact-rows:hover > .impact-row:hover {
+                    transform: scale(1.04);
+                }
 
+                /* borda animada — inspirada no uiverse */
+                .impact-row-border {
+                    position: absolute;
+                    inset: 0;
+                    border: 2px solid rgba(255,255,255,0.55);
+                    border-radius: var(--r-xl);
+                    opacity: 0;
+                    transform: rotate(8deg);
+                    transition: all 0.5s ease-in-out;
+                    pointer-events: none;
+                    z-index: 2;
+                }
+
+                .impact-row:hover .impact-row-border {
+                    inset: 14px;
+                    opacity: 1;
+                    transform: rotate(0deg);
+                    border-radius: 14px;
+                }
+
+                /* emoji centralizado — vai pro canto no hover */
+                .impact-row-emoji {
+                    font-size: 5rem;
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    transition: top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                                left 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                                transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                                font-size 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+                    z-index: 1;
+                    line-height: 1;
+                }
+
+                .impact-row:hover .impact-row-emoji {
+                    top: 30px;
+                    left: 30px;
+                    transform: translate(0, 0);
+                    font-size: 2.6rem;
+                }
+
+                /* texto — oculto, aparece no hover */
                 .impact-row-content {
-                    padding: 44px 40px;
+                    position: absolute;
+                    inset: 0;
+                    padding: 108px 30px 32px;
                     display: flex;
                     flex-direction: column;
-                    justify-content: center;
-                    gap: 12px;
+                    gap: 10px;
+                    opacity: 0;
+                    transform: translateY(14px);
+                    transition: opacity 0.4s ease-in-out 0.12s, transform 0.4s ease-in-out 0.12s;
+                    z-index: 1;
                 }
 
-                @media (max-width: 700px) {
-                    .impact-row-content {
-                        padding: 32px 28px;
-                    }
+                .impact-row:hover .impact-row-content {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                /* label discreta no rodapé — some no hover */
+                .impact-row-label {
+                    position: absolute;
+                    bottom: 18px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    font-family: var(--font-mono);
+                    font-size: 0.6rem;
+                    letter-spacing: 0.2em;
+                    text-transform: uppercase;
+                    white-space: nowrap;
+                    opacity: 0;
+                    transition: opacity 0.4s ease-in-out, letter-spacing 0.4s ease-in-out;
+                    z-index: 1;
+                }
+
+                .impact-row.in .impact-row-label {
+                    opacity: 1;
+                }
+
+                .impact-row:hover .impact-row-label {
+                    opacity: 0;
+                    letter-spacing: 0.04em;
                 }
 
                 .impact-row-eyebrow {
                     font-family: var(--font-mono);
-                    font-size: 0.65rem;
+                    font-size: 0.62rem;
                     letter-spacing: 0.14em;
                     text-transform: uppercase;
                 }
 
                 .impact-row-title {
                     font-family: var(--font-display);
-                    font-size: 1.6rem;
+                    font-size: 1.45rem;
                     line-height: 1.15;
                     letter-spacing: -0.01em;
                 }
 
                 .impact-row-desc {
-                    font-size: 0.88rem;
+                    font-size: 0.83rem;
                     line-height: 1.7;
-                    max-width: 380px;
                 }
 
-                /* Row 1 — alimentar */
-                .impact-row-1 .impact-row-visual {
-                    background: linear-gradient(135deg, #1a4d2a, #0e2016);
-                }
+                /* Card 1 — Alimentação */
+                .impact-row-1 { background: linear-gradient(145deg, #1a4d2a, #0c1e12); }
+                .impact-row-1 .impact-row-border  { border-color: var(--c-accent); }
+                .impact-row-1 .impact-row-label   { color: rgba(255,255,255,0.3); background: rgba(0,0,0,0.25); padding: 3px 14px; border-radius: 999px; }
+                .impact-row-1 .impact-row-eyebrow { color: var(--c-accent); }
+                .impact-row-1 .impact-row-title   { color: #fff; }
+                .impact-row-1 .impact-row-desc    { color: rgba(255,255,255,0.52); }
 
-                .impact-row-1 .impact-row-content {
-                    background: #1e6b3a;
-                }
+                /* Card 2 — Economia */
+                .impact-row-2 { background: linear-gradient(145deg, #e4dfd0, #f5f4ef); }
+                .impact-row-2 .impact-row-border  { border-color: var(--c-green); }
+                .impact-row-2 .impact-row-label   { color: var(--c-ink-3); background: rgba(0,0,0,0.07); padding: 3px 14px; border-radius: 999px; }
+                .impact-row-2 .impact-row-eyebrow { color: var(--c-green-mid); }
+                .impact-row-2 .impact-row-title   { color: var(--c-ink); }
+                .impact-row-2 .impact-row-desc    { color: var(--c-ink-3); }
 
-                .impact-row-1 .impact-row-eyebrow {
-                    color: rgba(255,255,255,0.4);
-                }
-
-                .impact-row-1 .impact-row-title {
-                    color: #fff;
-                }
-
-                .impact-row-1 .impact-row-desc {
-                    color: rgba(255,255,255,0.55);
-                }
-
-                /* Row 2 — renda */
-                .impact-row-2 {
-                    flex-direction: row-reverse;
-                }
-
-                    .impact-row-2 .impact-row-visual {
-                        background: linear-gradient(135deg, #f5f4ef, #e8e3d5);
-                    }
-
-                    .impact-row-2 .impact-row-content {
-                        background: var(--c-surface);
-                        border: 1px solid var(--c-border);
-                        border-left: none;
-                    }
-
-                    .impact-row-2 .impact-row-eyebrow {
-                        color: var(--c-green-mid);
-                    }
-
-                    .impact-row-2 .impact-row-title {
-                        color: var(--c-ink);
-                    }
-
-                    .impact-row-2 .impact-row-desc {
-                        color: var(--c-ink-3);
-                    }
-
-                @media (max-width: 700px) {
-                    .impact-row-2 {
-                        flex-direction: column;
-                    }
-
-                        .impact-row-2 .impact-row-content {
-                            border-left: 1px solid var(--c-border);
-                            border-top: none;
-                        }
-                }
-
-                /* Row 3 — sustentabilidade */
-                .impact-row-3 .impact-row-visual {
-                    background: linear-gradient(135deg, #0e2c1a, #0a1a10);
-                }
-
-                .impact-row-3 .impact-row-content {
-                    background: var(--c-ink);
-                }
-
-                .impact-row-3 .impact-row-eyebrow {
-                    color: var(--c-accent);
-                }
-
-                .impact-row-3 .impact-row-title {
-                    color: #fff;
-                }
-
-                .impact-row-3 .impact-row-desc {
-                    color: rgba(255,255,255,0.4);
-                }
+                /* Card 3 — Sustentabilidade */
+                .impact-row-3 { background: linear-gradient(145deg, #0e2c1a, #07120d); }
+                .impact-row-3 .impact-row-border  { border-color: var(--c-accent); }
+                .impact-row-3 .impact-row-label   { color: rgba(255,255,255,0.3); background: rgba(0,0,0,0.25); padding: 3px 14px; border-radius: 999px; }
+                .impact-row-3 .impact-row-eyebrow { color: var(--c-accent); }
+                .impact-row-3 .impact-row-title   { color: #fff; }
+                .impact-row-3 .impact-row-desc    { color: rgba(255,255,255,0.45); }
 
                 /* ─────────────────────────────────────────
            TCC / ABOUT — reimagined
@@ -1469,7 +1535,39 @@
                     gap: 48px;
                     align-items: center;
                     position: relative;
-                    overflow: hidden;
+                    overflow: visible;
+                    transition: transform 0.45s ease;
+                }
+
+                /* glow desfocado embaixo do card — efeito de levitar */
+                .cta-band::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -18px;
+                    left: 8%;
+                    width: 84%;
+                    height: 40px;
+                    background: var(--c-accent);
+                    border-radius: 50%;
+                    filter: blur(22px);
+                    opacity: 0;
+                    transition: opacity 0.5s ease, bottom 0.5s ease;
+                    pointer-events: none;
+                    z-index: -1;
+                }
+
+                .cta-band:hover {
+                    transform: translateY(-5px);
+                }
+
+                .cta-band:hover::after {
+                    opacity: 0.45;
+                    bottom: -28px;
+                }
+
+                /* desfoque no conteúdo interno ao hover */
+                .cta-band > div {
+                    transition: filter 0.5s ease, opacity 0.5s ease;
                 }
 
                 @media (max-width: 760px) {
@@ -1490,6 +1588,7 @@
                     right: -100px;
                     top: -100px;
                     pointer-events: none;
+                    z-index: 0;
                 }
 
                 .cta-eyebrow {
@@ -1524,8 +1623,10 @@
                 .cta-actions {
                     display: flex;
                     flex-direction: column;
-                    gap: 10px;
+                    gap: 12px;
                     align-items: flex-start;
+                    position: relative;
+                    z-index: 1;
                 }
 
                 @media (max-width: 760px) {
@@ -1533,6 +1634,77 @@
                         flex-direction: row;
                         flex-wrap: wrap;
                     }
+                }
+
+                /* ── Botão slide (inspirado no uiverse, sem Tailwind) ── */
+                .cta-btn-slide {
+                    position: relative;
+                    display: inline-flex;
+                    align-items: center;
+                    width: 200px;
+                    height: 52px;
+                    background: #fff;
+                    border-radius: 14px;
+                    text-decoration: none;
+                    overflow: hidden;
+                    cursor: pointer;
+                    transition: box-shadow 0.4s ease;
+                    box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
+                }
+
+                .cta-btn-slide:hover {
+                    box-shadow: 0 0 0 3px rgba(79,201,122,0.4);
+                }
+
+                /* track verde que expande */
+                .cta-btn-slide-track {
+                    position: absolute;
+                    left: 4px;
+                    top: 4px;
+                    width: 44px;
+                    height: calc(100% - 8px);
+                    background: linear-gradient(135deg, var(--c-accent), var(--c-green-mid));
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    z-index: 1;
+                    overflow: hidden;
+                }
+
+                .cta-btn-slide:hover .cta-btn-slide-track {
+                    width: calc(100% - 8px);
+                }
+
+                .cta-btn-slide-track svg {
+                    flex-shrink: 0;
+                    transition: transform 0.3s ease;
+                }
+
+                .cta-btn-slide:hover .cta-btn-slide-track svg {
+                    transform: translateX(3px);
+                }
+
+                /* texto do botão — some no hover */
+                .cta-btn-slide-label {
+                    position: relative;
+                    z-index: 2;
+                    width: 100%;
+                    text-align: center;
+                    font-family: var(--font-body);
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    color: var(--c-ink);
+                    padding-left: 10px;
+                    transition: opacity 0.2s ease;
+                    pointer-events: none;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+
+                .cta-btn-slide:hover .cta-btn-slide-label {
+                    opacity: 0;
                 }
 
                 /* ─────────────────────────────────────────
@@ -1697,11 +1869,6 @@
 
         <div class="hero-inner">
             <div class="hero-content">
-                <!--<div class="hero-tag">
-        <span class="hero-tag-dot"></span>
-        TCC · Visão Computacional &amp; Mobile
-    </div>-->
-
                 <h1 class="hero-title">
                     Diagnóstico <em>inteligente</em><br>para o campo
                 </h1>
@@ -1718,59 +1885,56 @@
 
                 <div class="hero-actions">
                     <a href="login.html" class="btn btn-ghost">Ver como funciona →</a>
-                    
                 </div>
             </div>
 
-    <!-- Mockup visual -->
-                <div class="hero-visual">
-                    
-                    <div class="mock-card">
-                        <div class="mock-header">
-                            <div class="mock-icon"><img src="imagens/microscope.png" width="35"></div>
-                            <div class="mock-title-block">
-                                <div class="mock-title">Analisando Fruto...</div>
-                                <div class="mock-sub">Tomate · Variedade local</div>
-                            </div>
-                            <div class="mock-status">
-                                <div class="status-dot"></div>
-                                ATIVO
-                            </div>
+            <div class="hero-visual">
+                <div class="mock-card">
+                    <div class="mock-header">
+                        <div class="mock-icon"><img src="imagens/microscope.png" width="35"></div>
+                        <div class="mock-title-block">
+                            <div class="mock-title">Analisando Fruto...</div>
+                            <div class="mock-sub">Tomate · Variedade local</div>
                         </div>
-                        <div class="mock-img"><img src="imagens/tomate-.png" width="250"></div>
-                        <div class="mock-bar-wrap">
-                            <div class="mock-bar-item">
-                                <span class="mock-bar-label">Míldio</span>
-                                <div class="mock-bar-track">
-                                    <div class="mock-bar-fill" style="width:91%"></div>
-                                </div>
-                                <span class="mock-bar-pct">91%</span>
-                            </div>
-                            <div class="mock-bar-item">
-                                <span class="mock-bar-label">Pinta-preta</span>
-                                <div class="mock-bar-track">
-                                    <div class="mock-bar-fill alt" style="width:30%"></div>
-                                </div>
-                                <span class="mock-bar-pct" style="color:rgba(255,255,255,0.3)">30%</span>
-                            </div>
-                            <div class="mock-bar-item">
-                                <span class="mock-bar-label">Ferrugem</span>
-                                <div class="mock-bar-track">
-                                    <div class="mock-bar-fill alt" style="width:9%"></div>
-                                </div>
-                                <span class="mock-bar-pct" style="color:rgba(255,255,255,0.3)">9%</span>
-                            </div>
+                        <div class="mock-status">
+                            <div class="status-dot"></div>
+                            ATIVO
                         </div>
                     </div>
-                    <div class="mock-card-sm">
-                        <div class="mock-card-sm-icon">🌿</div>
-                        <div class="mock-card-sm-text">
-                            <div class="mock-card-sm-title">Recomendação: Calda bordalesa</div>
-                            <div class="mock-card-sm-desc">Solução agroecológica · baixo custo · ingredientes locais</div>
+                    <div class="mock-img"><img src="imagens/tomate-.png" width="250"></div>
+                    <div class="mock-bar-wrap">
+                        <div class="mock-bar-item">
+                            <span class="mock-bar-label">Míldio</span>
+                            <div class="mock-bar-track">
+                                <div class="mock-bar-fill" style="width:91%"></div>
+                            </div>
+                            <span class="mock-bar-pct">91%</span>
+                        </div>
+                        <div class="mock-bar-item">
+                            <span class="mock-bar-label">Pinta-preta</span>
+                            <div class="mock-bar-track">
+                                <div class="mock-bar-fill alt" style="width:30%"></div>
+                            </div>
+                            <span class="mock-bar-pct" style="color:rgba(255,255,255,0.3)">30%</span>
+                        </div>
+                        <div class="mock-bar-item">
+                            <span class="mock-bar-label">Ferrugem</span>
+                            <div class="mock-bar-track">
+                                <div class="mock-bar-fill alt" style="width:9%"></div>
+                            </div>
+                            <span class="mock-bar-pct" style="color:rgba(255,255,255,0.3)">9%</span>
                         </div>
                     </div>
                 </div>
+                <div class="mock-card-sm">
+                    <div class="mock-card-sm-icon">🌿</div>
+                    <div class="mock-card-sm-text">
+                        <div class="mock-card-sm-title">Recomendação: Calda bordalesa</div>
+                        <div class="mock-card-sm-desc">Solução agroecológica · baixo custo · ingredientes locais</div>
+                    </div>
+                </div>
             </div>
+        </div>
     </section>
 
     <!-- ─── STATS STRIP ─── -->
@@ -1778,19 +1942,19 @@
         <div class="stats-inner">
             <div class="reveal">
                 <div class="stat-num"><span class="count-up" data-target="77" data-suffix="%">0%</span></div>
-                <div class="stat-label">dos estabelecimentos rurais são de agricultura familiar</div>
+                <div class="stat-label">dos estabelecimentos agrícolas brasileiros são de agricultura familiar — <em>IBGE, Censo Agropecuário 2017</em></div>
             </div>
             <div class="reveal reveal-delay-1">
                 <div class="stat-num"><span class="count-up" data-target="40" data-suffix="%">0%</span></div>
-                <div class="stat-label">de perda de produção por doenças não diagnosticadas</div>
+                <div class="stat-label">da produção agrícola mundial é perdida para pragas e doenças todo ano — <em>FAO, 2021</em></div>
             </div>
             <div class="reveal reveal-delay-2">
-                <div class="stat-num"><span class="count-up" data-target="5" data-prefix="+" data-suffix="M">0</span></div>
-                <div class="stat-label">famílias dependem da agricultura familiar no Brasil</div>
+                <div class="stat-num"><span class="count-up" data-target="10" data-suffix=".1M">0</span></div>
+                <div class="stat-label">de trabalhadores estão na agricultura familiar — 67% de todos os ocupados no campo — <em>IBGE, 2017</em></div>
             </div>
             <div class="reveal reveal-delay-3">
-                <div class="stat-num" style="font-size:1.6rem;color:var(--c-ink-3)">Acesso<br>limitado</div>
-                <div class="stat-label">a técnicos especializados em municípios rurais</div>
+                <div class="stat-num"><span class="count-up" data-target="3" data-suffix="%">0%</span></div>
+                <div class="stat-label">de mecanização no Nordeste, região com maior concentração de pequenas propriedades — <em>Atlas Rural</em></div>
             </div>
         </div>
     </div>
@@ -1804,29 +1968,29 @@
                         <p class="eyebrow">O Problema</p>
                         <h2 class="section-title">Cada dia sem diagnóstico custa colheita</h2>
                         <p class="section-body">
-                            Agricultores familiares perdem até 40% da produção por não conseguir identificar pragas e doenças a tempo. O acesso a engenheiros agrônomos é caro, lento e geograficamente limitado.
+                            Segundo a FAO, até 40% da produção agrícola mundial é perdida para pragas e doenças todo ano — prejuízo de mais de US$ 220 bilhões. No Brasil, as perdas com pragas e doenças ultrapassam R$ 60 bilhões anuais, segundo a Embrapa.
                         </p>
                         <p class="section-body" style="margin-top:12px">
-                            A solução precisa estar no bolso — funcionar no campo, offline, em linguagem simples e acessível a qualquer nível de escolaridade.
+                            Com apenas 3% de mecanização no Nordeste e sem acesso a assistência técnica na maioria dos municípios rurais, a solução precisa estar no bolso — funcionar no campo, offline, sem depender de sinal ou de especialistas distantes.
                         </p>
                     </div>
                 </div>
                 <div class="stat-cards reveal reveal-delay-1">
                     <div class="stat-card">
-                        <div class="stat-card-num"><span class="count-up" data-target="77" data-suffix="%">0%</span></div>
-                        <div class="stat-card-desc">dos estabelecimentos rurais brasileiros são de agricultura familiar</div>
+                        <div class="stat-card-num"><span class="count-up" data-target="18" data-suffix=".2%">0</span></div>
+                        <div class="stat-card-desc">dos agricultores familiares têm acesso à assistência técnica — no Nordeste esse número cai para apenas 7,3% <small style="display:block;margin-top:4px;color:var(--c-green-mid);font-family:var(--font-mono);font-size:0.62rem">IBGE · Censo Agropecuário 2017</small></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-num"><span class="count-up" data-target="87" data-suffix="%">0%</span></div>
+                        <div class="stat-card-desc">da mandioca brasileira vem da agricultura familiar — que também produz 70% do feijão e 60% do leite <small style="display:block;margin-top:4px;color:var(--c-green-mid);font-family:var(--font-mono);font-size:0.62rem">Embrapa · IBGE 2017</small></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-num"><span class="count-up" data-target="40" data-suffix="%">0%</span></div>
-                        <div class="stat-card-desc">de perda de produção estimada por pragas e doenças sem diagnóstico</div>
+                        <div class="stat-card-desc">da renda da população economicamente ativa em 90% dos municípios com até 20 mil habitantes vem da agricultura familiar <small style="display:block;margin-top:4px;color:var(--c-green-mid);font-family:var(--font-mono);font-size:0.62rem">CONTAG · Anuário 2023</small></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-card-num"><span class="count-up" data-target="5" data-prefix="+" data-suffix="M">0</span></div>
-                        <div class="stat-card-desc">de famílias dependem diretamente da agricultura familiar no país</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-num" style="font-size:1.2rem">Sem acesso</div>
-                        <div class="stat-card-desc">a técnicos especializados na maioria dos municípios rurais do Brasil</div>
+                        <div class="stat-card-num" style="font-size:1.5rem">80,9 M</div>
+                        <div class="stat-card-desc">de hectares ocupados pela agricultura familiar — apenas 23% da área total, mas responsável por 67% dos empregos rurais <small style="display:block;margin-top:4px;color:var(--c-green-mid);font-family:var(--font-mono);font-size:0.62rem">IBGE · Censo Agropecuário 2017</small></div>
                     </div>
                 </div>
             </div>
@@ -1842,30 +2006,59 @@
                 <p class="section-body">Quatro passos para obter diagnóstico e tratamento — sem precisar de internet.</p>
             </div>
             <div class="steps-grid" id="steps-grid">
+
                 <div class="step-item">
-                    <div class="step-number">01 —</div>
-                    <div class="step-icon">📸</div>
-                    <div class="step-title">Fotografar</div>
-                    <div class="step-desc">O produtor aponta a câmera para a folha, caule ou fruto afetado e registra a imagem.</div>
+                    <div class="step-front">
+                        <span class="step-number">01</span>
+                        <span class="step-icon">📸</span>
+                        <span class="step-title-front">Fotografar</span>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-content-num">Passo 01</span>
+                        <p class="step-content-title">Tire uma foto da planta</p>
+                        <p class="step-content-desc">Aponte a câmera do celular para a folha, caule ou fruto com sintomas visíveis. Quanto mais nítida a foto, mais preciso o diagnóstico.</p>
+                    </div>
                 </div>
+
                 <div class="step-item">
-                    <div class="step-number">02 —</div>
-                    <div class="step-icon">🧠</div>
-                    <div class="step-title">Identificar</div>
-                    <div class="step-desc">O modelo de visão computacional embarcado analisa a imagem localmente, sem internet.</div>
+                    <div class="step-front">
+                        <span class="step-number">02</span>
+                        <span class="step-icon">🧠</span>
+                        <span class="step-title-front">Analisar</span>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-content-num">Passo 02</span>
+                        <p class="step-content-title">A IA analisa no celular</p>
+                        <p class="step-content-desc">O aplicativo processa a imagem localmente, sem enviar nada para a internet. O resultado aparece em menos de 2 segundos.</p>
+                    </div>
                 </div>
+
                 <div class="step-item">
-                    <div class="step-number">03 —</div>
-                    <div class="step-icon">🌿</div>
-                    <div class="step-title">Diagnosticar</div>
-                    <div class="step-desc">O app exibe o diagnóstico com linguagem acessível, ícones e nível de confiança.</div>
+                    <div class="step-front">
+                        <span class="step-number">03</span>
+                        <span class="step-icon">🌿</span>
+                        <span class="step-title-front">Diagnosticar</span>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-content-num">Passo 03</span>
+                        <p class="step-content-title">Veja o diagnóstico</p>
+                        <p class="step-content-desc">O app mostra o nome da doença ou praga em linguagem simples, junto com o nível de confiança da identificação e ícones explicativos.</p>
+                    </div>
                 </div>
+
                 <div class="step-item">
-                    <div class="step-number">04 —</div>
-                    <div class="step-icon">💊</div>
-                    <div class="step-title">Tratar</div>
-                    <div class="step-desc">Sugestões de tratamento agroecológico e de baixo custo, com ingredientes locais.</div>
+                    <div class="step-front">
+                        <span class="step-number">04</span>
+                        <span class="step-icon">💊</span>
+                        <span class="step-title-front">Tratar</span>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-content-num">Passo 04</span>
+                        <p class="step-content-title">Receba o tratamento</p>
+                        <p class="step-content-desc">O aplicativo sugere tratamentos agroecológicos de baixo custo — como calda bordalesa e óleo de nim — com ingredientes fáceis de encontrar.</p>
+                    </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -1880,49 +2073,47 @@
             </div>
             <div class="bento-grid">
 
-                <!-- Featured: Offline -->
+                <!-- Card A — IA que aprende com fotos de plantas -->
                 <div class="bento-card bento-a reveal">
-                    <span class="bento-icon">📶</span>
-                    <div class="bento-title">100% Offline — sem internet</div>
-                    <div class="bento-desc">O modelo de IA roda diretamente no celular. Funciona em zonas rurais sem sinal, sem consumo de dados, sem depender de nuvem.</div>
-                    <div class="offline-badge-strip">
-                        <span class="offline-badge-dot"></span>
-                        FUNCIONANDO LOCALMENTE
-                    </div>
+                    <span class="bento-icon">🧠</span>
+                    <div class="bento-title">IA treinada com fotos de plantas</div>
+                    <div class="bento-desc">O aplicativo aprendeu a reconhecer doenças a partir de mais de 54 mil fotos de folhas. Quanto mais imagens ele vê, mais preciso fica — como um agrônomo que já atendeu muitos casos.</div>
+                    <span class="bento-source">Base: dataset PlantVillage · 38 tipos de doenças · 14 culturas</span>
                 </div>
 
-                <!-- Linguagem simples -->
+                <!-- Card B — Linguagem simples -->
                 <div class="bento-card bento-b reveal reveal-delay-1">
                     <span class="bento-icon">💬</span>
                     <div class="bento-title">Linguagem Simples</div>
-                    <div class="bento-desc">Interface com ícones e textos curtos. Sem jargão técnico. Acessível a qualquer nível de escolaridade.</div>
+                    <div class="bento-desc">Interface com ícones e textos curtos. Sem jargão técnico. Acessível a qualquer nível de escolaridade digital.</div>
                 </div>
 
-                <!-- Agroecologia — small accent card -->
+                <!-- Card C — Receitas agroecológicas (com texto agora) -->
                 <div class="bento-card bento-c reveal reveal-delay-2">
                     <span class="bento-icon">🌱</span>
                     <div class="bento-title">Receitas Agroecológicas</div>
+                    <div class="bento-desc">Tratamentos de baixo custo com ingredientes locais — calda bordalesa, nim, biofertilizantes — validados agronomicamente.</div>
                 </div>
 
-                <!-- Visão computacional -->
+                <!-- Card D — Visão Computacional -->
                 <div class="bento-card bento-d reveal">
                     <span class="bento-icon">🔬</span>
                     <div class="bento-title">Visão Computacional</div>
-                    <div class="bento-desc">Modelo treinado com imagens reais de plantações brasileiras para diagnóstico preciso.</div>
+                    <div class="bento-desc">Redes neurais convolucionais detectam sintomas visíveis nas folhas com diagnóstico em menos de 2 segundos, sem enviar dados para a nuvem.</div>
                 </div>
 
-                <!-- Base de conhecimento -->
+                <!-- Card E — Base de conhecimento -->
                 <div class="bento-card bento-e reveal reveal-delay-1">
                     <span class="bento-icon">📚</span>
                     <div class="bento-title">Base de Conhecimento Local</div>
-                    <div class="bento-desc">Pragas e doenças mapeadas para as culturas mais comuns da agricultura familiar no Brasil.</div>
+                    <div class="bento-desc">38 classes de doenças e pragas mapeadas para culturas comuns da agricultura familiar brasileira, com descrições e tratamentos em português.</div>
                 </div>
 
-                <!-- Histórico -->
+                <!-- Card F — Histórico -->
                 <div class="bento-card bento-f reveal reveal-delay-2">
                     <span class="bento-icon">📋</span>
                     <div class="bento-title">Histórico de Diagnósticos</div>
-                    <div class="bento-desc">Acompanhe a saúde das plantas ao longo das safras com registro automático.</div>
+                    <div class="bento-desc">Registros automáticos de cada análise, salvos localmente no dispositivo com SQLite — sem depender de internet para consultas anteriores.</div>
                 </div>
 
             </div>
@@ -1939,117 +2130,36 @@
             <div class="impact-rows" id="impact-rows">
 
                 <div class="impact-row impact-row-1">
-                    <div class="impact-row-visual"><span>🌾</span></div>
+                    <div class="impact-row-border"></div>
+                    <div class="impact-row-emoji">🌾</div>
                     <div class="impact-row-content">
                         <p class="impact-row-eyebrow">01 — Alimentação</p>
                         <h3 class="impact-row-title">Segurança Alimentar</h3>
                         <p class="impact-row-desc">Menor perda de produção significa mais alimento na mesa das famílias e para as comunidades locais. O Brasil produz mais quando o agricultor é apoiado.</p>
                     </div>
+                    <span class="impact-row-label">Alimentação</span>
                 </div>
 
                 <div class="impact-row impact-row-2">
-                    <div class="impact-row-visual"><span>💰</span></div>
+                    <div class="impact-row-border"></div>
+                    <div class="impact-row-emoji">💰</div>
                     <div class="impact-row-content">
                         <p class="impact-row-eyebrow">02 — Economia</p>
                         <h3 class="impact-row-title">Renda Familiar</h3>
                         <p class="impact-row-desc">Diagnóstico precoce reduz custos com defensivos e aumenta a produtividade sem elevar despesas. Menos perda, mais lucro para quem trabalha a terra.</p>
                     </div>
+                    <span class="impact-row-label">Economia</span>
                 </div>
 
                 <div class="impact-row impact-row-3">
-                    <div class="impact-row-visual"><span>🌍</span></div>
+                    <div class="impact-row-border"></div>
+                    <div class="impact-row-emoji">🌍</div>
                     <div class="impact-row-content">
                         <p class="impact-row-eyebrow">03 — Meio Ambiente</p>
                         <h3 class="impact-row-title">Sustentabilidade</h3>
                         <p class="impact-row-desc">Tratamentos agroecológicos preservam o solo, a biodiversidade e a saúde dos agricultores. Tecnologia que respeita a terra e quem nela vive.</p>
                     </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- ─── TCC — dois painéis ─── -->
-    <section class="section-tcc" id="tcc">
-        <div class="container">
-            <div class="section-head reveal" style="margin-bottom:40px">
-                <p class="eyebrow">Projeto Acadêmico</p>
-                <h2 class="section-title">O que este TCC aborda</h2>
-            </div>
-            <div class="tcc-wrapper reveal">
-
-                <!-- Painel esquerdo — escuro -->
-                <div class="tcc-left">
-                    <p class="eyebrow">Escopo de pesquisa</p>
-                    <h3 class="tcc-left-title">Objetivos &amp; metodologia</h3>
-                    <ul class="tcc-list" id="tcc-list">
-                        <li class="tcc-list-item">
-                            <span class="tcc-list-num">01</span>
-                            Desenvolvimento de modelo de visão computacional para classificação de doenças em plantas
-                        </li>
-                        <li class="tcc-list-item">
-                            <span class="tcc-list-num">02</span>
-                            Criação de dataset com imagens de culturas da agricultura familiar brasileira
-                        </li>
-                        <li class="tcc-list-item">
-                            <span class="tcc-list-num">03</span>
-                            Design de interface acessível para usuários com baixa escolaridade digital
-                        </li>
-                        <li class="tcc-list-item">
-                            <span class="tcc-list-num">04</span>
-                            Implementação offline com modelo embarcado — TFLite e ONNX
-                        </li>
-                        <li class="tcc-list-item">
-                            <span class="tcc-list-num">05</span>
-                            Curadoria de tratamentos agroecológicos validados agronomicamente
-                        </li>
-                        <li class="tcc-list-item">
-                            <span class="tcc-list-num">06</span>
-                            Testes de usabilidade com agricultores familiares reais em campo
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Painel direito — claro -->
-                <div class="tcc-right">
-                    <div>
-                        <p class="eyebrow">Stack &amp; Ferramentas</p>
-                        <div class="tech-chips" style="margin-top:16px">
-                            <span class="chip">Python</span>
-                            <span class="chip">TensorFlow</span>
-                            <span class="chip">React Native</span>
-                            <span class="chip">TFLite</span>
-                            <span class="chip">Transfer Learning</span>
-                            <span class="chip">PlantVillage</span>
-                            <span class="chip">EfficientNet</span>
-                            <span class="chip">SQLite</span>
-                            <span class="chip">Expo</span>
-                            <span class="chip">UX Research</span>
-                        </div>
-                    </div>
-
-                    <div class="tcc-metrics">
-                        <div class="tcc-metric">
-                            <div class="tcc-metric-val">+38</div>
-                            <div class="tcc-metric-label">espécies de pragas e doenças mapeadas</div>
-                        </div>
-                        <div class="tcc-metric">
-                            <div class="tcc-metric-val">92%</div>
-                            <div class="tcc-metric-label">acurácia do modelo em validação</div>
-                        </div>
-                        <div class="tcc-metric">
-                            <div class="tcc-metric-val">0MB</div>
-                            <div class="tcc-metric-label">uso de dados móveis em operação</div>
-                        </div>
-                        <div class="tcc-metric">
-                            <div class="tcc-metric-val">&lt;2s</div>
-                            <div class="tcc-metric-label">tempo médio de diagnóstico</div>
-                        </div>
-                    </div>
-
-                    <div class="tcc-note">
-                        O projeto combina <strong>inteligência artificial embarcada</strong>, <strong>design centrado no usuário</strong> e <strong>conhecimento agroecológico</strong> para democratizar o acesso a diagnósticos fitossanitários no Brasil.
-                    </div>
+                    <span class="impact-row-label">Meio Ambiente</span>
                 </div>
 
             </div>
@@ -2065,7 +2175,15 @@
                 <p class="cta-sub">Acesse a demonstração e veja como o AgroScan funciona na prática.</p>
             </div>
             <div class="cta-actions">
-                <a href="login.html" class="btn btn-solid">Acessar o app →</a>
+                <a href="login.html" class="cta-btn-slide">
+                    <span class="cta-btn-slide-track">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" height="22px" width="22px">
+                            <path d="M800 480H224a32 32 0 1 0 0 64h576a32 32 0 0 0 0-64z" fill="#000"></path>
+                            <path d="m786.752 512-265.408-265.344a32 32 0 0 1 45.312-45.312l288 288a32 32 0 0 1 0 45.312l-288 288a32 32 0 1 1-45.312-45.312L786.752 512z" fill="#000"></path>
+                        </svg>
+                    </span>
+                    <span class="cta-btn-slide-label">Acessar o app</span>
+                </a>
                 <a href="#como-funciona" class="btn btn-ghost">Ver o fluxo</a>
             </div>
         </div>
@@ -2119,7 +2237,7 @@
         const progressBar = document.getElementById('progress');
         window.addEventListener('scroll', () => {
             const total = document.documentElement.scrollHeight - window.innerHeight;
-            progressBar.style.width = (window.scrollY / total * 100) + '%';
+            if (progressBar) progressBar.style.width = (window.scrollY / total * 100) + '%';
         }, { passive: true });
 
         /* ── NAV SCROLL ── */
