@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\pedro\\source\\repos\\Carrero007\\AgroScan\\agr vai\\AgroScan\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{1B668321-12B1-4FE2-B19C-F283F710AD2D}|AgroScan\\AgroScan.csproj|c:\\users\\pedro\\source\\repos\\carrero007\\agroscan\\agr vai\\agroscan\\agroscan\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1B668321-12B1-4FE2-B19C-F283F710AD2D}|AgroScan\\AgroScan.csproj|solutionrelative:agroscan\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{1B668321-12B1-4FE2-B19C-F283F710AD2D}|AgroScan\\AgroScan.csproj|c:\\users\\pedro\\source\\repos\\carrero007\\agroscan\\agr vai\\agroscan\\agroscan\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1B668321-12B1-4FE2-B19C-F283F710AD2D}|AgroScan\\AgroScan.csproj|solutionrelative:agroscan\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -23,6 +27,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "index.html",
+              "DocumentMoniker": "C:\\Users\\pedro\\source\\repos\\Carrero007\\AgroScan\\agr vai\\AgroScan\\AgroScan\\wwwroot\\index.html",
+              "RelativeDocumentMoniker": "AgroScan\\wwwroot\\index.html",
+              "ToolTip": "C:\\Users\\pedro\\source\\repos\\Carrero007\\AgroScan\\agr vai\\AgroScan\\AgroScan\\wwwroot\\index.html",
+              "RelativeToolTip": "AgroScan\\wwwroot\\index.html",
+              "ViewState": "AgIAAFYHAAAAAAAAAADwv2MHAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2026-03-24T01:00:26.904Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "LoginController.cs",
               "DocumentMoniker": "C:\\Users\\pedro\\source\\repos\\Carrero007\\AgroScan\\agr vai\\AgroScan\\AgroScan\\Controllers\\LoginController.cs",
               "RelativeDocumentMoniker": "AgroScan\\Controllers\\LoginController.cs",
