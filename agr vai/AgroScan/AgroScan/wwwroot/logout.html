@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Sair</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="logout-page">
+        <div class="logout-card">
+            <span class="logout-icon">👋</span>
+            <h2>Deseja sair?</h2>
+            <p>Você será desconectado da sua conta.</p>
+            <button class="btn btn-danger" onclick="logout()">Sim, sair</button>
+            <button class="btn btn-outline" onclick="window.location.href='dashboard.html'">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('authenticated') !== 'true') {
+            window.location.replace('login.html');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

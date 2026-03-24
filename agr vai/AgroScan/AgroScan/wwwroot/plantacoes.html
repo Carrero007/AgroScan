@@ -1,0 +1,613 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan — Plantações</title>
+    <link rel="stylesheet" href="plantas.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .page-header-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 6px 16px rgba(79,101,44,0.3);
+            flex-shrink: 0;
+        }
+
+        .page-header h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .page-header p {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 2px 0 0;
+        }
+
+        .nav-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: var(--surface);
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+            .nav-bar a {
+                padding: 9px 16px;
+                border-radius: 9px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-soft);
+                text-decoration: none;
+                transition: all 0.2s;
+                white-space: nowrap;
+            }
+
+                .nav-bar a:hover {
+                    background: rgba(127,154,79,0.1);
+                    color: var(--primary);
+                }
+
+                .nav-bar a.active {
+                    background: var(--primary);
+                    color: white;
+                }
+
+        /* Form de adição melhorado */
+        .form-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 22px;
+            border: 1px solid var(--border);
+            box-shadow: 0 6px 20px rgba(31,0,13,0.06);
+            margin-bottom: 24px;
+        }
+
+            .form-card h2 {
+                font-family: 'DM Serif Display', serif;
+                font-size: 20px;
+                margin-bottom: 16px;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+            .form-grid input, .form-grid textarea {
+                padding: 10px 14px;
+                border-radius: 8px;
+                border: 1.5px solid var(--border);
+                font-size: 14px;
+                font-family: inherit;
+                transition: 0.2s;
+                background: var(--surface);
+                color: var(--text);
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+                .form-grid input:focus, .form-grid textarea:focus {
+                    outline: none;
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 3px rgba(127,154,79,0.15);
+                }
+
+            .form-grid .span2 {
+                grid-column: span 2;
+            }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+            grid-column: span 2;
+            flex-wrap: wrap;
+        }
+
+        /* Toolbar da tabela */
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+            .table-toolbar h2 {
+                font-family: 'DM Serif Display', serif;
+                font-size: 20px;
+                margin: 0;
+            }
+
+        .search-input {
+            padding: 9px 14px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            font-family: inherit;
+            transition: 0.2s;
+            min-width: 220px;
+            background: var(--surface);
+            color: var(--text);
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(127,154,79,0.15);
+            }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+        }
+
+            .empty-state .es-icon {
+                font-size: 48px;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+        /* Tags inline na tabela */
+        .tag-sm {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            margin: 1px;
+        }
+
+        .tag-med {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .tag-com {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .tag-tox {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Modal de edição */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+            .modal-overlay.open {
+                display: flex;
+            }
+
+        .modal {
+            background: var(--surface);
+            border-radius: 18px;
+            padding: 28px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            margin-bottom: 18px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: var(--border);
+            color: var(--text);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Confirmação de exclusão */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+            .confirm-overlay.open {
+                display: flex;
+            }
+
+        .confirm-box {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 28px 24px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+            .confirm-box .ci {
+                font-size: 40px;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+            .confirm-box p {
+                font-size: 15px;
+                color: var(--text-soft);
+                margin-bottom: 20px;
+            }
+
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+            .btn-danger:hover {
+                background: #b91c1c;
+            }
+
+        td button {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+                .form-grid .span2 {
+                    grid-column: span 1;
+                }
+
+            .form-actions {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <nav class="nav-bar">
+            <a href="identificarplanta.html">🔍 Identificar</a>
+            <a href="analisarplanta.html">🩺 Diagnosticar</a>
+            <a href="plantacoes.html" class="active">🌱 Plantações</a>
+            <a href="plantas.html">📋 Plantas</a>
+        </nav>
+
+        <div class="page-header">
+            <div class="page-header-icon">🌱</div>
+            <div>
+                <h1>Plantações</h1>
+                <p>Gerencie as plantas cadastradas no sistema</p>
+            </div>
+        </div>
+
+        <!-- Formulário de adição -->
+        <div class="form-card">
+            <h2>➕ Adicionar plantação</h2>
+            <div class="form-grid">
+                <input id="f-nomeCientifico" placeholder="Nome Científico *" required>
+                <input id="f-nomePopular" placeholder="Nome Popular">
+                <input id="f-tipoPlanta" placeholder="Tipo de Planta">
+                <input id="f-cicloVida" placeholder="Ciclo de Vida">
+                <input id="f-clima" placeholder="Clima">
+                <input id="f-luminosidade" placeholder="Luminosidade">
+                <input id="f-rega" placeholder="Rega">
+                <input id="f-tipoSolo" placeholder="Tipo de Solo">
+                <input id="f-familia" placeholder="Família">
+                <input id="f-origem" placeholder="Origem">
+                <textarea id="f-usos" placeholder="Usos" class="span2" rows="2"></textarea>
+                <textarea id="f-descricao" placeholder="Descrição" class="span2" rows="2"></textarea>
+                <div class="span2" style="display:flex;gap:16px;flex-wrap:wrap;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer;">
+                        <input type="checkbox" id="f-ehMedicinal">  🌿 Medicinal
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer;">
+                        <input type="checkbox" id="f-ehComestivel"> 🍽️ Comestível
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer;">
+                        <input type="checkbox" id="f-ehToxica">     ⚠️ Tóxica
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-main" onclick="adicionar()">💾 Salvar plantação</button>
+                    <button class="btn-cancel" onclick="limparForm()">✕ Limpar</button>
+                </div>
+            </div>
+            <p id="msg-add" style="display:none;color:#16a34a;font-weight:600;margin-top:10px;font-size:13px;">✅ Plantação adicionada!</p>
+        </div>
+
+        <!-- Tabela -->
+        <div class="form-card">
+            <div class="table-toolbar">
+                <h2>📋 Plantações cadastradas</h2>
+                <input class="search-input" id="searchInput" placeholder="🔍 Buscar..." oninput="filtrar()">
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table id="tabela">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome Popular</th>
+                            <th>Nome Científico</th>
+                            <th>Tipo</th>
+                            <th>Clima</th>
+                            <th>Atributos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <span class="es-icon">🌱</span>
+                <p>Nenhuma plantação cadastrada ainda.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal de edição -->
+    <div class="modal-overlay" id="modalEdit">
+        <div class="modal">
+            <h3>✏️ Editar plantação</h3>
+            <div class="form-grid">
+                <input id="e-nomeCientifico" placeholder="Nome Científico *" required>
+                <input id="e-nomePopular" placeholder="Nome Popular">
+                <input id="e-tipoPlanta" placeholder="Tipo de Planta">
+                <input id="e-cicloVida" placeholder="Ciclo de Vida">
+                <input id="e-clima" placeholder="Clima">
+                <input id="e-luminosidade" placeholder="Luminosidade">
+                <input id="e-rega" placeholder="Rega">
+                <input id="e-tipoSolo" placeholder="Tipo de Solo">
+                <input id="e-familia" placeholder="Família">
+                <input id="e-origem" placeholder="Origem">
+                <textarea id="e-usos" placeholder="Usos" class="span2" rows="2"></textarea>
+                <textarea id="e-descricao" placeholder="Descrição" class="span2" rows="2"></textarea>
+                <div class="span2" style="display:flex;gap:16px;flex-wrap:wrap;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer;">
+                        <input type="checkbox" id="e-ehMedicinal">  🌿 Medicinal
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer;">
+                        <input type="checkbox" id="e-ehComestivel"> 🍽️ Comestível
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer;">
+                        <input type="checkbox" id="e-ehToxica">     ⚠️ Tóxica
+                    </label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-main" onclick="salvarEdicao()">💾 Salvar alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmação de exclusão -->
+    <div class="confirm-overlay" id="confirmDelete">
+        <div class="confirm-box">
+            <span class="ci">🗑️</span>
+            <p>Tem certeza que deseja excluir esta plantação? Esta ação não pode ser desfeita.</p>
+            <div class="confirm-actions">
+                <button class="btn-cancel" onclick="fecharConfirm()">Cancelar</button>
+                <button class="btn-danger" onclick="confirmarDelete()">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '/Plantas';
+        let todasPlantas = [], editId = null, deleteId = null;
+
+        // ── Carregar ──
+        async function carregar() {
+            try {
+                const res = await fetch(API);
+                if (!res.ok) throw new Error();
+                todasPlantas = await res.json();
+                renderTabela(todasPlantas);
+            } catch { alert('Erro ao carregar plantações.'); }
+        }
+
+        function renderTabela(lista) {
+            const tbody = document.getElementById('tbody');
+            const empty = document.getElementById('emptyState');
+            if (!lista.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            tbody.innerHTML = lista.map(p => `
+                <tr>
+                    <td>${p.plantaId}</td>
+                    <td><strong>${esc(p.nomePopular || '—')}</strong></td>
+                    <td><em>${esc(p.nomeCientifico)}</em></td>
+                    <td>${esc(p.tipoPlanta || '—')}</td>
+                    <td>${esc(p.clima || '—')}</td>
+                    <td>
+                        ${p.ehMedicinal ? '<span class="tag-sm tag-med">Medicinal</span>' : ''}
+                        ${p.ehComestivel ? '<span class="tag-sm tag-com">Comestível</span>' : ''}
+                        ${p.ehToxica ? '<span class="tag-sm tag-tox">Tóxica</span>' : ''}
+                    </td>
+                    <td>
+                        <button class="btn-main" onclick="abrirEdicao(${p.plantaId})" style="padding:6px 10px;font-size:12px;margin-right:4px;">✏️</button>
+                        <button class="danger" onclick="abrirConfirm(${p.plantaId})" style="padding:6px 10px;font-size:12px;">🗑️</button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function filtrar() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            renderTabela(todasPlantas.filter(p =>
+                (p.nomePopular || '').toLowerCase().includes(q) ||
+                (p.nomeCientifico || '').toLowerCase().includes(q) ||
+                (p.tipoPlanta || '').toLowerCase().includes(q)
+            ));
+        }
+
+        // ── Adicionar ──
+        async function adicionar() {
+            const nomeCientifico = document.getElementById('f-nomeCientifico').value.trim();
+            if (!nomeCientifico) { alert('Nome científico é obrigatório.'); return; }
+            try {
+                const res = await fetch(API, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(coletarForm('f'))
+                });
+                if (!res.ok) throw new Error();
+                limparForm();
+                document.getElementById('msg-add').style.display = 'block';
+                setTimeout(() => document.getElementById('msg-add').style.display = 'none', 3000);
+                carregar();
+            } catch { alert('Erro ao adicionar.'); }
+        }
+
+        function limparForm() {
+            ['nomeCientifico', 'nomePopular', 'tipoPlanta', 'cicloVida', 'clima', 'luminosidade', 'rega', 'tipoSolo', 'familia', 'origem', 'usos', 'descricao']
+                .forEach(f => { const el = document.getElementById('f-' + f); if (el) el.value = ''; });
+            ['ehMedicinal', 'ehComestivel', 'ehToxica'].forEach(f => {
+                const el = document.getElementById('f-' + f); if (el) el.checked = false;
+            });
+        }
+
+        // ── Edição ──
+        function abrirEdicao(id) {
+            const p = todasPlantas.find(x => x.plantaId === id);
+            if (!p) return;
+            editId = id;
+            ['nomeCientifico', 'nomePopular', 'tipoPlanta', 'cicloVida', 'clima', 'luminosidade', 'rega', 'tipoSolo', 'familia', 'origem', 'usos', 'descricao']
+                .forEach(f => { const el = document.getElementById('e-' + f); if (el) el.value = p[f] || ''; });
+            ['ehMedicinal', 'ehComestivel', 'ehToxica'].forEach(f => {
+                const el = document.getElementById('e-' + f); if (el) el.checked = !!p[f];
+            });
+            document.getElementById('modalEdit').classList.add('open');
+        }
+
+        function fecharModal() { document.getElementById('modalEdit').classList.remove('open'); editId = null; }
+
+        async function salvarEdicao() {
+            if (!editId) return;
+            try {
+                const res = await fetch(`${API}/${editId}`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(coletarForm('e'))
+                });
+                if (!res.ok) throw new Error();
+                fecharModal(); carregar();
+            } catch { alert('Erro ao editar.'); }
+        }
+
+        // ── Exclusão ──
+        function abrirConfirm(id) { deleteId = id; document.getElementById('confirmDelete').classList.add('open'); }
+        function fecharConfirm() { document.getElementById('confirmDelete').classList.remove('open'); deleteId = null; }
+
+        async function confirmarDelete() {
+            if (!deleteId) return;
+            try {
+                const res = await fetch(`${API}/${deleteId}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error();
+                fecharConfirm(); carregar();
+            } catch { alert('Erro ao excluir.'); }
+        }
+
+        // ── Helper: coleta campos do form pelo prefixo ──
+        function coletarForm(prefix) {
+            const g = id => document.getElementById(prefix + '-' + id)?.value?.trim() || '';
+            const c = id => !!document.getElementById(prefix + '-' + id)?.checked;
+            return {
+                nomeCientifico: g('nomeCientifico'), nomePopular: g('nomePopular'),
+                tipoPlanta: g('tipoPlanta'), cicloVida: g('cicloVida'), clima: g('clima'),
+                luminosidade: g('luminosidade'), rega: g('rega'), tipoSolo: g('tipoSolo'),
+                familia: g('familia'), origem: g('origem'), usos: g('usos'), descricao: g('descricao'),
+                ehMedicinal: c('ehMedicinal'), ehComestivel: c('ehComestivel'), ehToxica: c('ehToxica')
+            };
+        }
+
+        function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        // Fechar modal clicando fora
+        document.getElementById('modalEdit').addEventListener('click', e => { if (e.target === e.currentTarget) fecharModal(); });
+        document.getElementById('confirmDelete').addEventListener('click', e => { if (e.target === e.currentTarget) fecharConfirm(); });
+
+        carregar();
+    </script>
+</body>
+</html>

@@ -10,15 +10,15 @@ namespace AgroScan.Controllers
     public class LoginController : ControllerBase
     {
         private readonly ILogger<LoginController> _logger;
+        private readonly IConfiguration _config;
 
-        private const string ConnectionString =
-            "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=AgroScan;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
+        private string ConnectionString => _config.GetConnectionString("DefaultConnection")!;
 
-        public LoginController(ILogger<LoginController> logger)
+        public LoginController(ILogger<LoginController> logger, IConfiguration config)
         {
             _logger = logger;
+            _config = config;
         }
-
         // POST api/login
         [HttpPost]
         public ActionResult<object> ValidarLogin([FromBody] Login login)

@@ -1,0 +1,213 @@
+﻿/* =========================
+   DESIGN SYSTEM BASE
+========================= */
+:root {
+    --bg: #e6ddc3;
+    --surface: #ffffff;
+    --primary: #647e37;
+    --primary-dark: #4f652c;
+    --primary-soft: #7f9a4f;
+    --accent: #6e9a81;
+    --text: #1f000d;
+    --text-soft: #4a1a2a;
+    --border: #d8cfb4;
+    --muted: #b5ab8c;
+    --danger: #300013;
+    --radius: 14px;
+}
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Inter", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* =========================
+   LAYOUT GLOBAL
+========================= */
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 30px 20px;
+}
+
+.center {
+    text-align: center;
+}
+
+/* =========================
+   TIPOGRAFIA
+========================= */
+h1 {
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+p {
+    color: var(--text-soft);
+}
+
+/* =========================
+   CARDS (REUTILIZÁVEL)
+========================= */
+.card,
+.card-upload,
+.form {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 22px;
+    border: 1px solid var(--border);
+    box-shadow: 0 6px 20px rgba(31,0,13,0.06);
+    margin-bottom: 20px;
+}
+
+/* =========================
+   BOTÕES (PADRÃO GLOBAL)
+========================= */
+button,
+.btn-main {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.25s;
+}
+
+    button:hover,
+    .btn-main:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(79,101,44,0.25);
+    }
+
+    /* botão secundário (excluir) */
+    button.danger {
+        background: var(--danger);
+    }
+
+        button.danger:hover {
+            background: #1f000d;
+        }
+
+/* =========================
+   UPLOAD (REUTILIZADO)
+========================= */
+.upload-box {
+    margin: 15px 0;
+    padding: 30px;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .25s;
+    font-weight: 500;
+}
+
+    .upload-box:hover {
+        border-color: var(--primary);
+        background: rgba(127,154,79,0.08);
+    }
+
+/* =========================
+   FORMULÁRIOS
+========================= */
+.form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+    .form input {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+        .form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(127,154,79,0.15);
+        }
+
+    /* botão dentro do form ocupa linha inteira */
+    .form button {
+        grid-column: span 2;
+        margin-top: 8px;
+    }
+
+/* =========================
+   TABELA (PROFISSIONAL)
+========================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(31,0,13,0.06);
+}
+
+thead {
+    background: var(--primary);
+    color: white;
+}
+
+th, td {
+    padding: 14px;
+    text-align: left;
+}
+
+th {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: 0.2s;
+}
+
+    tbody tr:hover {
+        background: rgba(127,154,79,0.08);
+    }
+
+td button {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+/* =========================
+   MICROINTERAÇÕES
+========================= */
+.card:hover,
+.card-upload:hover {
+    transform: translateY(-2px);
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 600px) {
+
+    .form {
+        grid-template-columns: 1fr;
+    }
+
+        .form button {
+            grid-column: span 1;
+        }
+
+    h1 {
+        font-size: 24px;
+    }
+}
