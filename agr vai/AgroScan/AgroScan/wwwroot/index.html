@@ -722,75 +722,83 @@
                 /* ─────────────────────────────────────────
            PROBLEM SECTION
         ───────────────────────────────────────── */
-                .section-problema {
-                    background: var(--c-bg);
-                }
+        .section-problema {
+            background: var(--c-bg);
+        }
 
-                .problema-layout {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 80px;
-                    align-items: center;
-                }
+        .problema-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
 
-                @media (max-width: 860px) {
-                    .problema-layout {
-                        grid-template-columns: 1fr;
-                        gap: 48px;
-                    }
-                }
+        @media (max-width: 860px) {
+            .problema-layout {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+        }
 
-                .stat-cards {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 16px;
-                }
+        .stat-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
 
-                @media (max-width: 420px) {
-                    .stat-cards {
-                        grid-template-columns: 1fr;
-                    }
-                }
+        @media (max-width: 420px) {
+            .stat-cards {
+                grid-template-columns: 1fr;
+            }
+        }
 
-                .stat-card {
-                    background: var(--c-surface);
-                    border: 1px solid var(--c-border);
-                    border-radius: var(--r-lg);
-                    padding: 28px 24px;
-                    position: relative;
-                    overflow: hidden;
-                    transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
-                }
+        .stat-card {
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: var(--r-lg);
+            padding: 28px 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.22);
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.5s;
+        }
 
-                    .stat-card::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        height: 3px;
-                        background: linear-gradient(90deg, var(--c-green), var(--c-accent));
-                    }
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--c-green), var(--c-accent));
+            }
 
-                    .stat-card:hover {
-                        transform: translateY(-4px);
-                        box-shadow: 0 16px 40px rgba(14,26,15,0.08);
-                    }
+            .stat-card:hover {
+                border: 1px solid rgb(16, 134, 0);
+                transform: scale(1.05);
+            }
 
-                .stat-card-num {
-                    font-family: var(--font-display);
-                    font-size: 2.4rem;
-                    color: var(--c-green);
-                    line-height: 1;
-                    letter-spacing: -0.03em;
-                }
+            .stat-card:active {
+                transform: scale(0.95) rotateZ(1.7deg);
+            }
 
-                .stat-card-desc {
-                    font-size: 0.8rem;
-                    color: var(--c-ink-3);
-                    margin-top: 8px;
-                    line-height: 1.5;
-                }
+        .stat-card-num {
+            font-family: var(--font-display);
+            font-size: 2.4rem;
+            color: var(--c-green);
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        .stat-card-desc {
+            font-size: 0.8rem;
+            color: var(--c-ink-3);
+            margin-top: 8px;
+            line-height: 1.5;
+        }
 
                 /* ─────────────────────────────────────────
            HOW IT WORKS — flip cards
@@ -1857,7 +1865,7 @@
         <div class="nav-links">
             <a href="#como-funciona">Como funciona</a>
             <a href="#funcionalidades">Funcionalidades</a>
-            <a href="#tcc">Sobre</a>
+            <a href="sobre.html">Sobre</a>
             <a href="login.html" class="nav-cta">Acessar →</a>
         </div>
     </nav>
@@ -2204,7 +2212,6 @@
                     <a href="#como-funciona">Como Funciona</a>
                     <a href="#funcionalidades">Funcionalidades</a>
                     <a href="#impacto">Impacto</a>
-                    <a href="#tcc">Sobre o TCC</a>
                 </div>
             </div>
 
@@ -2227,7 +2234,7 @@
             </div>
             <div class="footer-badge">
                 <span class="footer-badge-dot"></span>
-                OFFLINE READY
+                READY
             </div>
         </div>
     </footer>
