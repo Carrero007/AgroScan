@@ -16,6 +16,11 @@
     --radius: 14px;
 }
 
+/* Trava todos os textareas */
+textarea {
+    resize: none;
+}
+
 /* RESET */
 * {
     margin: 0;

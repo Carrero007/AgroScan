@@ -8,536 +8,825 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'DM Sans', sans-serif; }
-        .nav-bar { display:flex; gap:8px; margin-bottom:28px; background:var(--surface); padding:8px; border-radius:14px; border:1px solid var(--border); flex-wrap:wrap; }
-        .nav-bar a { padding:9px 16px; border-radius:9px; font-size:13px; font-weight:600; color:var(--text-soft); text-decoration:none; transition:all 0.2s; white-space:nowrap; }
-        .nav-bar a:hover { background:rgba(127,154,79,0.1); color:var(--primary); }
-        .nav-bar a.active { background:var(--primary); color:white; }
-        .page-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
-        .page-header-icon { width:52px; height:52px; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 6px 16px rgba(79,101,44,0.3); flex-shrink:0; }
-        .page-header h1 { font-family:'DM Serif Display',serif; font-size:28px; margin:0; }
-        .page-header p  { font-size:14px; color:var(--muted); margin:2px 0 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
 
-        .upload-zone { border:2.5px dashed var(--border); border-radius:16px; padding:40px 24px; text-align:center; cursor:pointer; transition:all 0.25s; background:rgba(127,154,79,0.02); }
-        .upload-zone:hover,.upload-zone.over { border-color:var(--primary); background:rgba(127,154,79,0.07); }
-        .upload-zone .uz-icon { font-size:44px; display:block; margin-bottom:10px; }
-        .upload-zone .uz-title { font-size:15px; font-weight:700; color:var(--text); }
-        .upload-zone .uz-sub { font-size:13px; color:var(--muted); margin-top:4px; }
-        .preview-wrap { display:none; position:relative; margin-bottom:4px; }
-        .preview-wrap.show { display:block; }
-        .preview-img { width:100%; max-height:260px; object-fit:contain; border-radius:14px; border:2px solid var(--border); display:block; }
-        .btn-trocar { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.55); color:white; border:none; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; }
+        .nav-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: var(--surface);
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
 
-        .form-section { margin-top:22px; padding-top:18px; border-top:1px solid var(--border); }
-        .form-section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--primary); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+            .nav-bar a {
+                padding: 9px 16px;
+                border-radius: 9px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-soft);
+                text-decoration: none;
+                transition: all 0.2s;
+                white-space: nowrap;
+            }
 
-        .chip-label { font-size:12px; font-weight:600; color:var(--text-soft); margin-bottom:7px; margin-top:12px; display:block; }
-        .chip-label:first-child { margin-top:0; }
-        .chip-group { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:4px; }
-        .chip { padding:6px 13px; border-radius:20px; font-size:12px; font-weight:600; border:2px solid var(--border); background:var(--surface); color:var(--text-soft); cursor:pointer; transition:all 0.18s; user-select:none; font-family:inherit; line-height:1.4; }
-        .chip:hover { border-color:var(--primary-soft); color:var(--primary); }
-        .chip.selected { background:var(--primary); border-color:var(--primary); color:white; }
+                .nav-bar a:hover {
+                    background: rgba(127,154,79,0.1);
+                    color: var(--primary);
+                }
 
-        .textarea-field { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-family:inherit; resize:vertical; min-height:70px; transition:border-color 0.2s; background:var(--surface); color:var(--text); box-sizing:border-box; }
-        .textarea-field:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(127,154,79,0.15); }
+                .nav-bar a.active {
+                    background: var(--primary);
+                    color: white;
+                }
 
-        .progress-wrap { margin:20px 0 0; }
-        .progress-top { font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:600; display:flex; justify-content:space-between; }
-        .progress-bg { height:6px; background:var(--border); border-radius:10px; overflow:hidden; }
-        .progress-fill { height:100%; background:linear-gradient(90deg,var(--primary-soft),var(--primary)); border-radius:10px; transition:width 0.35s ease; }
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
 
-        .btn-analisar { width:100%; padding:15px; margin-top:20px; border-radius:12px; border:none; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; font-size:16px; font-weight:700; cursor:pointer; transition:0.25s; font-family:inherit; }
-        .btn-analisar:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 24px rgba(79,101,44,0.35); }
-        .btn-analisar:disabled { opacity:0.45; cursor:not-allowed; transform:none; }
+        .page-header-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 6px 16px rgba(79,101,44,0.3);
+            flex-shrink: 0;
+        }
 
-        .loading-box { display:none; text-align:center; padding:36px; }
-        .spinner { width:46px; height:46px; border:4px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 14px; }
-        @keyframes spin { to { transform:rotate(360deg); } }
+        .page-header h1 {
+            font-family: 'DM Serif Display',serif;
+            font-size: 28px;
+            margin: 0;
+        }
 
-        .result-wrap { display:none; }
-        .result-wrap.show { display:block; animation:fadeUp 0.4s ease; }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+        .page-header p {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 2px 0 0;
+        }
 
-        .result-hero { display:flex; align-items:center; gap:16px; padding-bottom:18px; margin-bottom:18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
-        .result-hero-name { font-family:'DM Serif Display',serif; font-size:24px; line-height:1.2; }
-        .result-hero-sci  { font-size:13px; color:var(--muted); font-style:italic; margin-top:3px; }
-        .badge { padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700; flex-shrink:0; }
-        .badge-green  { background:#dcfce7; color:#16a34a; }
-        .badge-yellow { background:#fef3c7; color:#d97706; }
-        .badge-red    { background:#fee2e2; color:#dc2626; }
-        .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-bottom:18px; }
-        .info-tile { background:rgba(127,154,79,0.05); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
-        .info-tile .lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-bottom:4px; }
-        .info-tile .val { font-size:14px; font-weight:600; color:var(--text); }
-        .tags-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
-        .tag { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; }
-        .tag-blue  { background:#dbeafe; color:#2563eb; }
-        .tag-green { background:#dcfce7; color:#16a34a; }
-        .tag-red   { background:#fee2e2; color:#dc2626; }
-        .section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); display:flex; align-items:center; gap:6px; margin:18px 0 10px; }
-        .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
-        .text-block { background:rgba(127,154,79,0.04); border-left:3px solid var(--primary); border-radius:0 10px 10px 0; padding:12px 16px; font-size:14px; line-height:1.7; color:var(--text-soft); }
-        .save-bar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:20px; padding-top:18px; border-top:1px solid var(--border); }
-        .msg-ok { font-size:13px; font-weight:600; color:#16a34a; display:none; }
-        @media(max-width:600px){ .info-grid{grid-template-columns:1fr 1fr;} }
+        .upload-zone {
+            border: 2.5px dashed var(--border);
+            border-radius: 16px;
+            padding: 40px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: rgba(127,154,79,0.02);
+        }
+
+            .upload-zone:hover, .upload-zone.over {
+                border-color: var(--primary);
+                background: rgba(127,154,79,0.07);
+            }
+
+            .upload-zone .uz-icon {
+                font-size: 44px;
+                display: block;
+                margin-bottom: 10px;
+            }
+
+            .upload-zone .uz-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--text);
+            }
+
+            .upload-zone .uz-sub {
+                font-size: 13px;
+                color: var(--muted);
+                margin-top: 4px;
+            }
+
+        .preview-wrap {
+            display: none;
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+            .preview-wrap.show {
+                display: block;
+            }
+
+        .preview-img {
+            width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            display: block;
+        }
+
+        .btn-trocar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.55);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .form-section {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .form-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .chip-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-soft);
+            margin: 12px 0 7px;
+            display: block;
+        }
+
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .chip {
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            color: var(--text-soft);
+            cursor: pointer;
+            transition: all 0.18s;
+            user-select: none;
+            font-family: inherit;
+        }
+
+            .chip:hover {
+                border-color: var(--primary-soft);
+                color: var(--primary);
+            }
+
+            .chip.selected {
+                background: var(--primary);
+                border-color: var(--primary);
+                color: white;
+            }
+
+        .textarea-field {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s;
+            background: var(--surface);
+            color: var(--text);
+            box-sizing: border-box;
+            margin-top: 8px;
+        }
+
+            .textarea-field:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(127,154,79,0.15);
+            }
+
+        .btn-analisar {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+            font-family: inherit;
+        }
+
+            .btn-analisar:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 24px rgba(79,101,44,0.35);
+            }
+
+            .btn-analisar:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        .loading-box {
+            display: none;
+            text-align: center;
+            padding: 36px;
+        }
+
+        .spinner {
+            width: 46px;
+            height: 46px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 14px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-wrap {
+            display: none;
+        }
+
+            .result-wrap.show {
+                display: block;
+                animation: fadeUp 0.4s ease;
+            }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-hero {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 18px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .result-hero-name {
+            font-family: 'DM Serif Display',serif;
+            font-size: 24px;
+            line-height: 1.2;
+        }
+
+        .result-hero-sci {
+            font-size: 13px;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 3px;
+        }
+
+        .badge {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .badge-yellow {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .info-tile {
+            background: rgba(127,154,79,0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+            .info-tile .lbl {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.07em;
+                color: var(--muted);
+                margin-bottom: 4px;
+            }
+
+            .info-tile .val {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text);
+            }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .tag-blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .tag-green {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .tag-red {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 18px 0 10px;
+        }
+
+            .section-title::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+
+        .text-block {
+            background: rgba(127,154,79,0.04);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 10px 10px 0;
+            padding: 12px 16px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-soft);
+        }
+
+        .save-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .msg-ok {
+            font-size: 13px;
+            font-weight: 600;
+            color: #16a34a;
+            display: none;
+        }
+
+        @media(max-width:600px) {
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="container">
+    <div class="container">
 
-    <nav class="nav-bar">
-        <a href="identificarplanta.html" class="active">&#128269; Identificar</a>
-        <a href="analisarplanta.html">&#129323; Diagnosticar</a>
-        <a href="plantacoes.html">&#127807; Plantacoes</a>
-        <a href="plantas.html">&#128203; Plantas</a>
-    </nav>
+        <nav class="nav-bar">
+            <a href="identificarplanta.html" class="active">&#128269; Identificar</a>
+            <a href="analisarplanta.html">&#129323; Diagnosticar</a>
+            <a href="plantacoes.html">&#127807; Plantacoes</a>
+            <a href="plantas.html">&#128203; Plantas</a>
+        </nav>
 
-    <div class="page-header">
-        <div class="page-header-icon">&#128269;</div>
-        <div>
-            <h1>Identificar Planta</h1>
-            <p>Quanto mais detalhes voce fornecer, mais precisa sera a identificacao pela IA</p>
+        <div class="page-header">
+            <div class="page-header-icon">&#128269;</div>
+            <div>
+                <h1>Identificar Planta</h1>
+                <p>Envie uma foto e preencha o que souber para melhorar a identificacao</p>
+            </div>
         </div>
+
+        <div class="card">
+
+            <!-- FOTO -->
+            <div id="uploadZone" class="upload-zone"
+                 onclick="document.getElementById('fileInput').click()"
+                 ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+                <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(this)">
+                <span class="uz-icon">&#127807;</span>
+                <div class="uz-title">Clique ou arraste a foto da planta</div>
+                <div class="uz-sub">JPG, PNG ou WEBP</div>
+            </div>
+            <div class="preview-wrap" id="previewWrap">
+                <img class="preview-img" id="previewImg" alt="Preview">
+                <button class="btn-trocar" onclick="resetImagem()">Trocar foto</button>
+            </div>
+
+            <!-- PORTE -->
+            <div class="form-section">
+                <div class="form-section-title">Porte e estrutura</div>
+                <span class="chip-label">Porte da planta</span>
+                <div class="chip-group" data-group="porte" data-type="single">
+                    <button class="chip" data-value="Herbácea pequena (até 50cm)">Herbácea</button>
+                    <button class="chip" data-value="Arbustiva (50cm a 2m)">Arbustiva</button>
+                    <button class="chip" data-value="Árvore">Árvore</button>
+                    <button class="chip" data-value="Trepadeira ou cipó">Trepadeira</button>
+                    <button class="chip" data-value="Rasteira">Rasteira</button>
+                    <button class="chip" data-value="Suculenta ou cacto">Suculenta/Cacto</button>
+                    <button class="chip" data-value="Palmeira">Palmeira</button>
+                </div>
+                <span class="chip-label">Caule</span>
+                <div class="chip-group" data-group="caule" data-type="single">
+                    <button class="chip" data-value="Caule verde e flexível">Verde/Flexível</button>
+                    <button class="chip" data-value="Caule lenhoso (madeira)">Lenhoso</button>
+                    <button class="chip" data-value="Caule suculento (carnoso)">Suculento</button>
+                    <button class="chip" data-value="Caule com espinhos">Com espinhos</button>
+                    <button class="chip" data-value="Caule com látex branco">Com látex branco</button>
+                </div>
+            </div>
+
+            <!-- FOLHAS -->
+            <div class="form-section">
+                <div class="form-section-title">Folhas</div>
+                <span class="chip-label">Formato</span>
+                <div class="chip-group" data-group="folhaFormato" data-type="single">
+                    <button class="chip" data-value="Folhas ovais">Ovais</button>
+                    <button class="chip" data-value="Folhas lanceoladas (lança)">Lanceoladas</button>
+                    <button class="chip" data-value="Folhas arredondadas">Arredondadas</button>
+                    <button class="chip" data-value="Folhas longas e finas">Longas e finas</button>
+                    <button class="chip" data-value="Folhas compostas (vários folíolos)">Compostas</button>
+                    <button class="chip" data-value="Folhas palmatífidas (mão aberta)">Palmatífidas</button>
+                    <button class="chip" data-value="Folhas em agulha">Em agulha</button>
+                    <button class="chip" data-value="Folhas em coração">Em coração</button>
+                </div>
+                <span class="chip-label">Cor predominante</span>
+                <div class="chip-group" data-group="folhaCor" data-type="single">
+                    <button class="chip" data-value="Verde claro">Verde claro</button>
+                    <button class="chip" data-value="Verde escuro">Verde escuro</button>
+                    <button class="chip" data-value="Variegada (manchas claras)">Variegada</button>
+                    <button class="chip" data-value="Roxa ou vinho">Roxa/Vinho</button>
+                    <button class="chip" data-value="Avermelhada">Avermelhada</button>
+                    <button class="chip" data-value="Prateada ou cinza">Prateada</button>
+                </div>
+                <span class="chip-label">Textura</span>
+                <div class="chip-group" data-group="folhaTextura" data-type="multi">
+                    <button class="chip" data-value="Folhas lisas e brilhosas">Lisas/Brilhosas</button>
+                    <button class="chip" data-value="Folhas com pelos finos">Com pelos</button>
+                    <button class="chip" data-value="Folhas coriáceas (couro)">Coriáceas</button>
+                    <button class="chip" data-value="Folhas carnosas e grossas">Carnosas</button>
+                    <button class="chip" data-value="Folhas aromáticas ao amassar">Aromáticas</button>
+                    <button class="chip" data-value="Folhas ásperas">Ásperas</button>
+                </div>
+            </div>
+
+            <!-- FLORES E FRUTOS -->
+            <div class="form-section">
+                <div class="form-section-title">Flores e frutos</div>
+                <span class="chip-label">Flores</span>
+                <div class="chip-group" data-group="flores" data-type="multi">
+                    <button class="chip" data-value="Tem flores visíveis agora">Com flores</button>
+                    <button class="chip" data-value="Flores brancas">Brancas</button>
+                    <button class="chip" data-value="Flores amarelas">Amarelas</button>
+                    <button class="chip" data-value="Flores rosas">Rosas</button>
+                    <button class="chip" data-value="Flores vermelhas">Vermelhas</button>
+                    <button class="chip" data-value="Flores roxas ou lilás">Roxas/Lilás</button>
+                    <button class="chip" data-value="Flores laranja">Laranja</button>
+                    <button class="chip" data-value="Sem flores visíveis">Sem flores</button>
+                </div>
+                <span class="chip-label">Frutos</span>
+                <div class="chip-group" data-group="frutos" data-type="multi">
+                    <button class="chip" data-value="Produz frutos carnosos">Frutos carnosos</button>
+                    <button class="chip" data-value="Produz frutos secos ou vagens">Secos/Vagens</button>
+                    <button class="chip" data-value="Produz bagas pequenas">Bagas pequenas</button>
+                    <button class="chip" data-value="Frutos vermelhos">Vermelhos</button>
+                    <button class="chip" data-value="Frutos amarelos">Amarelos</button>
+                    <button class="chip" data-value="Frutos roxos ou pretos">Roxos/Pretos</button>
+                    <button class="chip" data-value="Não produz frutos">Sem frutos</button>
+                </div>
+            </div>
+
+            <!-- CARACTERISTICAS ESPECIAIS -->
+            <div class="form-section">
+                <div class="form-section-title">Caracteristicas especiais</div>
+                <div class="chip-group" data-group="especiais" data-type="multi">
+                    <button class="chip" data-value="Sem espinhos">Sem espinhos</button>
+                    <button class="chip" data-value="Espinhos no caule ou folhas">Com espinhos</button>
+                    <button class="chip" data-value="Pelos urticantes (urtiga)">Pelos urticantes</button>
+                    <button class="chip" data-value="Cheiro agradável e perfumado">Perfumada</button>
+                    <button class="chip" data-value="Cheiro forte de erva (menta, manjericão)">Cheiro forte de erva</button>
+                    <button class="chip" data-value="Cheiro cítrico">Cheiro cítrico</button>
+                    <button class="chip" data-value="Raízes aéreas visíveis">Raízes aéreas</button>
+                    <button class="chip" data-value="Planta aquática ou semi-aquática">Aquática</button>
+                </div>
+            </div>
+
+            <!-- AMBIENTE -->
+            <div class="form-section">
+                <div class="form-section-title">Ambiente</div>
+                <span class="chip-label">Onde está?</span>
+                <div class="chip-group" data-group="local" data-type="single">
+                    <button class="chip" data-value="Vaso interno (dentro de casa)">Vaso interno</button>
+                    <button class="chip" data-value="Vaso externo (varanda)">Vaso externo</button>
+                    <button class="chip" data-value="Jardim cultivado">Jardim</button>
+                    <button class="chip" data-value="Horta">Horta</button>
+                    <button class="chip" data-value="Mata ou campo aberto">Mata/Campo</button>
+                    <button class="chip" data-value="Beira de estrada">Beira de estrada</button>
+                </div>
+                <span class="chip-label">Regiao do Brasil</span>
+                <div class="chip-group" data-group="regiao" data-type="single">
+                    <button class="chip" data-value="Norte (Amazônia)">Norte</button>
+                    <button class="chip" data-value="Nordeste">Nordeste</button>
+                    <button class="chip" data-value="Centro-Oeste">Centro-Oeste</button>
+                    <button class="chip" data-value="Sudeste">Sudeste</button>
+                    <button class="chip" data-value="Sul">Sul</button>
+                </div>
+                <span class="chip-label">Sol</span>
+                <div class="chip-group" data-group="sol" data-type="single">
+                    <button class="chip" data-value="Sol pleno (mais de 6h por dia)">Sol pleno</button>
+                    <button class="chip" data-value="Meia sombra">Meia sombra</button>
+                    <button class="chip" data-value="Sombra ou luz indireta">Sombra</button>
+                </div>
+            </div>
+
+            <!-- OBSERVACOES -->
+            <div class="form-section">
+                <div class="form-section-title">Informacoes adicionais</div>
+                <textarea id="observacoes" class="textarea-field"
+                          placeholder="Descreva qualquer outra característica: tamanho, cheiro, uso popular conhecido, onde foi encontrada, etc."></textarea>
+            </div>
+
+            <button class="btn-analisar" id="btnAnalisar" onclick="analisar()" disabled>
+                Identificar com IA
+            </button>
+        </div>
+
+        <div class="loading-box" id="loading">
+            <div class="spinner"></div>
+            <p style="font-weight:600;color:var(--text-soft);">Identificando planta...</p>
+            <p style="font-size:13px;color:var(--muted);margin-top:4px;">Isso pode levar alguns segundos</p>
+        </div>
+
+        <div class="card result-wrap" id="resultado">
+            <div class="result-hero">
+                <div style="font-size:44px;">&#127807;</div>
+                <div style="flex:1">
+                    <div class="result-hero-name" id="r-nomePopular">-</div>
+                    <div class="result-hero-sci" id="r-nomeCientifico">-</div>
+                </div>
+                <div class="badge" id="r-confianca">-</div>
+            </div>
+            <div class="info-grid">
+                <div class="info-tile"><div class="lbl">Familia</div><div class="val" id="r-familia">-</div></div>
+                <div class="info-tile"><div class="lbl">Tipo</div><div class="val" id="r-tipoPlanta">-</div></div>
+                <div class="info-tile"><div class="lbl">Ciclo de vida</div><div class="val" id="r-cicloVida">-</div></div>
+                <div class="info-tile"><div class="lbl">Clima ideal</div><div class="val" id="r-clima">-</div></div>
+                <div class="info-tile"><div class="lbl">Luminosidade</div><div class="val" id="r-luminosidade">-</div></div>
+                <div class="info-tile"><div class="lbl">Rega</div><div class="val" id="r-rega">-</div></div>
+                <div class="info-tile"><div class="lbl">Solo</div><div class="val" id="r-tipoSolo">-</div></div>
+                <div class="info-tile"><div class="lbl">Origem</div><div class="val" id="r-origem">-</div></div>
+            </div>
+            <div class="tags-row" id="r-tags"></div>
+            <div class="section-title">Descricao</div>
+            <div class="text-block" id="r-descricao">-</div>
+            <div class="section-title">Usos</div>
+            <div class="text-block" id="r-usos">-</div>
+            <div class="save-bar">
+                <button class="btn-main" id="btnSalvar" onclick="salvarPlanta()">Salvar no banco</button>
+                <span class="msg-ok" id="msgSalvo">Planta salva!</span>
+            </div>
+        </div>
+
     </div>
+    <script>
+        var imgBase64 = null, imgMime = 'image/jpeg', dadosIA = null;
 
-    <div class="card">
+        // Inicializa chips
+        document.querySelectorAll('.chip-group').forEach(function (group) {
+            var tipo = group.getAttribute('data-type');
+            group.querySelectorAll('.chip').forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    if (tipo === 'single') {
+                        group.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('selected'); });
+                        chip.classList.toggle('selected');
+                    } else {
+                        chip.classList.toggle('selected');
+                    }
+                });
+            });
+        });
 
-        <!-- FOTO -->
-        <div id="uploadZone" class="upload-zone" onclick="triggerInput()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-            <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(this)">
-            <span class="uz-icon">&#127807;</span>
-            <div class="uz-title">Clique ou arraste a foto da planta</div>
-            <div class="uz-sub">JPG, PNG ou WEBP - obrigatorio para identificar</div>
-        </div>
-        <div class="preview-wrap" id="previewWrap">
-            <img class="preview-img" id="previewImg" alt="Preview">
-            <button class="btn-trocar" onclick="resetImagem()">Trocar foto</button>
-        </div>
+        function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('over'); }
+        function onDragLeave(e) { document.getElementById('uploadZone').classList.remove('over'); }
+        function onDrop(e) {
+            e.preventDefault();
+            document.getElementById('uploadZone').classList.remove('over');
+            var f = e.dataTransfer.files[0];
+            if (f && f.type.startsWith('image/')) loadImg(f);
+        }
+        function handleFile(input) { if (input.files[0]) loadImg(input.files[0]); }
 
-        <!-- 1. PORTE -->
-        <div class="form-section">
-            <div class="form-section-title">&#127807; Porte e estrutura</div>
-            <span class="chip-label">Porte geral da planta</span>
-            <div class="chip-group" data-group="porte" data-type="single">
-                <button class="chip" data-value="Herbácea pequena (até 50cm)">Herbácea (até 50cm)</button>
-                <button class="chip" data-value="Arbustiva (50cm a 2m)">Arbustiva (50cm-2m)</button>
-                <button class="chip" data-value="Arvoreta (2m a 5m)">Arvoreta (2-5m)</button>
-                <button class="chip" data-value="Árvore média (5m a 15m)">Árvore média (5-15m)</button>
-                <button class="chip" data-value="Árvore grande (acima de 15m)">Árvore grande (+15m)</button>
-                <button class="chip" data-value="Trepadeira ou cipó">Trepadeira/Cipó</button>
-                <button class="chip" data-value="Rasteira ou prostrada">Rasteira</button>
-                <button class="chip" data-value="Suculenta ou cacto">Suculenta/Cacto</button>
-                <button class="chip" data-value="Palmeira">Palmeira</button>
-                <button class="chip" data-value="Epífita ou bromélia">Bromélia/Epífita</button>
-            </div>
-            <span class="chip-label">Tipo de caule</span>
-            <div class="chip-group" data-group="caule" data-type="single">
-                <button class="chip" data-value="Caule herbáceo (verde e flexível)">Herbáceo (verde)</button>
-                <button class="chip" data-value="Caule lenhoso (madeira)">Lenhoso (madeira)</button>
-                <button class="chip" data-value="Caule suculento (carnoso e cheio de água)">Suculento (carnoso)</button>
-                <button class="chip" data-value="Caule oco por dentro">Oco</button>
-                <button class="chip" data-value="Caule com espinhos ou acúleos">Com espinhos</button>
-                <button class="chip" data-value="Caule com látex branco ao cortar">Com látex branco</button>
-                <button class="chip" data-value="Rizoma (caule que cresce no solo)">Rizoma</button>
-                <button class="chip" data-value="Bulbo subterrâneo">Bulbo</button>
-            </div>
-        </div>
+        function loadImg(file) {
+            imgMime = file.type || 'image/jpeg';
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                imgBase64 = ev.target.result.split(',')[1];
+                document.getElementById('previewImg').src = ev.target.result;
+                document.getElementById('previewWrap').classList.add('show');
+                document.getElementById('uploadZone').style.display = 'none';
+                document.getElementById('btnAnalisar').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
 
-        <!-- 2. FOLHAS -->
-        <div class="form-section">
-            <div class="form-section-title">&#127809; Folhas</div>
-            <span class="chip-label">Formato das folhas</span>
-            <div class="chip-group" data-group="folhaFormato" data-type="single">
-                <button class="chip" data-value="Folhas ovais (formato de ovo)">Ovais</button>
-                <button class="chip" data-value="Folhas lanceoladas (formato de lança)">Lanceoladas</button>
-                <button class="chip" data-value="Folhas arredondadas">Arredondadas</button>
-                <button class="chip" data-value="Folhas lineares (longas e muito finas)">Lineares (finas)</button>
-                <button class="chip" data-value="Folhas palmatífidas (parecem mão aberta)">Palmatífidas</button>
-                <button class="chip" data-value="Folhas compostas (cada folha tem vários folíolos)">Compostas</button>
-                <button class="chip" data-value="Folhas em formato de agulha (pinheiro)">Em agulha</button>
-                <button class="chip" data-value="Folhas triangulares ou em losango">Triangulares</button>
-                <button class="chip" data-value="Folhas em formato de coração">Em coração</button>
-                <button class="chip" data-value="Folhas em formato de leque (palmeira)">Em leque</button>
-            </div>
-            <span class="chip-label">Textura e superfície</span>
-            <div class="chip-group" data-group="folhaTextura" data-type="multi">
-                <button class="chip" data-value="Folhas lisas e brilhosas">Lisas e brilhosas</button>
-                <button class="chip" data-value="Folhas opacas sem brilho">Opacas</button>
-                <button class="chip" data-value="Folhas com pelos finos (pubescentes)">Com pelos finos</button>
-                <button class="chip" data-value="Folhas coriáceas (textura de couro)">Coriáceas (couro)</button>
-                <button class="chip" data-value="Folhas carnosas e grossas (suculentas)">Carnosas/Grossas</button>
-                <button class="chip" data-value="Folhas com nervuras muito salientes">Nervuras salientes</button>
-                <button class="chip" data-value="Folhas aromáticas ao amassar">Aromáticas</button>
-                <button class="chip" data-value="Folhas ásperas ao toque (como lixa)">Ásperas</button>
-                <button class="chip" data-value="Folhas pegajosas">Pegajosas</button>
-            </div>
-            <span class="chip-label">Cor predominante</span>
-            <div class="chip-group" data-group="folhaCor" data-type="single">
-                <button class="chip" data-value="Verde claro">Verde claro</button>
-                <button class="chip" data-value="Verde escuro intenso">Verde escuro</button>
-                <button class="chip" data-value="Verde azulado">Verde azulado</button>
-                <button class="chip" data-value="Variegada (verde com manchas amarelas ou brancas)">Variegada</button>
-                <button class="chip" data-value="Folhas arroxeadas ou vinho">Roxo/Vinho</button>
-                <button class="chip" data-value="Folhas avermelhadas">Avermelhada</button>
-                <button class="chip" data-value="Folhas prateadas ou cinzas">Prateada/Cinza</button>
-                <button class="chip" data-value="Folhas amareladas">Amarelada</button>
-            </div>
-            <span class="chip-label">Bordas das folhas</span>
-            <div class="chip-group" data-group="folhaBorda" data-type="single">
-                <button class="chip" data-value="Bordas inteiras e lisas">Inteiras (lisas)</button>
-                <button class="chip" data-value="Bordas serrilhadas ou dentadas">Serrilhadas</button>
-                <button class="chip" data-value="Bordas onduladas">Onduladas</button>
-                <button class="chip" data-value="Bordas lobadas (recortes profundos)">Lobadas</button>
-                <button class="chip" data-value="Bordas com espinhos">Com espinhos</button>
-            </div>
-        </div>
+        function resetImagem() {
+            imgBase64 = null;
+            document.getElementById('previewWrap').classList.remove('show');
+            document.getElementById('uploadZone').style.display = '';
+            document.getElementById('resultado').classList.remove('show');
+            document.getElementById('fileInput').value = '';
+            document.getElementById('btnAnalisar').disabled = true;
+        }
 
-        <!-- 3. FLORES -->
-        <div class="form-section">
-            <div class="form-section-title">&#127816; Flores</div>
-            <span class="chip-label">Situação atual das flores</span>
-            <div class="chip-group" data-group="temFlor" data-type="single">
-                <button class="chip" data-value="A planta está com flores visíveis agora">Com flores agora</button>
-                <button class="chip" data-value="Sem flores no momento mas costuma florescer">Sem flores agora</button>
-                <button class="chip" data-value="Não sabe se a planta floresce">Não sei</button>
-            </div>
-            <span class="chip-label">Cor das flores (selecione todas que se aplicam)</span>
-            <div class="chip-group" data-group="florCor" data-type="multi">
-                <button class="chip" data-value="Flores brancas">Brancas</button>
-                <button class="chip" data-value="Flores amarelas">Amarelas</button>
-                <button class="chip" data-value="Flores rosas">Rosas</button>
-                <button class="chip" data-value="Flores vermelhas">Vermelhas</button>
-                <button class="chip" data-value="Flores roxas ou lilás">Roxas/Lilás</button>
-                <button class="chip" data-value="Flores laranja">Laranja</button>
-                <button class="chip" data-value="Flores azuis">Azuis</button>
-                <button class="chip" data-value="Flores verdes">Verdes</button>
-                <button class="chip" data-value="Flores bicolores (mais de uma cor)">Bicolores</button>
-            </div>
-            <span class="chip-label">Formato ou agrupamento das flores</span>
-            <div class="chip-group" data-group="florFormato" data-type="single">
-                <button class="chip" data-value="Flores isoladas e grandes (acima de 5cm)">Isoladas e grandes</button>
-                <button class="chip" data-value="Flores em cacho ou espiga (várias juntas)">Cacho/Espiga</button>
-                <button class="chip" data-value="Flores em formato de sino ou campânula">Sino/Campânula</button>
-                <button class="chip" data-value="Flores em umbela (formato de guarda-chuva)">Umbela</button>
-                <button class="chip" data-value="Flores em capítulo (margarida ou girassol)">Capítulo (margarida)</button>
-                <button class="chip" data-value="Flores com espata (antúrio ou copo-de-leite)">Com espata</button>
-                <button class="chip" data-value="Flores pequenas e muito numerosas">Pequenas e numerosas</button>
-                <button class="chip" data-value="Flores com pétalas irregulares (orquídea)">Irregulares (orquídea)</button>
-            </div>
-        </div>
+        function montarContexto() {
+            var linhas = [];
+            var rotulos = {
+                'porte': 'Porte',
+                'caule': 'Caule',
+                'folhaFormato': 'Formato das folhas',
+                'folhaCor': 'Cor das folhas',
+                'folhaTextura': 'Textura das folhas',
+                'flores': 'Flores',
+                'frutos': 'Frutos',
+                'especiais': 'Caracteristicas especiais',
+                'local': 'Local',
+                'regiao': 'Regiao',
+                'sol': 'Sol'
+            };
+            Object.keys(rotulos).forEach(function (grupo) {
+                var el = document.querySelector('[data-group="' + grupo + '"]');
+                if (!el) return;
+                var sels = Array.from(el.querySelectorAll('.chip.selected')).map(function (c) { return c.getAttribute('data-value'); });
+                if (sels.length) linhas.push('- ' + rotulos[grupo] + ': ' + sels.join(', '));
+            });
+            var obs = document.getElementById('observacoes').value.trim();
+            if (obs) linhas.push('- Observacoes: ' + obs);
+            return linhas.length ? linhas.join('\n') : null;
+        }
 
-        <!-- 4. FRUTOS -->
-        <div class="form-section">
-            <div class="form-section-title">&#127820; Frutos e sementes</div>
-            <span class="chip-label">A planta produz frutos?</span>
-            <div class="chip-group" data-group="temFruto" data-type="single">
-                <button class="chip" data-value="Sim, produz frutos carnosos e suculentos">Sim, carnosos</button>
-                <button class="chip" data-value="Sim, produz frutos secos como vagens ou cápsulas">Sim, secos/vagens</button>
-                <button class="chip" data-value="Sim, produz bagas pequenas (mirtilo, pimenta)">Sim, bagas pequenas</button>
-                <button class="chip" data-value="Sim, produz nozes ou sementes duras">Sim, nozes/sementes</button>
-                <button class="chip" data-value="Não produz frutos visíveis">Não produz</button>
-                <button class="chip" data-value="Não sei se produz frutos">Não sei</button>
-            </div>
-            <span class="chip-label">Cor dos frutos</span>
-            <div class="chip-group" data-group="frutoCor" data-type="multi">
-                <button class="chip" data-value="Frutos vermelhos">Vermelhos</button>
-                <button class="chip" data-value="Frutos amarelos">Amarelos</button>
-                <button class="chip" data-value="Frutos laranjas">Laranjas</button>
-                <button class="chip" data-value="Frutos roxos ou pretos">Roxos/Pretos</button>
-                <button class="chip" data-value="Frutos verdes">Verdes</button>
-                <button class="chip" data-value="Frutos marrons">Marrons</button>
-                <button class="chip" data-value="Frutos brancos ou transparentes">Brancos</button>
-            </div>
-        </div>
+        async function analisar() {
+            if (!imgBase64) return;
 
-        <!-- 5. DEFESAS -->
-        <div class="form-section">
-            <div class="form-section-title">&#9888; Defesas e características especiais</div>
-            <span class="chip-label">Estruturas de defesa (selecione todas que se aplicam)</span>
-            <div class="chip-group" data-group="espinhos" data-type="multi">
-                <button class="chip" data-value="Sem espinhos ou acúleos">Sem espinhos</button>
-                <button class="chip" data-value="Espinhos rígidos no caule">Espinhos no caule</button>
-                <button class="chip" data-value="Espinhos nas folhas ou bordas">Espinhos nas folhas</button>
-                <button class="chip" data-value="Acúleos finos como os de uma roseira">Acúleos (roseira)</button>
-                <button class="chip" data-value="Pelos urticantes que causam coceira (urtiga)">Pelos urticantes</button>
-                <button class="chip" data-value="Suco ou látex irritante ao tocar">Látex irritante</button>
-                <button class="chip" data-value="Raízes ou partes enterradas com espinhos">Raízes espinhosas</button>
-            </div>
-            <span class="chip-label">Odor da planta</span>
-            <div class="chip-group" data-group="odor" data-type="single">
-                <button class="chip" data-value="Sem cheiro perceptível">Sem cheiro</button>
-                <button class="chip" data-value="Cheiro agradável e perfumado">Agradável/Perfumado</button>
-                <button class="chip" data-value="Cheiro forte de erva medicinal (menta, manjericão)">Forte de erva</button>
-                <button class="chip" data-value="Cheiro desagradável ou fétido">Desagradável</button>
-                <button class="chip" data-value="Cheiro cítrico (limão ou laranja)">Cítrico</button>
-                <button class="chip" data-value="Cheiro de terra ou musgo">Terra/Musgo</button>
-            </div>
-            <span class="chip-label">Outras características</span>
-            <div class="chip-group" data-group="outras" data-type="multi">
-                <button class="chip" data-value="Possui raízes aéreas visíveis">Raízes aéreas</button>
-                <button class="chip" data-value="Possui gavinhas (se prende em suportes)">Gavinhas</button>
-                <button class="chip" data-value="Possui bulbos ou tubérculos visíveis">Bulbos/Tubérculos</button>
-                <button class="chip" data-value="Possui estolões (ramos rasteiros que enraízam)">Estolões</button>
-                <button class="chip" data-value="Exuda resina, goma ou seiva pegajosa">Exuda resina</button>
-                <button class="chip" data-value="Acumula água nas folhas como bromélia">Acumula água</button>
-                <button class="chip" data-value="Muda de cor ou fecha as folhas ao toque">Reage ao toque</button>
-                <button class="chip" data-value="Planta aquática ou semi-aquática">Aquática</button>
-            </div>
-        </div>
+            var ctx = montarContexto();
 
-        <!-- 6. AMBIENTE -->
-        <div class="form-section">
-            <div class="form-section-title">&#127759; Ambiente e localização</div>
-            <span class="chip-label">Onde a planta está?</span>
-            <div class="chip-group" data-group="local" data-type="single">
-                <button class="chip" data-value="Vaso dentro de casa">Vaso interno</button>
-                <button class="chip" data-value="Vaso em varanda ou terraço">Vaso externo</button>
-                <button class="chip" data-value="Jardim cultivado">Jardim cultivado</button>
-                <button class="chip" data-value="Horta doméstica ou comercial">Horta</button>
-                <button class="chip" data-value="Plantação agrícola ou pomar">Plantação/Pomar</button>
-                <button class="chip" data-value="Beira de estrada ou terreno baldio">Beira de estrada</button>
-                <button class="chip" data-value="Mata ou floresta nativa">Mata/Floresta nativa</button>
-                <button class="chip" data-value="Beira de rio, lago ou brejo">Beira d'água</button>
-                <button class="chip" data-value="Campo aberto ou pastagem">Campo aberto</button>
-            </div>
-            <span class="chip-label">Região do Brasil</span>
-            <div class="chip-group" data-group="regiao" data-type="single">
-                <button class="chip" data-value="Região Norte do Brasil (Amazônia)">Norte (Amazônia)</button>
-                <button class="chip" data-value="Região Nordeste do Brasil">Nordeste</button>
-                <button class="chip" data-value="Região Centro-Oeste (Cerrado e Pantanal)">Centro-Oeste</button>
-                <button class="chip" data-value="Região Sudeste do Brasil">Sudeste</button>
-                <button class="chip" data-value="Região Sul do Brasil">Sul</button>
-                <button class="chip" data-value="Outro país ou região não listada">Outro país</button>
-            </div>
-            <span class="chip-label">Incidência de sol</span>
-            <div class="chip-group" data-group="sol" data-type="single">
-                <button class="chip" data-value="Sol pleno (mais de 6h de sol direto por dia)">Sol pleno (+6h)</button>
-                <button class="chip" data-value="Meia sombra (3h a 6h de sol por dia)">Meia sombra (3-6h)</button>
-                <button class="chip" data-value="Sombra (menos de 3h de sol ou só luz indireta)">Sombra</button>
-            </div>
-            <span class="chip-label">Época do ano ou situação da planta</span>
-            <div class="chip-group" data-group="epoca" data-type="multi">
-                <button class="chip" data-value="Planta recém plantada ou jovem">Recém plantada</button>
-                <button class="chip" data-value="Planta adulta estabelecida">Adulta/Estabelecida</button>
-                <button class="chip" data-value="Período de verão ou chuvas">Verão/Chuvas</button>
-                <button class="chip" data-value="Período de inverno ou seca">Inverno/Seca</button>
-                <button class="chip" data-value="Planta em floração agora">Em floração</button>
-                <button class="chip" data-value="Planta em frutificação agora">Em frutificação</button>
-            </div>
-        </div>
+            document.getElementById('btnAnalisar').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultado').classList.remove('show');
 
-        <!-- 7. OBSERVACOES -->
-        <div class="form-section">
-            <div class="form-section-title">&#128221; Observações livres</div>
-            <textarea id="observacoes" class="textarea-field"
-                placeholder="Descreva qualquer outra característica relevante: tamanho estimado, algum uso popular que você conhece, se foi comprada ou encontrada, nome que alguém deu pra ela, etc."></textarea>
-        </div>
+            try {
+                var res = await fetch('/Groq/identificar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        imagemBase64: imgBase64,
+                        mimeType: imgMime,
+                        informacoesAdicionais: ctx
+                    })
+                });
 
-        <!-- Progresso -->
-        <div class="progress-wrap">
-            <div class="progress-top">
-                <span>Informacoes preenchidas</span>
-                <span id="progressText">Nenhum grupo selecionado</span>
-            </div>
-            <div class="progress-bg"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-        </div>
-
-        <button class="btn-analisar" id="btnAnalisar" onclick="analisar()" disabled>
-            Identificar com IA
-        </button>
-    </div>
-
-    <div class="loading-box" id="loading">
-        <div class="spinner"></div>
-        <p style="font-weight:600;color:var(--text-soft);">Analisando imagem e caracteristicas...</p>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px;">A IA esta cruzando todos os dados fornecidos</p>
-    </div>
-
-    <div class="card result-wrap" id="resultado">
-        <div class="result-hero">
-            <div style="font-size:44px;">&#127807;</div>
-            <div style="flex:1">
-                <div class="result-hero-name" id="r-nomePopular">-</div>
-                <div class="result-hero-sci"  id="r-nomeCientifico">-</div>
-            </div>
-            <div class="badge" id="r-confianca">-</div>
-        </div>
-        <div class="info-grid">
-            <div class="info-tile"><div class="lbl">Familia</div><div class="val" id="r-familia">-</div></div>
-            <div class="info-tile"><div class="lbl">Tipo</div><div class="val" id="r-tipoPlanta">-</div></div>
-            <div class="info-tile"><div class="lbl">Ciclo de vida</div><div class="val" id="r-cicloVida">-</div></div>
-            <div class="info-tile"><div class="lbl">Clima ideal</div><div class="val" id="r-clima">-</div></div>
-            <div class="info-tile"><div class="lbl">Luminosidade</div><div class="val" id="r-luminosidade">-</div></div>
-            <div class="info-tile"><div class="lbl">Rega</div><div class="val" id="r-rega">-</div></div>
-            <div class="info-tile"><div class="lbl">Solo</div><div class="val" id="r-tipoSolo">-</div></div>
-            <div class="info-tile"><div class="lbl">Origem</div><div class="val" id="r-origem">-</div></div>
-        </div>
-        <div class="tags-row" id="r-tags"></div>
-        <div class="section-title">Descricao</div>
-        <div class="text-block" id="r-descricao">-</div>
-        <div class="section-title">Usos conhecidos</div>
-        <div class="text-block" id="r-usos">-</div>
-        <div class="save-bar">
-            <button class="btn-main" id="btnSalvar" onclick="salvarPlanta()">Salvar no banco</button>
-            <span class="msg-ok" id="msgSalvo">Planta salva com sucesso!</span>
-        </div>
-    </div>
-
-</div>
-<script>
-    var imgBase64 = null, imgMime = 'image/jpeg', dadosIA = null;
-    var TOTAL_GRUPOS = document.querySelectorAll('.chip-group').length;
-
-    document.querySelectorAll('.chip-group').forEach(function(group) {
-        var tipo = group.getAttribute('data-type');
-        group.querySelectorAll('.chip').forEach(function(chip) {
-            chip.addEventListener('click', function() {
-                if (tipo === 'single') {
-                    group.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('selected'); });
-                    chip.classList.toggle('selected');
-                } else {
-                    chip.classList.toggle('selected');
+                if (!res.ok) {
+                    var errData = await res.json().catch(function () { return { erro: 'Erro desconhecido' }; });
+                    throw new Error(errData.erro || 'HTTP ' + res.status);
                 }
-                atualizarProgresso();
-            });
-        });
-    });
 
-    function atualizarProgresso() {
-        var preenchidos = 0;
-        document.querySelectorAll('.chip-group').forEach(function(g) {
-            if (g.querySelector('.chip.selected')) preenchidos++;
-        });
-        var pct = Math.round((preenchidos / TOTAL_GRUPOS) * 100);
-        document.getElementById('progressFill').style.width = pct + '%';
-        document.getElementById('progressText').textContent = preenchidos + ' de ' + TOTAL_GRUPOS + ' grupos preenchidos';
-    }
+                dadosIA = await res.json();
+                renderizar(dadosIA);
+            } catch (err) {
+                alert('Erro: ' + err.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('btnAnalisar').disabled = false;
+            }
+        }
 
-    function triggerInput() { document.getElementById('fileInput').click(); }
-    function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('over'); }
-    function onDragLeave(e) { document.getElementById('uploadZone').classList.remove('over'); }
-    function onDrop(e) {
-        e.preventDefault();
-        document.getElementById('uploadZone').classList.remove('over');
-        var f = e.dataTransfer.files[0];
-        if (f && f.type.startsWith('image/')) loadImg(f);
-    }
-    function handleFile(input) { if (input.files[0]) loadImg(input.files[0]); }
+        function renderizar(d) {
+            set('r-nomePopular', d.nomePopular || 'Nao identificado');
+            set('r-nomeCientifico', d.nomeCientifico || '-');
+            set('r-familia', d.familia || '-');
+            set('r-tipoPlanta', d.tipoPlanta || '-');
+            set('r-cicloVida', d.cicloVida || '-');
+            set('r-clima', d.clima || '-');
+            set('r-luminosidade', d.luminosidade || '-');
+            set('r-rega', d.rega || '-');
+            set('r-tipoSolo', d.tipoSolo || '-');
+            set('r-origem', d.origem || '-');
+            set('r-descricao', d.descricao || '-');
+            set('r-usos', d.usos || '-');
 
-    function loadImg(file) {
-        imgMime = file.type || 'image/jpeg';
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-            imgBase64 = ev.target.result.split(',')[1];
-            document.getElementById('previewImg').src = ev.target.result;
-            document.getElementById('previewWrap').classList.add('show');
-            document.getElementById('uploadZone').style.display = 'none';
-            document.getElementById('btnAnalisar').disabled = false;
-        };
-        reader.readAsDataURL(file);
-    }
+            var conf = parseInt(d.confiancaIdentificacao) || 0;
+            var b = document.getElementById('r-confianca');
+            b.textContent = conf + '% confianca';
+            b.className = 'badge ' + (conf >= 70 ? 'badge-green' : conf >= 40 ? 'badge-yellow' : 'badge-red');
 
-    function resetImagem() {
-        imgBase64 = null;
-        document.getElementById('previewWrap').classList.remove('show');
-        document.getElementById('uploadZone').style.display = '';
-        document.getElementById('resultado').classList.remove('show');
-        document.getElementById('fileInput').value = '';
-        document.getElementById('btnAnalisar').disabled = true;
-    }
+            var tags = document.getElementById('r-tags');
+            tags.innerHTML = '';
+            if (isBool(d.ehMedicinal)) tags.innerHTML += '<span class="tag tag-blue">Medicinal</span>';
+            if (isBool(d.ehComestivel)) tags.innerHTML += '<span class="tag tag-green">Comestivel</span>';
+            if (isBool(d.ehToxica)) tags.innerHTML += '<span class="tag tag-red">Toxica</span>';
 
-    // Monta contexto detalhado a partir de TODOS os grupos de chips selecionados
-    function montarContexto() {
-        var linhas = [];
-        var rotulos = {
-            'porte':        'Porte da planta',
-            'caule':        'Tipo de caule',
-            'folhaFormato': 'Formato das folhas',
-            'folhaTextura': 'Textura das folhas',
-            'folhaCor':     'Cor das folhas',
-            'folhaBorda':   'Bordas das folhas',
-            'temFlor':      'Presença de flores',
-            'florCor':      'Cor das flores',
-            'florFormato':  'Formato das flores',
-            'temFruto':     'Presença de frutos',
-            'frutoCor':     'Cor dos frutos',
-            'espinhos':     'Estruturas de defesa',
-            'odor':         'Odor',
-            'outras':       'Outras características',
-            'local':        'Local onde está',
-            'regiao':       'Região geográfica',
-            'sol':          'Exposição solar',
-            'epoca':        'Época e situação atual'
-        };
-        Object.keys(rotulos).forEach(function(grupo) {
-            var el = document.querySelector('[data-group="' + grupo + '"]');
-            if (!el) return;
-            var sels = Array.from(el.querySelectorAll('.chip.selected')).map(function(c) { return c.getAttribute('data-value'); });
-            if (sels.length) linhas.push('- ' + rotulos[grupo] + ': ' + sels.join(' | '));
-        });
-        var obs = document.getElementById('observacoes').value.trim();
-        if (obs) linhas.push('- Observacoes do usuario: ' + obs);
-        return linhas.length ? linhas.join('\n') : null;
-    }
+            document.getElementById('resultado').classList.add('show');
+            document.getElementById('msgSalvo').style.display = 'none';
+            document.getElementById('btnSalvar').style.display = '';
+            document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
-    async function analisar() {
-        if (!imgBase64) return;
-        document.getElementById('btnAnalisar').disabled = true;
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('resultado').classList.remove('show');
-        try {
-            var res = await fetch('/Groq/identificar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imagemBase64: imgBase64, mimeType: imgMime, informacoesAdicionais: montarContexto() })
-            });
-            if (!res.ok) { var e = await res.json().catch(function(){return{erro:'Erro'}}); throw new Error(e.erro||'HTTP '+res.status); }
-            dadosIA = await res.json();
-            renderizar(dadosIA);
-        } catch(err) { alert('Erro: ' + err.message); }
-        finally { document.getElementById('loading').style.display='none'; document.getElementById('btnAnalisar').disabled=false; }
-    }
+        async function salvarPlanta() {
+            if (!dadosIA) return;
+            try {
+                var res = await fetch('/Plantas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nomeCientifico: dadosIA.nomeCientifico || '',
+                        nomePopular: dadosIA.nomePopular || '',
+                        tipoPlanta: dadosIA.tipoPlanta || '',
+                        cicloVida: dadosIA.cicloVida || '',
+                        clima: dadosIA.clima || '',
+                        luminosidade: dadosIA.luminosidade || '',
+                        rega: dadosIA.rega || '',
+                        tipoSolo: dadosIA.tipoSolo || '',
+                        familia: dadosIA.familia || '',
+                        origem: dadosIA.origem || '',
+                        usos: dadosIA.usos || '',
+                        descricao: dadosIA.descricao || '',
+                        ehMedicinal: isBool(dadosIA.ehMedicinal),
+                        ehComestivel: isBool(dadosIA.ehComestivel),
+                        ehToxica: isBool(dadosIA.ehToxica)
+                    })
+                });
+                if (!res.ok) throw new Error('Falha ao salvar');
+                document.getElementById('msgSalvo').style.display = 'inline';
+                document.getElementById('btnSalvar').style.display = 'none';
+            } catch (err) { alert('Erro ao salvar: ' + err.message); }
+        }
 
-    function renderizar(d) {
-        set('r-nomePopular', d.nomePopular||'Nao identificado');
-        set('r-nomeCientifico', d.nomeCientifico||'-');
-        set('r-familia', d.familia||'-'); set('r-tipoPlanta', d.tipoPlanta||'-');
-        set('r-cicloVida', d.cicloVida||'-'); set('r-clima', d.clima||'-');
-        set('r-luminosidade', d.luminosidade||'-'); set('r-rega', d.rega||'-');
-        set('r-tipoSolo', d.tipoSolo||'-'); set('r-origem', d.origem||'-');
-        set('r-descricao', d.descricao||'-'); set('r-usos', d.usos||'-');
-        var conf = parseInt(d.confiancaIdentificacao)||0;
-        var b = document.getElementById('r-confianca');
-        b.textContent = conf+'% confianca';
-        b.className = 'badge '+(conf>=70?'badge-green':conf>=40?'badge-yellow':'badge-red');
-        var tags = document.getElementById('r-tags'); tags.innerHTML='';
-        if(isBool(d.ehMedicinal))  tags.innerHTML+='<span class="tag tag-blue">Medicinal</span>';
-        if(isBool(d.ehComestivel)) tags.innerHTML+='<span class="tag tag-green">Comestivel</span>';
-        if(isBool(d.ehToxica))     tags.innerHTML+='<span class="tag tag-red">Toxica</span>';
-        document.getElementById('resultado').classList.add('show');
-        document.getElementById('msgSalvo').style.display='none';
-        document.getElementById('btnSalvar').style.display='';
-        document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
-    }
-
-    async function salvarPlanta() {
-        if(!dadosIA) return;
-        try {
-            var res = await fetch('/Plantas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-                nomeCientifico:dadosIA.nomeCientifico||'',nomePopular:dadosIA.nomePopular||'',
-                tipoPlanta:dadosIA.tipoPlanta||'',cicloVida:dadosIA.cicloVida||'',clima:dadosIA.clima||'',
-                luminosidade:dadosIA.luminosidade||'',rega:dadosIA.rega||'',tipoSolo:dadosIA.tipoSolo||'',
-                familia:dadosIA.familia||'',origem:dadosIA.origem||'',usos:dadosIA.usos||'',descricao:dadosIA.descricao||'',
-                ehMedicinal:isBool(dadosIA.ehMedicinal),ehComestivel:isBool(dadosIA.ehComestivel),ehToxica:isBool(dadosIA.ehToxica)
-            })});
-            if(!res.ok) throw new Error('Falha ao salvar');
-            document.getElementById('msgSalvo').style.display='inline';
-            document.getElementById('btnSalvar').style.display='none';
-        } catch(err){alert('Erro: '+err.message);}
-    }
-
-    function set(id,val){var el=document.getElementById(id);if(el)el.textContent=val;}
-    function isBool(v){return v===true||v==='true';}
-</script>
+        function set(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
+        function isBool(v) { return v === true || v === 'true'; }
+    </script>
 </body>
 </html>

@@ -25,12 +25,6 @@ namespace AgroScan.Controllers
         // ENDPOINTS MULTIPART — testáveis pelo Swagger (upload de arquivo)
         // ══════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Identifica a espécie de uma planta a partir de uma imagem enviada como arquivo.
-        /// Use este endpoint no Swagger: clique em "Try it out", selecione o arquivo e envie.
-        /// </summary>
-        /// <param name="imagem">Arquivo de imagem JPG/PNG/WEBP (máx 10 MB)</param>
-        /// <param name="informacoesAdicionais">Contexto extra opcional (ex: local, características observadas)</param>
         [HttpPost("identificar-arquivo")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> IdentificarArquivo(
@@ -44,15 +38,9 @@ namespace AgroScan.Controllers
             if (erro != null) return BadRequest(new { erro });
 
             var prompt = MontarPromptIdentificacao(informacoesAdicionais);
-            return await ChamarGroq(prompt, base64!, mimeType!);
+            return await ChamarGroq(prompt, base64!, mimeType!, 1200);
         }
 
-        /// <summary>
-        /// Diagnostica pragas, doenças e problemas de uma planta a partir de uma imagem enviada como arquivo.
-        /// Use este endpoint no Swagger: clique em "Try it out", selecione o arquivo e envie.
-        /// </summary>
-        /// <param name="imagem">Arquivo de imagem JPG/PNG/WEBP — prefira foto da área afetada (máx 10 MB)</param>
-        /// <param name="informacoesAdicionais">Sintomas observados, tempo, condições (melhora o diagnóstico)</param>
         [HttpPost("diagnosticar-arquivo")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> DiagnosticarArquivo(
@@ -66,14 +54,13 @@ namespace AgroScan.Controllers
             if (erro != null) return BadRequest(new { erro });
 
             var prompt = MontarPromptDiagnostico(informacoesAdicionais);
-            return await ChamarGroq(prompt, base64!, mimeType!);
+            return await ChamarGroq(prompt, base64!, mimeType!, 2000);
         }
 
         // ══════════════════════════════════════════════════════════
-        // ENDPOINTS JSON/BASE64 — usados pelo frontend HTML (agroscan-ia.html)
+        // ENDPOINTS JSON/BASE64 — usados pelo frontend HTML
         // ══════════════════════════════════════════════════════════
 
-        /// <summary>Identifica a espécie de uma planta a partir de imagem em Base64 (usado pelo frontend HTML).</summary>
         [HttpPost("identificar")]
         public async Task<IActionResult> Identificar([FromBody] AnaliseRequest req)
         {
@@ -81,10 +68,9 @@ namespace AgroScan.Controllers
                 return BadRequest(new { erro = "ImagemBase64 é obrigatório." });
 
             var prompt = MontarPromptIdentificacao(req.InformacoesAdicionais);
-            return await ChamarGroq(prompt, req.ImagemBase64, req.MimeType ?? "image/jpeg");
+            return await ChamarGroq(prompt, req.ImagemBase64, req.MimeType ?? "image/jpeg", 1200);
         }
 
-        /// <summary>Diagnostica problemas de uma planta a partir de imagem em Base64 (usado pelo frontend HTML).</summary>
         [HttpPost("diagnosticar")]
         public async Task<IActionResult> Diagnosticar([FromBody] AnaliseRequest req)
         {
@@ -92,14 +78,13 @@ namespace AgroScan.Controllers
                 return BadRequest(new { erro = "ImagemBase64 é obrigatório." });
 
             var prompt = MontarPromptDiagnostico(req.InformacoesAdicionais);
-            return await ChamarGroq(prompt, req.ImagemBase64, req.MimeType ?? "image/jpeg");
+            return await ChamarGroq(prompt, req.ImagemBase64, req.MimeType ?? "image/jpeg", 2000);
         }
 
         // ══════════════════════════════════════════════════════════
         // CRUD DIAGNÓSTICOS
         // ══════════════════════════════════════════════════════════
 
-        /// <summary>Salva um diagnóstico no banco de dados.</summary>
         [HttpPost("salvar")]
         public IActionResult Salvar([FromBody] Diagnostico d)
         {
@@ -129,7 +114,6 @@ namespace AgroScan.Controllers
             }
         }
 
-        /// <summary>Lista todos os diagnósticos salvos, do mais recente ao mais antigo.</summary>
         [HttpGet("diagnosticos")]
         public IActionResult ListarDiagnosticos()
         {
@@ -167,7 +151,6 @@ namespace AgroScan.Controllers
         // MÉTODOS PRIVADOS
         // ══════════════════════════════════════════════════════════
 
-        /// <summary>Valida e converte IFormFile para Base64 + mimeType.</summary>
         private static async Task<(string? base64, string? mimeType, string? erro)> ProcessarArquivo(IFormFile arquivo)
         {
             if (arquivo.Length > 10 * 1024 * 1024)
@@ -188,12 +171,12 @@ namespace AgroScan.Controllers
         {
             var extra = string.IsNullOrWhiteSpace(contexto)
                 ? ""
-                : $"\n\nInformações fornecidas pelo usuário: {contexto}";
+                : $"\n\nInformações fornecidas pelo usuário:\n{contexto}";
 
-            return $@"Você é um especialista botânico com décadas de experiência em taxonomia vegetal.{extra}
+            return $@"Você é um especialista botânico em taxonomia vegetal.{extra}
 
-Analise a imagem da planta com atenção a folhas, caule, flores, frutos e hábito de crescimento.
-Responda APENAS com um JSON válido, sem markdown, sem texto adicional, neste formato exato:
+Analise a imagem da planta (folhas, caule, flores, frutos, hábito de crescimento).
+Responda APENAS com JSON válido, sem markdown, sem texto extra:
 {{
   ""nomeCientifico"": ""string"",
   ""nomePopular"": ""string"",
@@ -212,32 +195,26 @@ Responda APENAS com um JSON válido, sem markdown, sem texto adicional, neste fo
   ""descricao"": ""string"",
   ""confiancaIdentificacao"": 0
 }}
-Regras:
-- confiancaIdentificacao: inteiro 0-100
-- ehMedicinal, ehComestivel, ehToxica: true/false
-- Se não identificado: use 'Não identificado' nos textos e 0 na confiança
-- Nunca inclua markdown ou texto fora do JSON";
+Regras: confiancaIdentificacao 0-100 (int). ehMedicinal/ehComestivel/ehToxica true/false. Se não identificado use 'Não identificado' e confiança 0.";
         }
 
         private static string MontarPromptDiagnostico(string? contexto)
         {
+            // Prompt propositalmente compacto — prompts longos no system + imagem causam 400 (token limit de entrada)
             var extra = string.IsNullOrWhiteSpace(contexto)
                 ? ""
-                : $"\n\nSintomas e informações relatados pelo usuário: {contexto}";
+                : $"\n\nDados do usuário:\n{contexto}";
 
-            return $@"Você é um fitopatologista e agrônomo especialista em diagnóstico de plantas.{extra}
+            return $@"Você é um fitopatologista especialista em diagnóstico de plantas.{extra}
 
-Analise CUIDADOSAMENTE a imagem quanto a manchas, descolorações, necrose, fungos visíveis,
-insetos, ácaros, galhas, deformações, murchas, podridões e deficiências nutricionais.
-
-Responda APENAS com um JSON válido, sem markdown, sem texto adicional, neste formato exato:
+Analise a imagem: manchas, descolorações, necrose, fungos, insetos, ácaros, galhas, deformações, murchas, podridões, deficiências nutricionais.
+Responda APENAS com JSON válido, sem markdown, sem texto extra:
 {{
   ""tipoDiagnostico"": ""string"",
   ""nomeDoenca"": ""string"",
   ""nomeCientifico"": ""string"",
   ""agenteCausador"": ""string"",
   ""confianca"": 0,
-  ""tipo"": ""string"",
   ""sintomasObservados"": ""string"",
   ""sintomasTipicos"": ""string"",
   ""condicoesFavoraveis"": ""string"",
@@ -254,21 +231,14 @@ Responda APENAS com um JSON válido, sem markdown, sem texto adicional, neste fo
   ""riscoPropagacaoTexto"": ""string"",
   ""plantasAfetadas"": ""string""
 }}
-Regras:
-- tipoDiagnostico: 'Doença Fúngica', 'Doença Bacteriana', 'Vírus', 'Praga de Inseto', 'Praga de Ácaro', 'Deficiência Nutricional', 'Dano Físico' ou 'Saudável'
-- confianca: inteiro 0-100
-- gravidadeNivel: inteiro 0-10
-- riscoPropagacaoNivel: inteiro 0-10
-- riscoPropagacao: 'baixo', 'medio' ou 'alto'
-- gravidade: 'baixa', 'media' ou 'alta'
-- Nunca inclua markdown ou texto fora do JSON";
+Regras: tipoDiagnostico deve ser um de: 'Doença Fúngica','Doença Bacteriana','Vírus','Praga de Inseto','Praga de Ácaro','Deficiência Nutricional','Dano Físico','Saudável'. confianca 0-100 (int). gravidadeNivel 0-10 (int). riscoPropagacaoNivel 0-10 (int). riscoPropagacao: 'baixo','medio' ou 'alto'. gravidade: 'baixa','media' ou 'alta'.";
         }
 
         /// <summary>
         /// Chama a Groq API com visão multimodal.
-        /// A API Key é lida do appsettings.json (servidor) — NUNCA exposta ao cliente.
+        /// Em caso de erro, o body completo da Groq é retornado em "detalhe" para facilitar debug.
         /// </summary>
-        private async Task<IActionResult> ChamarGroq(string systemPrompt, string imagemBase64, string mimeType)
+        private async Task<IActionResult> ChamarGroq(string systemPrompt, string imagemBase64, string mimeType, int maxTokens = 1200)
         {
             var apiKey = _config["Groq:ApiKey"];
             var model = _config["Groq:Model"] ?? "meta-llama/llama-4-scout-17b-16e-instruct";
@@ -306,16 +276,28 @@ Regras:
                     }
                 };
 
-                request.Content = new StringContent(
-                    JsonSerializer.Serialize(new { model, max_tokens = 1200, temperature = 0.2, messages }),
-                    Encoding.UTF8,
-                    "application/json");
+                var payload = JsonSerializer.Serialize(new
+                {
+                    model,
+                    max_tokens = maxTokens,
+                    temperature = 0.2,
+                    messages
+                });
+
+                request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
 
                 var response = await _http.SendAsync(request);
                 var raw = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, new { erro = "Erro na API Groq.", detalhe = raw });
+                {
+                    // Expõe o body exato da Groq — use para ver a mensagem real do erro 400
+                    return StatusCode((int)response.StatusCode, new
+                    {
+                        erro = $"Erro na API Groq. Status: {(int)response.StatusCode}. Modelo: {model}.",
+                        detalhe = raw
+                    });
+                }
 
                 using var doc = JsonDocument.Parse(raw);
                 var text = doc.RootElement
