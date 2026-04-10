@@ -1,195 +1,584 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroScan · Cadastro</title>
+    <title>AgroScan · Criar Conta</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="auth.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green-deep: #1a3a1f;
+            --green-mid: #2d6a35;
+            --green-lt: #4caf5a;
+            --leaf: #6dbe7a;
+            --soil: #5c3d1e;
+            --cream: #f5f0e8;
+            --cream2: #ede5d6;
+            --text-dark: #1a2b1c;
+            --text-soft: #4a6150;
+            --border: #d8d0c0;
+            --r: 14px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+        }
+
+        /* ESQUERDA – form */
+        .panel-form {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 48px 36px;
+            overflow-y: auto;
+        }
+
+        .form-box {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 36px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--green-mid);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .brand-name {
+            font-family: 'Fraunces', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--green-deep);
+        }
+
+            .brand-name span {
+                color: var(--green-lt);
+            }
+
+        h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 26px;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-soft);
+            margin-bottom: 28px;
+        }
+
+        /* GRID de campos */
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+            .field label {
+                display: block;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-dark);
+                margin-bottom: 7px;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+            }
+
+        .input-wrap {
+            position: relative;
+        }
+
+            .input-wrap svg {
+                position: absolute;
+                left: 13px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 15px;
+                height: 15px;
+                color: var(--text-soft);
+                pointer-events: none;
+                flex-shrink: 0;
+            }
+
+            .input-wrap input,
+            .input-wrap select {
+                width: 100%;
+                padding: 11px 13px 11px 40px;
+                border: 1.5px solid var(--border);
+                border-radius: var(--r);
+                background: white;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 14px;
+                color: var(--text-dark);
+                transition: border-color .2s, box-shadow .2s;
+                outline: none;
+                appearance: none;
+            }
+
+                .input-wrap input:focus,
+                .input-wrap select:focus {
+                    border-color: var(--green-lt);
+                    box-shadow: 0 0 0 3px rgba(76,175,90,.12);
+                }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0 18px;
+            color: var(--text-soft);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+        }
+
+            .divider::before,
+            .divider::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+
+        .opt-label {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            background: #e8f5e9;
+            color: var(--green-mid);
+            border-radius: 4px;
+            padding: 2px 6px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: var(--green-mid);
+            color: white;
+            border: none;
+            border-radius: var(--r);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s, transform .1s;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+        }
+
+            .btn-submit:hover {
+                background: var(--green-deep);
+            }
+
+            .btn-submit:active {
+                transform: scale(.98);
+            }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            display: none;
+        }
+
+        .btn-submit.loading .spinner {
+            display: block;
+        }
+
+        .btn-submit.loading .lbl {
+            opacity: 0;
+            position: absolute;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .link-row {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+
+            .link-row a {
+                color: var(--green-mid);
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+                .link-row a:hover {
+                    text-decoration: underline;
+                }
+
+        .alert {
+            padding: 11px 15px;
+            border-radius: var(--r);
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+            .alert.erro {
+                background: #fde8e8;
+                color: #c0392b;
+                border: 1px solid #f5c6c6;
+                display: block;
+            }
+
+            .alert.ok {
+                background: #e8f8eb;
+                color: #1a6b2a;
+                border: 1px solid #a8d8b0;
+                display: block;
+            }
+
+        /* DIREITA – decorativa */
+        .panel-right {
+            background: var(--green-deep);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 48px;
+            color: white;
+        }
+
+            .panel-right::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(ellipse at 80% 90%, rgba(109,190,122,.22) 0%, transparent 55%), radial-gradient(ellipse at 20% 10%, rgba(45,106,53,.4) 0%, transparent 50%);
+            }
+
+        .deco-emoji {
+            position: absolute;
+            left: -40px;
+            bottom: -40px;
+            font-size: 300px;
+            opacity: .05;
+            pointer-events: none;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            position: relative;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(109,190,122,.2);
+            border: 1px solid rgba(109,190,122,.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fraunces', serif;
+            font-size: 15px;
+            color: var(--leaf);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-content h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 13px;
+            color: rgba(255,255,255,.55);
+            line-height: 1.6;
+        }
+
+        .panel-right h2.side-title {
+            font-family: 'Fraunces', serif;
+            font-size: 38px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: white;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+            .panel-right h2.side-title em {
+                color: var(--leaf);
+                font-style: italic;
+            }
+
+        .panel-right .side-sub {
+            font-size: 14px;
+            color: rgba(255,255,255,.6);
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-right {
+                display: none;
+            }
+
+            .panel-form {
+                padding: 24px;
+            }
+        }
+    </style>
 </head>
-<body class="page-cadastro">
+<body>
 
-    <div id="app">
+    <!-- ESQUERDA: FORMULÁRIO -->
+    <div class="panel-form">
+        <div class="form-box">
+            <div class="brand">
+                <div class="brand-icon">🥬</div>
+                <div class="brand-name">Agro<span>Scan</span></div>
+            </div>
 
-        <!-- ═══════════════════════════════════════
-             CÍRCULO — fica à ESQUERDA no cadastro
-        ═══════════════════════════════════════ -->
-        <div id="circle-panel">
-            <div class="circle-ring"></div>
-            <div id="circle-content">
-                <span class="circle-eyebrow">Novo por aqui?</span>
-                <h2 class="circle-headline">Comece sua<br><em>jornada</em></h2>
-                <p class="circle-desc">Crie sua conta gratuitamente e tenha acesso a ferramentas de gestão agrícola pensadas para o produtor rural.</p>
-                <div class="circle-pills">
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2l1.6 3.3L13 6l-2.5 2.4.6 3.6L8 10.3l-3.1 1.7.6-3.6L3 6l3.4-.7z" /></svg>
-                        Gratuito
-                    </span>
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 8A5 5 0 1 1 3 8" /><path d="M8 3v5l3 2" /></svg>
-                        Cadastro rápido
-                    </span>
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2l5 2v5c0 3-5 5-5 5S3 12 3 9V4z" /></svg>
-                        Seguro
-                    </span>
+            <h2>Criar conta</h2>
+            <p class="subtitle">Comece a diagnosticar suas hortaliças hoje</p>
+
+            <div id="alerta" class="alert"></div>
+
+            <!-- DADOS PESSOAIS -->
+            <div class="field">
+                <label>Nome completo</label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="5" r="3" /><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" /></svg>
+                    <input type="text" id="nome" placeholder="Seu nome" />
                 </div>
             </div>
-        </div>
 
-        <!-- ═══════════════════════════════════════
-             FORMULÁRIO — fica à DIREITA no cadastro
-        ═══════════════════════════════════════ -->
-        <div class="form-panel" id="formPanel">
-            <div class="form-wrap">
-
-                <div class="brand">
-                    <div class="brand-mark">🌿</div>
-                    <span class="brand-name">Agro<strong>Scan</strong></span>
-                </div>
-
-                <h1 class="form-title">Criar conta</h1>
-                <p class="form-sub">Preencha os dados para começar</p>
-
-                <div class="field">
-                    <label>Nome completo</label>
-                    <div class="input-wrap">
-                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="5" r="3" /><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" /></svg>
-                        <input type="text" id="nome" placeholder="Seu nome completo" />
-                    </div>
-                </div>
-
+            <div class="row-2">
                 <div class="field">
                     <label>CPF</label>
                     <div class="input-wrap">
-                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6h12" /></svg>
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6h12" /></svg>
                         <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" />
                     </div>
                 </div>
-
                 <div class="field">
                     <label>Senha</label>
                     <div class="input-wrap">
-                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
-                        <input type="password" id="senha" placeholder="Mínimo 4 caracteres" />
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
+                        <input type="password" id="senha" placeholder="Mín. 6 caracteres" />
                     </div>
                 </div>
+            </div>
 
+            <!-- DADOS DA PROPRIEDADE (opcionais) -->
+            <div class="divider">Propriedade <span class="opt-label">Opcional</span></div>
+
+            <div class="row-2">
                 <div class="field">
-                    <label>
-                        WhatsApp
-                        <span class="optional">(opcional)</span>
-                    </label>
+                    <label>Tipo de produtor</label>
                     <div class="input-wrap">
-                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1.5A6.5 6.5 0 1 1 3.1 12L1 15l3.2-1.8A6.5 6.5 0 0 1 8 1.5z" /></svg>
-                        <input type="text" id="whatsapp" placeholder="(00) 00000-0000" maxlength="15" />
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13V7l5-5 5 5v6" /><rect x="6" y="9" width="4" height="4" /></svg>
+                        <select id="tipoProdutor">
+                            <option value="">Selecione</option>
+                            <option value="familiar">Agricultura familiar</option>
+                            <option value="comercial">Comercial</option>
+                            <option value="cooperativa">Cooperativa</option>
+                            <option value="organico">Orgânico certificado</option>
+                        </select>
                     </div>
                 </div>
+                <div class="field">
+                    <label>Área (hectares)</label>
+                    <div class="input-wrap">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="12" height="12" rx="1" /><path d="M2 8h12M8 2v12" /></svg>
+                        <input type="number" id="area" placeholder="0.5" step="0.1" min="0" />
+                    </div>
+                </div>
+            </div>
 
-                <button class="btn-geo" id="btnGeo" onclick="pegarLocalizacao()">
-                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="3" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" /></svg>
-                    Capturar localização
-                </button>
-                <p id="status"></p>
+            <div class="field">
+                <label>WhatsApp <span class="opt-label">Opcional</span></label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 10.5c0 .3-.1.6-.2.9-.1.3-.4.7-.7.9-.5.4-1 .6-1.6.6-1.1 0-2.1-.5-3.3-1.7L5.8 9.8C4.6 8.6 4.1 7.6 4.1 6.5c0-.6.2-1.1.6-1.6.2-.3.6-.6.9-.7.3-.1.6-.2.9-.2.2 0 .4.1.4.1L8.4 6c.1.2.1.4.1.5 0 .2-.1.4-.2.5l-.5.5c-.2.2-.2.4 0 .6l1.1 1.1c.2.2.4.2.6 0l.5-.5c.2-.2.4-.2.6-.2.2 0 .3 0 .5.1l1.9.9c.1.1.1.2.1.4z" /></svg>
+                    <input type="tel" id="whatsapp" placeholder="(11) 99999-9999" maxlength="15" />
+                </div>
+            </div>
 
-                <button class="btn-main" onclick="cadastrar()">
-                    Criar conta
-                    <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
-                </button>
+            <button class="btn-submit" id="btnCad" onclick="cadastrar()">
+                <div class="spinner"></div>
+                <span class="lbl">Criar minha conta</span>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" width="16" height="16"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+            </button>
 
-                <p class="switch-link">
-                    Já tem conta? <a href="login.html" id="linkLogin">Entrar</a>
-                </p>
-
+            <div class="link-row">
+                Já tem conta? <a href="login.html">Entrar</a>
             </div>
         </div>
+    </div>
 
-    </div><!-- /#app -->
+    <!-- DIREITA: DECORATIVA -->
+    <div class="panel-right">
+        <div class="deco-emoji">🌿</div>
+        <h2 class="side-title">Cuide melhor<br>das suas <em>hortaliças</em></h2>
+        <p class="side-sub">3 passos para começar a diagnosticar com IA</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Crie sua conta</h3>
+                    <p>Cadastro rápido com CPF. Seus dados ficam protegidos com criptografia de ponta.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Fotografe a hortaliça</h3>
+                    <p>Tire uma foto da folha, caule ou fruto afetado. Quanto mais nítida, mais preciso o diagnóstico.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h3>Receba o diagnóstico em segundos</h3>
+                    <p>Nossa IA identifica a praga ou doença e indica tratamento ecológico e convencional com urgência de ação.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        /* ── Máscaras ── */
+        // Máscara CPF
         document.getElementById('cpf').addEventListener('input', function () {
-            let v = this.value.replace(/\D/g, '').slice(0, 11);
-            if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
-            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
-            else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,3})/, '$1.$2');
-            this.value = v;
+            let v = this.value.replace(/\D/g, '');
+            if (v.length > 3) v = v.slice(0, 3) + '.' + v.slice(3);
+            if (v.length > 7) v = v.slice(0, 7) + '.' + v.slice(7);
+            if (v.length > 11) v = v.slice(0, 11) + '-' + v.slice(11);
+            this.value = v.slice(0, 14);
         });
 
+        // Máscara WhatsApp
         document.getElementById('whatsapp').addEventListener('input', function () {
-            let v = this.value.replace(/\D/g, '').slice(0, 11);
-            if (v.length > 6) v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
-            else if (v.length > 2) v = v.replace(/(\d{2})(\d{0,5})/, '($1) $2');
-            this.value = v;
+            let v = this.value.replace(/\D/g, '');
+            if (v.length > 2) v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+            if (v.length > 10) v = v.slice(0, 10) + '-' + v.slice(10);
+            this.value = v.slice(0, 15);
         });
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const from = sessionStorage.getItem('agro-from');
-            sessionStorage.removeItem('agro-from');
-            const form = document.getElementById('formPanel');
+        async function cadastrar() {
+            const btn = document.getElementById('btnCad');
+            const alerta = document.getElementById('alerta');
+            alerta.className = 'alert';
 
-            if (from === 'login') {
-                form.classList.add('form-enter-right');
-            } else {
-                form.classList.add('form-enter-left');
-            }
-
-            document.getElementById('circle-content').classList.add('circle-content-reveal');
-        });
-
-        document.getElementById('linkLogin').addEventListener('click', function (e) {
-            e.preventDefault();
-            sessionStorage.setItem('agro-from', 'cadastro');
-            const form = document.getElementById('formPanel');
-            form.classList.add('form-exit-right');
-            setTimeout(() => { window.location.href = 'login.html'; }, 420);
-        });
-
-        /* ── Geolocalização ── */
-        let latitude = null, longitude = null;
-
-        function pegarLocalizacao() {
-            if (!navigator.geolocation) { alert('Geolocalização não suportada.'); return; }
-            const btn = document.getElementById('btnGeo');
-            btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/></svg> Aguardando...`;
-            btn.disabled = true;
-            navigator.geolocation.getCurrentPosition(
-                pos => {
-                    latitude = pos.coords.latitude;
-                    longitude = pos.coords.longitude;
-                    document.getElementById('status').textContent = '📍 ' + latitude.toFixed(4) + ', ' + longitude.toFixed(4);
-                    btn.innerHTML = `✓ Localização capturada`;
-                    btn.classList.add('captured');
-                    btn.disabled = false;
-                },
-                () => {
-                    btn.innerHTML = `📍 Capturar localização`;
-                    btn.disabled = false;
-                    alert('Não foi possível obter a localização.');
-                }
-            );
-        }
-
-        /* ── Cadastro API ── */
-        function cadastrar() {
             const nome = document.getElementById('nome').value.trim();
             const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
             const senha = document.getElementById('senha').value;
-            const whats = document.getElementById('whatsapp').value.replace(/\D/g, '') || null;
-            if (nome.length < 3) { alert('Nome deve ter ao menos 3 caracteres.'); return; }
-            if (cpf.length !== 11) { alert('CPF deve ter 11 dígitos.'); return; }
-            if (senha.length < 4) { alert('Senha deve ter ao menos 4 caracteres.'); return; }
-            fetch('https://localhost:7238/api/login/cadastrar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ Nome: nome, CPF: cpf, Senha: senha, Whatsapp: whats, Latitude: latitude, Longitude: longitude })
-            })
-                .then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t); }); return r.json(); })
-                .then(() => { alert('Cadastro realizado!'); window.location.href = 'login.html'; })
-                .catch(err => alert('Erro: ' + err.message));
-        }
+            const area = document.getElementById('area').value;
+            const tipo = document.getElementById('tipoProdutor').value;
+            const whats = document.getElementById('whatsapp').value.replace(/\D/g, '');
 
-        document.addEventListener('keydown', e => { if (e.key === 'Enter') cadastrar(); });
+            if (!nome || nome.length < 3) {
+                alerta.className = 'alert erro';
+                alerta.textContent = 'Nome muito curto (mínimo 3 caracteres).';
+                return;
+            }
+            if (cpf.length !== 11) {
+                alerta.className = 'alert erro';
+                alerta.textContent = 'CPF inválido. Digite os 11 dígitos.';
+                return;
+            }
+            if (!senha || senha.length < 6) {
+                alerta.className = 'alert erro';
+                alerta.textContent = 'Senha muito curta (mínimo 6 caracteres).';
+                return;
+            }
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                const body = { nome, cpf, senha };
+                if (tipo) body.tipoProdutor = tipo;
+                if (area) body.areaHectares = parseFloat(area);
+                if (whats) body.whatsapp = whats;
+
+                const resp = await fetch('/api/auth/cadastrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    alerta.className = 'alert erro';
+                    alerta.textContent = data.erro || 'Erro ao cadastrar. Tente novamente.';
+                    return;
+                }
+
+                alerta.className = 'alert ok';
+                alerta.textContent = '✓ Conta criada! Redirecionando para o login...';
+                setTimeout(() => window.location.replace('login.html'), 1500);
+
+            } catch {
+                alerta.className = 'alert erro';
+                alerta.textContent = 'Falha de conexão. Tente novamente.';
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
     </script>
 </body>
 </html>

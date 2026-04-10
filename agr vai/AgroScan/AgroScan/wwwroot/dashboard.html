@@ -1,1432 +1,1073 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgroScan · Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
     <style>
-            /* ═══════════════════════════════════════
-           TOKENS
-        ═══════════════════════════════════════ */
-            :root {
-                /* Paleta base */
-                --c1: #c0b698;
-                --c2: #647e37;
-                --c3: #300013; /* vinho — uso pontual apenas */
-                --c4: #6e9a81;
-                --c5: #d2c8a7;
-                --c6: #d8cfb4;
-                --c7: #a89f82;
-                --c8: #4f652c;
-                --c9: #7f9a4f;
-                --c10: #1f000d; /* vinho quase preto — NÃO usado como bg */
-                --c11: #4a1a2a;
-                --c12: #88b29b;
-                --c13: #567c67;
-                --c14: #e6ddc3;
-                --c15: #b5ab8c;
-                --c16: #5b6f4a;
-                --c17: #7a8f6d;
-                --c18: #3e2a33;
-                --c19: #9c9475;
-                --c20: #2f3e2a;
-                /* ── BACKGROUNDS — pretos neutros ── */
-                --bg: #080808;
-                --bg2: #0f0f0f;
-                --bg3: #141414;
-                --surface: #181818;
-                --surface2: #1e1e1e;
-                --surface3: #222222;
-                /* ── BORDAS ── */
-                --border: #252525;
-                --border2: #2e2e2e;
-                --border3: #333333;
-                /* ── ACENTO PRINCIPAL: verdes da paleta ── */
-                --accent: var(--c2); /* verde campo */
-                --accent2: var(--c9); /* verde limão */
-                --accent3: var(--c4); /* verde salva */
-                /* ── TEXTOS: tons bege/areia da paleta ── */
-                --text: var(--c6); /* bege claro */
-                --text2: var(--c15); /* bege médio */
-                --text3: var(--c19); /* terroso apagado */
-                --text-inv: #080808;
-                /* ── SEMÂNTICOS ── */
-                --warm: var(--c1); /* bege dourado — destaques warm */
-                --warm2: var(--c5); /* areia — títulos */
-                /* ── VINHO: apenas alertas críticos ── */
-                --wine-badge-bg: #30001320;
-                --wine-badge-border: #30001350;
-                --wine-badge-text: #c06080;
-                /* ── OUTROS STATUS ── */
-                --amber: #c9983a;
-                --red: #b84040;
-                --sidebar-w: 244px;
-                --nav-h: 60px;
-                --r: 13px;
-                --r-sm: 8px;
+        :root {
+            --bg: #0d1a0f;
+            --bg2: #111e13;
+            --surface: #172019;
+            --surface2: #1d2a1f;
+            --surface3: #223026;
+            --border: #243026;
+            --border2: #2d3d30;
+            --green-deep: #1a3a1f;
+            --green-mid: #2d6a35;
+            --green-lt: #4caf5a;
+            --leaf: #6dbe7a;
+            --leaf-dim: rgba(109,190,122,.12);
+            --leaf-border: rgba(109,190,122,.2);
+            --text: #d6e8d8;
+            --text2: #8faa92;
+            --text3: #5a7060;
+            --amber: #d4a017;
+            --red: #c94040;
+            --blue: #4a90d4;
+            --sidebar-w: 240px;
+            --nav-h: 60px;
+            --r: 12px;
+            --r-sm: 8px;
+            --ease: cubic-bezier(.22,1,.36,1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════ SIDEBAR ══════════════════ */
+        .sidebar {
+            grid-row: 1 / -1;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px 28px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--green-mid);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .logo-name {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+            .logo-name span {
+                color: var(--leaf);
             }
 
-            *, *::before, *::after {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-            }
+        .nav-section {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text3);
+            padding: 4px 20px 8px;
+            margin-top: 8px;
+        }
 
-            html {
-                scroll-behavior: smooth;
-            }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            margin: 1px 8px;
+            border-radius: var(--r-sm);
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
 
-            body {
-                font-family: 'DM Sans', sans-serif;
-                background: var(--bg);
+            .nav-item:hover {
+                background: var(--leaf-dim);
                 color: var(--text);
-                min-height: 100vh;
             }
 
-            /* ═══════════════════════════════════════
-           TOPNAV
-        ═══════════════════════════════════════ */
-            .topnav {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 200;
-                height: var(--nav-h);
-                background: var(--bg2);
-                border-bottom: 1px solid var(--border);
-                display: flex;
-                align-items: center;
+            .nav-item.active {
+                background: var(--leaf-dim);
+                color: var(--leaf);
+                border: 1px solid var(--leaf-border);
             }
 
-            .nav-brand-area {
-                width: var(--sidebar-w);
-                display: flex;
-                align-items: center;
-                padding: 0 18px;
-                border-right: 1px solid var(--border);
-                height: 100%;
-                flex-shrink: 0;
-                gap: 10px;
-            }
-
-            .hamburger {
-                display: none;
-                background: none;
-                border: none;
-                color: var(--text3);
-                font-size: 19px;
-                cursor: pointer;
-                padding: 5px 7px;
-                border-radius: 6px;
-                transition: background .15s, color .15s;
-                flex-shrink: 0;
-            }
-
-                .hamburger:hover {
-                    background: var(--surface2);
-                    color: var(--text);
-                }
-
-            .nav-logo-wrap {
-                display: flex;
-                align-items: center;
-                gap: 9px;
-                text-decoration: none;
-            }
-
-            .nav-logo {
-                width: 30px;
-                height: 30px;
-                border-radius: 7px;
-                background: linear-gradient(135deg, var(--accent), var(--accent3));
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 15px;
-            }
-
-            .nav-brand {
-                font-family: 'Playfair Display', serif;
-                font-size: 16px;
-                font-weight: 700;
-                color: var(--warm2);
-                letter-spacing: -.2px;
-            }
-
-                .nav-brand em {
-                    color: var(--accent2);
-                    font-style: normal;
-                }
-
-            .nav-right {
-                margin-left: auto;
-                padding-right: 20px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .nav-notif {
-                width: 32px;
-                height: 32px;
-                border-radius: 50%;
-                background: var(--surface);
-                border: 1px solid var(--border);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 13px;
-                cursor: pointer;
-                position: relative;
-                transition: background .15s;
-            }
-
-                .nav-notif:hover {
-                    background: var(--surface2);
-                }
-
-            .notif-dot {
-                position: absolute;
-                top: 6px;
-                right: 6px;
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background: var(--accent2);
-                border: 2px solid var(--bg2);
-            }
-
-            .nav-user {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: 40px;
-                padding: 5px 12px 5px 5px;
-                cursor: pointer;
-                transition: background .15s;
-            }
-
-                .nav-user:hover {
-                    background: var(--surface2);
-                }
-
-            .nav-avatar {
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, var(--c8), var(--c4));
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 11px;
-                font-weight: 700;
-                color: var(--text-inv);
-            }
-
-            .nav-user-name {
-                font-size: 13px;
-                font-weight: 500;
-                color: var(--text2);
-            }
-
-            /* ═══════════════════════════════════════
-           SIDEBAR
-        ═══════════════════════════════════════ */
-            .sidebar {
-                position: fixed;
-                top: var(--nav-h);
-                left: 0;
-                bottom: 0;
-                width: var(--sidebar-w);
-                background: var(--bg2);
-                border-right: 1px solid var(--border);
-                display: flex;
-                flex-direction: column;
-                padding: 18px 10px 18px;
-                overflow-y: auto;
-                z-index: 150;
-                transition: transform .26s cubic-bezier(.4,0,.2,1);
-            }
-
-            .sidebar-label {
-                font-size: 9px;
-                font-weight: 700;
-                letter-spacing: 1.8px;
-                text-transform: uppercase;
-                color: var(--text3);
-                padding: 0 10px;
-                margin: 18px 0 5px;
-                display: block;
-            }
-
-                .sidebar-label:first-child {
-                    margin-top: 0;
-                }
-
-            .slink {
-                display: flex;
-                align-items: center;
-                gap: 9px;
-                padding: 9px 11px;
-                border-radius: var(--r-sm);
-                color: var(--text3);
-                font-size: 13px;
-                font-weight: 500;
-                text-decoration: none;
-                cursor: pointer;
-                transition: all .14s;
-                border: 1px solid transparent;
-            }
-
-                .slink:hover {
-                    background: var(--surface2);
-                    color: var(--text2);
-                }
-
-                .slink.active {
-                    background: var(--surface2);
-                    border-color: var(--border3);
-                    color: var(--accent2);
-                }
-
-            .slink-icon {
-                width: 17px;
-                text-align: center;
-                font-size: 14px;
-                flex-shrink: 0;
-            }
-
-            .slink-badge {
-                margin-left: auto;
-                font-size: 10px;
-                font-weight: 700;
-                border-radius: 99px;
-                padding: 1px 7px;
-            }
-                /* vinho apenas no badge de alertas críticos */
-                .slink-badge.wine {
-                    background: var(--wine-badge-bg);
-                    border: 1px solid var(--wine-badge-border);
-                    color: var(--wine-badge-text);
-                }
-
-                .slink-badge.green {
-                    background: #647e3718;
-                    border: 1px solid #647e3728;
-                    color: var(--accent2);
-                }
-
-            .sidebar-bottom {
-                margin-top: auto;
-                padding-top: 14px;
-                border-top: 1px solid var(--border);
-            }
-
-            /* ═══════════════════════════════════════
-           BACKDROP
-        ═══════════════════════════════════════ */
-            .backdrop {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: #00000080;
-                z-index: 140;
-            }
-
-                .backdrop.show {
-                    display: block;
-                }
-
-            /* ═══════════════════════════════════════
-           LAYOUT
-        ═══════════════════════════════════════ */
-            .main {
-                margin-left: var(--sidebar-w);
-                padding-top: var(--nav-h);
-                min-height: 100vh;
-            }
-
-            .page {
-                max-width: 1060px;
-                margin: 0 auto;
-                padding: 32px 26px 64px;
-            }
-
-            /* ═══════════════════════════════════════
-           PAGE HEADER
-        ═══════════════════════════════════════ */
-            .page-eyebrow {
-                font-size: 10px;
-                font-weight: 700;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-                color: var(--accent2);
-                margin-bottom: 7px;
-            }
-
-            .page-title {
-                font-family: 'Playfair Display', serif;
-                font-size: 30px;
-                font-weight: 800;
-                color: var(--warm2);
-                letter-spacing: -.3px;
-                margin-bottom: 5px;
-                line-height: 1.2;
-            }
-
-            .page-sub {
-                font-size: 13.5px;
-                color: var(--text3);
-                line-height: 1.6;
-                margin-bottom: 30px;
-            }
-
-            /* ═══════════════════════════════════════
-           DIVIDER
-        ═══════════════════════════════════════ */
-            .divider {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin: 26px 0 16px;
-            }
-
-                .divider span {
-                    font-size: 9.5px;
-                    font-weight: 700;
-                    letter-spacing: 1.6px;
-                    text-transform: uppercase;
-                    color: var(--text3);
-                    flex-shrink: 0;
-                }
-
-                .divider::after {
-                    content: '';
-                    flex: 1;
-                    height: 1px;
-                    background: var(--border);
-                }
-
-            /* ═══════════════════════════════════════
-           STATS
-        ═══════════════════════════════════════ */
-            .stats {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 11px;
-                margin-bottom: 26px;
-            }
-
-            .stat {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--r);
-                padding: 16px 18px;
-                position: relative;
-                overflow: hidden;
-                animation: fadeUp .35s ease both;
-                transition: transform .17s, border-color .17s;
-            }
-
-                .stat:hover {
-                    transform: translateY(-2px);
-                    border-color: var(--border3);
-                }
-
-                .stat::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 2px;
-                }
-                /* listras coloridas — só nos stats, uso sutil */
-                .stat.sg::before {
-                    background: linear-gradient(90deg, var(--c8), var(--c9));
-                }
-
-                .stat.sw::before {
-                    background: linear-gradient(90deg, var(--c7), var(--c1));
-                }
-
-                .stat.ss::before {
-                    background: linear-gradient(90deg, var(--c13), var(--c4));
-                }
-                /* vinho APENAS no stat de alerta crítico */
-                .stat.sv::before {
-                    background: linear-gradient(90deg, var(--c11), var(--c3));
-                }
-
-                .stat:nth-child(1) {
-                    animation-delay: .04s
-                }
-
-                .stat:nth-child(2) {
-                    animation-delay: .08s
-                }
-
-                .stat:nth-child(3) {
-                    animation-delay: .12s
-                }
-
-                .stat:nth-child(4) {
-                    animation-delay: .16s
-                }
-
-            .stat-icon {
-                font-size: 18px;
-                margin-bottom: 10px;
-            }
-
-            .stat-num {
-                font-family: 'Playfair Display', serif;
-                font-size: 34px;
-                font-weight: 800;
-                letter-spacing: -1px;
-                line-height: 1;
-            }
-
-            .stat.sg .stat-num {
-                color: var(--c9);
-            }
-
-            .stat.sw .stat-num {
-                color: var(--c1);
-            }
-
-            .stat.ss .stat-num {
-                color: var(--c12);
-            }
-            /* vinho no número de doenças detectadas */
-            .stat.sv .stat-num {
-                color: var(--wine-badge-text);
-            }
-
-            .stat-label {
-                font-size: 11.5px;
-                color: var(--text3);
-                margin-top: 5px;
-            }
-
-            .stat-trend {
-                font-size: 10.5px;
-                margin-top: 7px;
-                color: var(--text3);
-            }
-
-                .stat-trend.up {
-                    color: var(--c9);
-                }
-
-                .stat-trend.down {
-                    color: var(--amber);
-                }
-
-            /* ═══════════════════════════════════════
-           NAV CARDS
-        ═══════════════════════════════════════ */
-            .nav-cards {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 12px;
-                margin-bottom: 26px;
-            }
-
-            .nav-card {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--r);
-                padding: 20px 18px 50px;
-                text-decoration: none;
-                display: block;
-                position: relative;
-                overflow: hidden;
-                transition: transform .18s, border-color .18s, box-shadow .18s;
-                animation: fadeUp .35s ease both;
-            }
-
-                .nav-card:nth-child(1) {
-                    animation-delay: .06s
-                }
-
-                .nav-card:nth-child(2) {
-                    animation-delay: .1s
-                }
-
-                .nav-card:nth-child(3) {
-                    animation-delay: .14s
-                }
-
-                .nav-card::after {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 2px;
-                }
-
-            .nc-g::after {
-                background: linear-gradient(90deg, var(--c8), var(--c9));
-            }
-
-            .nc-s::after {
-                background: linear-gradient(90deg, var(--c13), var(--c4));
-            }
-
-            .nc-w::after {
-                background: linear-gradient(90deg, var(--c7), var(--c1));
-            }
-
-            .nav-card:hover {
-                transform: translateY(-3px);
-            }
-
-            .nc-g:hover {
-                border-color: #7f9a4f40;
-                box-shadow: 0 8px 28px #7f9a4f14;
-            }
-
-            .nc-s:hover {
-                border-color: #6e9a8140;
-                box-shadow: 0 8px 28px #6e9a8114;
-            }
-
-            .nc-w:hover {
-                border-color: #c0b69840;
-                box-shadow: 0 8px 28px #c0b69814;
-            }
-
-            .nav-card-emoji {
-                font-size: 28px;
-                margin-bottom: 11px;
-                display: block;
-            }
-
-            .nav-card-title {
-                font-family: 'Playfair Display', serif;
-                font-size: 15px;
-                font-weight: 700;
-                color: var(--warm2);
-                margin-bottom: 6px;
-            }
-
-            .nav-card-desc {
-                font-size: 12px;
-                color: var(--text3);
-                line-height: 1.55;
-            }
-
-            .nav-card-footer {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                padding: 10px 18px;
-                border-top: 1px solid var(--border);
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                font-size: 11px;
-                font-weight: 600;
-                transition: all .17s;
-            }
-
-            .nc-g .nav-card-footer {
-                color: var(--c9);
-            }
-
-            .nc-s .nav-card-footer {
-                color: var(--c12);
-            }
-
-            .nc-w .nav-card-footer {
-                color: var(--c1);
-            }
-
-            .nav-arrow {
-                transition: transform .17s;
-            }
-
-            .nav-card:hover .nav-arrow {
-                transform: translateX(4px);
-            }
-
-            /* ═══════════════════════════════════════
-           MAIN GRID
-        ═══════════════════════════════════════ */
-            .main-grid {
-                display: grid;
-                grid-template-columns: 1fr 300px;
-                gap: 14px;
-                align-items: start;
-            }
-
-            /* ═══════════════════════════════════════
-           CARD
-        ═══════════════════════════════════════ */
-            .card {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--r);
-                padding: 20px;
-            }
-
-            .card-title {
-                font-family: 'Playfair Display', serif;
-                font-size: 14px;
-                font-weight: 700;
-                color: var(--warm2);
-                display: flex;
-                align-items: center;
-                gap: 9px;
-                margin-bottom: 15px;
-            }
-
-            .cicon {
-                width: 27px;
-                height: 27px;
-                border-radius: 7px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 13px;
-                flex-shrink: 0;
-            }
-
-            .cicon-g {
-                background: #647e3716;
-            }
-
-            .cicon-s {
-                background: #6e9a8116;
-            }
-
-            .cicon-w {
-                background: #c0b69816;
-            }
-
-            .cicon-a {
-                background: #c9983a16;
-            }
-
-            /* ═══════════════════════════════════════
-           RECENT
-        ═══════════════════════════════════════ */
-            .recent-list {
-                list-style: none;
-            }
-
-            .recent-item {
-                display: flex;
-                align-items: center;
-                gap: 11px;
-                padding: 10px 0;
-                border-bottom: 1px solid var(--border);
-            }
-
-                .recent-item:last-child {
-                    border-bottom: none;
-                    padding-bottom: 0;
-                }
-
-            .recent-thumb {
-                width: 36px;
-                height: 36px;
-                border-radius: 9px;
-                background: var(--bg3);
-                border: 1px solid var(--border2);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 17px;
-                flex-shrink: 0;
-            }
-
-            .recent-body {
-                flex: 1;
-                min-width: 0;
-            }
-
-            .recent-name {
-                font-size: 13px;
-                font-weight: 600;
-                color: var(--text);
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .recent-meta {
-                font-size: 11px;
-                color: var(--text3);
-                margin-top: 2px;
-            }
-
-            .badge {
-                font-size: 9px;
-                font-weight: 800;
-                letter-spacing: .6px;
-                padding: 2px 7px;
-                border-radius: 99px;
-                flex-shrink: 0;
-                text-transform: uppercase;
-                border: 1px solid;
-            }
-            /* vinho apenas no badge ALTO (risco crítico) */
-            .b-crit {
-                background: var(--wine-badge-bg);
-                border-color: var(--wine-badge-border);
-                color: var(--wine-badge-text);
-            }
-
-            .b-amber {
-                background: #c9983a16;
-                border-color: #c9983a28;
-                color: var(--amber);
-            }
-
-            .b-green {
-                background: #647e3716;
-                border-color: #647e3728;
-                color: var(--c9);
-            }
-
-            /* ═══════════════════════════════════════
-           CLIMA
-        ═══════════════════════════════════════ */
-            .weather-card {
-                border: 1px solid var(--border);
-                border-radius: var(--r);
-                overflow: hidden;
-                margin-bottom: 12px;
-                animation: fadeUp .35s .26s ease both;
-            }
-
-            .weather-body {
-                background: var(--surface);
-                padding: 18px;
-            }
-
-            .weather-head-row {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 14px;
-            }
-
-            .weather-head-title {
-                font-family: 'Playfair Display', serif;
-                font-size: 13px;
-                font-weight: 700;
-                color: var(--warm2);
-                display: flex;
-                align-items: center;
-                gap: 7px;
-            }
-
-            .weather-city {
-                margin-left: auto;
-                font-size: 11px;
-                color: var(--text3);
-            }
-
-            .weather-main {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 14px;
-            }
-
-            .weather-emoji {
-                font-size: 40px;
-                line-height: 1;
-            }
-
-            .weather-temp {
-                font-family: 'Playfair Display', serif;
-                font-size: 44px;
-                font-weight: 800;
-                color: var(--warm2);
-                letter-spacing: -2px;
-                line-height: 1;
-            }
-
-            .weather-desc {
-                font-size: 11.5px;
-                color: var(--text3);
-                margin-top: 4px;
-            }
-
-            .weather-pills {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 6px;
-            }
-
-            .wpill {
-                background: var(--bg3);
-                border: 1px solid var(--border2);
-                border-radius: 99px;
-                padding: 3px 9px;
-                font-size: 11px;
-                color: var(--text2);
-            }
-            /* vinho apenas no alerta meteorológico crítico */
-            .weather-alert {
-                padding: 11px 18px;
-                border-top: 1px solid var(--border);
-                background: var(--bg3);
-            }
-
-                .weather-alert.crit {
-                    background: var(--wine-badge-bg);
-                    border-top-color: var(--wine-badge-border);
-                }
-
-            .weather-alert-title {
-                font-size: 11px;
-                font-weight: 700;
-                color: var(--text2);
-                margin-bottom: 2px;
-            }
-
-            .weather-alert.crit .weather-alert-title {
-                color: var(--wine-badge-text);
-            }
-
-            .weather-alert-desc {
-                font-size: 11.5px;
-                color: var(--text3);
-                line-height: 1.5;
-            }
-
-            .weather-loading {
-                background: var(--surface);
-                padding: 30px 18px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-            }
-
-            .spinner {
+            .nav-item svg {
                 width: 16px;
                 height: 16px;
-                border-radius: 50%;
-                border: 2px solid var(--border3);
-                border-top-color: var(--accent2);
-                animation: spin .7s linear infinite;
                 flex-shrink: 0;
             }
 
-            @keyframes spin {
-                to {
-                    transform: rotate(360deg);
-                }
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--green-mid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        .btn-logout {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: color .15s;
+            display: flex;
+        }
+
+            .btn-logout:hover {
+                color: var(--red);
             }
 
-            .weather-loading-text {
-                font-size: 12.5px;
-                color: var(--text3);
+        /* ══════════════════ MAIN CONTENT ══════════════════ */
+        .main {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            padding: 0 32px;
+            height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--green-mid);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: #256030;
             }
 
-            /* ═══════════════════════════════════════
-           ALERTAS
-        ═══════════════════════════════════════ */
-            .alerts {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border2);
+            color: var(--text2);
+        }
+
+            .btn-outline:hover {
+                border-color: var(--leaf);
+                color: var(--leaf);
             }
 
-            .alert-item {
-                background: var(--bg3);
-                border: 1px solid var(--border);
-                border-left-width: 2px;
-                border-radius: var(--r-sm);
-                padding: 9px 12px;
-            }
-            /* vinho apenas no alerta máximo urgência */
-            .al-crit {
-                border-left-color: var(--wine-badge-text);
-            }
+        /* PAGE BODY */
+        .page-body {
+            padding: 32px;
+            overflow-y: auto;
+            flex: 1;
+        }
 
-            .al-amber {
-                border-left-color: var(--amber);
-            }
+        /* ══ KPI CARDS ══ */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
 
-            .al-sage {
-                border-left-color: var(--c4);
-            }
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 20px;
+            transition: border-color .2s;
+        }
 
-            .alert-name {
-                font-size: 12.5px;
-                font-weight: 600;
-                color: var(--text);
-                margin-bottom: 2px;
-            }
-
-            .alert-sub {
-                font-size: 11px;
-                color: var(--text3);
+            .kpi-card:hover {
+                border-color: var(--border2);
             }
 
-            /* ═══════════════════════════════════════
-           ANIM
-        ═══════════════════════════════════════ */
-            @keyframes fadeUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(9px);
-                }
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
 
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+            .kpi-icon.green {
+                background: rgba(76,175,90,.12);
             }
 
-            /* ═══════════════════════════════════════
-           SCROLLBAR
-        ═══════════════════════════════════════ */
-            ::-webkit-scrollbar {
-                width: 4px;
+            .kpi-icon.amber {
+                background: rgba(212,160,23,.12);
             }
 
-            ::-webkit-scrollbar-thumb {
-                background: var(--border2);
-                border-radius: 2px;
+            .kpi-icon.red {
+                background: rgba(201,64,64,.12);
             }
 
-            /* ═══════════════════════════════════════
-           RESPONSIVE
-        ═══════════════════════════════════════ */
-            @media (max-width: 860px) {
-                .sidebar {
-                    transform: translateX(-100%);
-                }
-
-                    .sidebar.open {
-                        transform: translateX(0);
-                        box-shadow: 6px 0 24px #00000060;
-                    }
-
-                .main {
-                    margin-left: 0;
-                }
-
-                .nav-brand-area {
-                    width: auto;
-                    border-right: none;
-                    padding-left: 10px;
-                }
-
-                .hamburger {
-                    display: flex;
-                    align-items: center;
-                }
+            .kpi-icon.blue {
+                background: rgba(74,144,212,.12);
             }
 
-            @media (max-width: 860px) {
-                .main-grid {
-                    grid-template-columns: 1fr;
-                }
+        .kpi-value {
+            font-family: 'Fraunces', serif;
+            font-size: 30px;
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text3);
+            font-weight: 500;
+        }
+
+        /* ══ AÇÃO RÁPIDA ══ */
+        .section-title {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .quick-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color .2s, background .2s, transform .15s;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+            .quick-card:hover {
+                border-color: var(--leaf);
+                background: var(--surface2);
+                transform: translateY(-2px);
             }
 
-            @media (max-width: 680px) {
-                .nav-cards {
-                    grid-template-columns: 1fr;
-                }
+        .quick-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .qc-green {
+            background: rgba(76,175,90,.12);
+            border: 1px solid rgba(76,175,90,.2);
+        }
+
+        .qc-amber {
+            background: rgba(212,160,23,.12);
+            border: 1px solid rgba(212,160,23,.2);
+        }
+
+        .qc-blue {
+            background: rgba(74,144,212,.12);
+            border: 1px solid rgba(74,144,212,.2);
+        }
+
+        .quick-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .quick-card p {
+            font-size: 12px;
+            color: var(--text3);
+            line-height: 1.5;
+        }
+
+        .quick-card .arrow {
+            align-self: flex-end;
+            color: var(--text3);
+            font-size: 18px;
+            margin-top: auto;
+            transition: color .2s;
+        }
+
+        .quick-card:hover .arrow {
+            color: var(--leaf);
+        }
+
+        /* ══ HISTÓRICO RECENTE ══ */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+        }
+
+        .card-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-action {
+            font-size: 12px;
+            color: var(--green-lt);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .card-action:hover {
+                color: var(--leaf);
             }
 
-            @media (max-width: 680px) {
-                .stats {
-                    grid-template-columns: 1fr 1fr;
-                }
+        /* Tabela histórico */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--text3);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 20px;
+            font-size: 13px;
+            color: var(--text2);
+            border-top: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tbody tr:hover td {
+            background: var(--surface2);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-fungica {
+            background: rgba(212,160,23,.15);
+            color: var(--amber);
+            border: 1px solid rgba(212,160,23,.25);
+        }
+
+        .badge-bacteriana {
+            background: rgba(201,64,64,.15);
+            color: var(--red);
+            border: 1px solid rgba(201,64,64,.25);
+        }
+
+        .badge-praga {
+            background: rgba(74,144,212,.15);
+            color: var(--blue);
+            border: 1px solid rgba(74,144,212,.25);
+        }
+
+        .badge-acaro {
+            background: rgba(212,100,23,.15);
+            color: #d46a17;
+            border: 1px solid rgba(212,100,23,.25);
+        }
+
+        .badge-defic {
+            background: rgba(109,190,122,.1);
+            color: var(--leaf);
+            border: 1px solid var(--leaf-border);
+        }
+
+        .badge-saudavel {
+            background: rgba(76,175,90,.12);
+            color: var(--green-lt);
+            border: 1px solid rgba(76,175,90,.2);
+        }
+
+        .badge-inconcl {
+            background: rgba(100,100,100,.12);
+            color: #888;
+            border: 1px solid rgba(100,100,100,.2);
+        }
+
+        .conf-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .conf-track {
+            flex: 1;
+            height: 4px;
+            background: var(--border2);
+            border-radius: 2px;
+            max-width: 60px;
+        }
+
+        .conf-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--green-lt);
+        }
+
+        /* Grav chips */
+        .chip-alta {
+            color: var(--red);
+            font-weight: 700;
+        }
+
+        .chip-media {
+            color: var(--amber);
+            font-weight: 700;
+        }
+
+        .chip-baixa {
+            color: var(--green-lt);
+            font-weight: 700;
+        }
+
+        /* ══ PAINEL LATERAL DOENÇAS ══ */
+        .disease-list {
+            padding: 4px 0;
+        }
+
+        .disease-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+            .disease-item:last-child {
+                border-bottom: none;
             }
 
-            @media (max-width: 380px) {
-                .stats {
-                    grid-template-columns: 1fr;
-                }
+        .disease-name {
+            color: var(--text);
+            font-weight: 500;
+        }
 
-                .page-title {
-                    font-size: 24px;
-                }
+        .disease-count {
+            color: var(--text3);
+            font-size: 12px;
+        }
 
-                .page {
-                    padding: 20px 14px 56px;
-                }
+        .bar-mini {
+            width: 80px;
+            height: 4px;
+            background: var(--border2);
+            border-radius: 2px;
+            margin: 0 12px;
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .bar-mini-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--green-mid), var(--leaf));
+        }
+
+        /* loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0
             }
+
+            100% {
+                background-position: -200% 0
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text3);
+            font-size: 13px;
+        }
+
+            .empty-state .emoji {
+                font-size: 36px;
+                margin-bottom: 12px;
+                display: block;
+            }
+
+        /* ══ RESPONSIVE ══ */
+        @media (max-width: 1100px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .page-body {
+                padding: 16px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <!-- TOPNAV -->
-    <nav class="topnav">
-        <div class="nav-brand-area">
-            <button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
-            <a class="nav-logo-wrap" href="dashboard.html">
-                <div class="nav-logo">🌿</div>
-                <span class="nav-brand">Agro<em>Scan</em></span>
-            </a>
+    <!-- ══════════ SIDEBAR ══════════ -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🥬</div>
+            <div class="logo-name">Agro<span>Scan</span></div>
         </div>
-        <div class="nav-right">
-            <div class="nav-notif" title="Notificações">
-                🔔<div class="notif-dot"></div>
-            </div>
-            <div class="nav-user">
-                <div class="nav-avatar" id="avatarInitial">J</div>
-                <span class="nav-user-name" id="userNome">Carregando...</span>
-            </div>
+
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>
+            Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3" /><path d="M5 8h6M5 11h4" /></svg>
+            Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>
+            Histórico
+        </a>
+
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>
+            Hortaliças
+        </a>
+
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>
+            Dashboard
+        </a>
+        <div class="nav-item" onclick="fazerLogout()" style="cursor:pointer;">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>
+            Sair
         </div>
-    </nav>
 
-    <!-- BACKDROP -->
-    <div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-
-        <span class="sidebar-label">Principal</span>
-        <a class="slink active" href="dashboard.html">
-            <span class="slink-icon">🏠</span> Início
-        </a>
-        <a class="slink" href="analisarplanta.html">
-            <span class="slink-icon">🔬</span> Analisar planta
-        </a>
-        <a class="slink" href="identificarplanta.html">
-            <span class="slink-icon">🔍</span> Identificar planta
-        </a>
-        <a class="slink" href="plantacoes.html">
-            <span class="slink-icon">🌿</span> Plantações
-            <span class="slink-badge green">12</span>
-        </a>
-
-        <span class="sidebar-label">Monitoramento</span>
-        <a class="slink" href="#">
-            <span class="slink-icon">⚠️</span> Alertas
-            <!-- badge vinho: alerta crítico -->
-            <span class="slink-badge wine">3</span>
-        </a>
-        <a class="slink" href="#">
-            <span class="slink-icon">📋</span> Histórico
-        </a>
-        <a class="slink" href="#">
-            <span class="slink-icon">📊</span> Relatórios
-        </a>
-
-        <div class="sidebar-bottom">
-            <span class="sidebar-label" style="margin-top:0">Conta</span>
-            <a class="slink" href="#"><span class="slink-icon">⚙️</span> Configurações</a>
-            <a class="slink" href="logout.html" style="color:#5a3030"
-               onmouseover="this.style.color='var(--wine-badge-text)'"
-               onmouseout="this.style.color='#5a3030'">
-                <span class="slink-icon">↩</span> Sair
-            </a>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div>
+                    <div class="user-name" id="sidebarNome">Produtor</div>
+                    <div class="user-role">Produtor Rural</div>
+                </div>
+                <button class="btn-logout" onclick="fazerLogout()" title="Sair">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M10 11l3-3-3-3M6 8h7M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3" /></svg>
+                </button>
+            </div>
         </div>
     </aside>
 
-    <!-- MAIN -->
-    <div class="main">
-        <div class="page">
+    <!-- ══════════ MAIN ══════════ -->
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">Dashboard</div>
+            <div class="topbar-actions">
+                <a href="diagnosticar.html" class="btn-action btn-primary">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M8 3v10M3 8h10" /></svg>
+                    Novo diagnóstico
+                </a>
+            </div>
+        </div>
 
-            <div class="page-eyebrow">Bem‑vindo de volta 👋</div>
-            <h1 class="page-title" id="welcomeTitle">Dashboard</h1>
-            <p class="page-sub">Acompanhe o estado das suas lavouras, alertas e análises recentes.</p>
+        <div class="page-body">
 
-            <!-- STATS -->
-            <div class="stats">
-                <div class="stat sg">
-                    <div class="stat-icon">🌿</div>
-                    <div class="stat-num">12</div>
-                    <div class="stat-label">Plantações ativas</div>
-                    <div class="stat-trend up">↑ 2 este mês</div>
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon green">🔬</div>
+                    <div class="kpi-value" id="kpiTotal">—</div>
+                    <div class="kpi-label">Diagnósticos realizados</div>
                 </div>
-                <div class="stat sw">
-                    <div class="stat-icon">⚠️</div>
-                    <div class="stat-num">3</div>
-                    <div class="stat-label">Alertas ativos</div>
-                    <div class="stat-trend down">↑ 1 novo hoje</div>
+                <div class="kpi-card">
+                    <div class="kpi-icon amber">⚠️</div>
+                    <div class="kpi-value" id="kpiAlta">—</div>
+                    <div class="kpi-label">Gravidade alta</div>
                 </div>
-                <div class="stat ss">
-                    <div class="stat-icon">🔬</div>
-                    <div class="stat-num">47</div>
-                    <div class="stat-label">Análises realizadas</div>
-                    <div class="stat-trend up">↑ 5 esta semana</div>
+                <div class="kpi-card">
+                    <div class="kpi-icon red">🦠</div>
+                    <div class="kpi-value" id="kpiDoencas">—</div>
+                    <div class="kpi-label">Tipos detectados</div>
                 </div>
-                <!-- vinho aqui: doenças = dado crítico -->
-                <div class="stat sv">
-                    <div class="stat-icon">🦠</div>
-                    <div class="stat-num">2</div>
-                    <div class="stat-label">Doenças detectadas</div>
-                    <div class="stat-trend">Em tratamento</div>
+                <div class="kpi-card">
+                    <div class="kpi-icon blue">📈</div>
+                    <div class="kpi-value" id="kpiConf">—</div>
+                    <div class="kpi-label">Precisão média da IA</div>
                 </div>
             </div>
 
-            <!-- FERRAMENTAS -->
-            <div class="divider"><span>Ferramentas</span></div>
-
-            <div class="nav-cards">
-                <a class="nav-card nc-g" href="analisar.html">
-                    <span class="nav-card-emoji">🔬</span>
-                    <div class="nav-card-title">Analisar planta</div>
-                    <div class="nav-card-desc">Envie uma foto e nossa IA identifica pragas, doenças e indica o melhor tratamento.</div>
-                    <div class="nav-card-footer">Abrir ferramenta <span class="nav-arrow">→</span></div>
+            <!-- AÇÕES RÁPIDAS -->
+            <div class="section-title">O que deseja fazer?</div>
+            <div class="quick-actions">
+                <a href="diagnosticar.html" class="quick-card">
+                    <div class="quick-card-icon qc-green">🔬</div>
+                    <h3>Diagnosticar hortaliça</h3>
+                    <p>Envie uma foto e receba o diagnóstico de praga ou doença em segundos.</p>
+                    <div class="arrow">→</div>
                 </a>
-                <a class="nav-card nc-s" href="identificar.html">
-                    <span class="nav-card-emoji">🔍</span>
-                    <div class="nav-card-title">Identificar planta</div>
-                    <div class="nav-card-desc">Descubra a espécie, características botânicas e cuidados de qualquer planta pela foto.</div>
-                    <div class="nav-card-footer">Abrir ferramenta <span class="nav-arrow">→</span></div>
+                <a href="identificar.html" class="quick-card">
+                    <div class="quick-card-icon qc-blue">🌿</div>
+                    <h3>Identificar hortaliça</h3>
+                    <p>Descubra qual hortaliça é e veja dicas agronômicas completas de cultivo.</p>
+                    <div class="arrow">→</div>
                 </a>
-                <a class="nav-card nc-w" href="plantacoes.html">
-                    <span class="nav-card-emoji">🌿</span>
-                    <div class="nav-card-title">Plantações</div>
-                    <div class="nav-card-desc">Cadastre e gerencie seus talhões, culturas e histórico de intervenções.</div>
-                    <div class="nav-card-footer">Gerenciar <span class="nav-arrow">→</span></div>
+                <a href="hortalicas.html" class="quick-card">
+                    <div class="quick-card-icon qc-amber">📚</div>
+                    <h3>Catálogo de hortaliças</h3>
+                    <p>Consulte pragas, doenças, ciclos e recomendações por hortaliça.</p>
+                    <div class="arrow">→</div>
                 </a>
             </div>
 
-            <!-- VISÃO GERAL -->
-            <div class="divider"><span>Visão geral</span></div>
-
-            <div class="main-grid">
-
-                <!-- Análises recentes -->
-                <div class="card" style="animation: fadeUp .35s .2s ease both;">
-                    <div class="card-title">
-                        <div class="cicon cicon-g">📋</div>
-                        Análises recentes
+            <!-- CONTEÚDO PRINCIPAL -->
+            <div class="content-grid">
+                <!-- HISTÓRICO RECENTE -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Diagnósticos Recentes</div>
+                        <a href="historico.html" class="card-action">Ver todos →</a>
                     </div>
-                    <ul class="recent-list">
-                        <li class="recent-item">
-                            <div class="recent-thumb">🌱</div>
-                            <div class="recent-body">
-                                <div class="recent-name">Soja — Talhão 3</div>
-                                <div class="recent-meta">Hoje, 09:14 · Ferrugem asiática</div>
-                            </div>
-                            <!-- vinho: risco alto -->
-                            <span class="badge b-crit">Alto</span>
-                        </li>
-                        <li class="recent-item">
-                            <div class="recent-thumb">🌽</div>
-                            <div class="recent-body">
-                                <div class="recent-name">Milho — Talhão 1</div>
-                                <div class="recent-meta">Ontem, 15:30 · Cercosporiose</div>
-                            </div>
-                            <span class="badge b-amber">Médio</span>
-                        </li>
-                        <li class="recent-item">
-                            <div class="recent-thumb">🍅</div>
-                            <div class="recent-body">
-                                <div class="recent-name">Tomate — Estufa A</div>
-                                <div class="recent-meta">3 dias atrás · Mosca-branca</div>
-                            </div>
-                            <span class="badge b-amber">Médio</span>
-                        </li>
-                        <li class="recent-item">
-                            <div class="recent-thumb">☕</div>
-                            <div class="recent-body">
-                                <div class="recent-name">Café — Gleba 2</div>
-                                <div class="recent-meta">5 dias atrás · Broca do café</div>
-                            </div>
-                            <span class="badge b-green">Tratado</span>
-                        </li>
-                    </ul>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Doença / Praga</th>
+                                    <th>Tipo</th>
+                                    <th>Gravidade</th>
+                                    <th>Confiança</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaHistorico">
+                                <tr><td colspan="4"><div class="skeleton" style="height:14px;margin:12px 20px;"></div></td></tr>
+                                <tr><td colspan="4"><div class="skeleton" style="height:14px;margin:12px 20px;width:70%;"></div></td></tr>
+                                <tr><td colspan="4"><div class="skeleton" style="height:14px;margin:12px 20px;width:85%;"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <!-- Coluna direita -->
-                <div style="display:flex;flex-direction:column;gap:12px;">
-
-                    <!-- CLIMA -->
-                    <div class="weather-card">
-                        <div id="weatherContent">
-                            <div class="weather-loading">
-                                <div class="spinner"></div>
-                                <span class="weather-loading-text">Carregando clima...</span>
-                            </div>
+                <!-- DISTRIBUIÇÃO POR TIPO -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Distribuição por Tipo</div>
+                    </div>
+                    <div class="disease-list" id="listaTipos">
+                        <div class="empty-state">
+                            <div class="skeleton" style="height:12px;margin:12px 20px;"></div>
+                            <div class="skeleton" style="height:12px;margin:12px 20px;width:60%;"></div>
                         </div>
                     </div>
-
-                    <!-- ALERTAS -->
-                    <div class="card" style="animation: fadeUp .35s .32s ease both;">
-                        <div class="card-title">
-                            <div class="cicon cicon-a">🔔</div>
-                            Alertas
-                        </div>
-                        <div class="alerts">
-                            <!-- vinho: alerta de urgência máxima -->
-                            <div class="alert-item al-crit">
-                                <div class="alert-name">Reaplicar fungicida</div>
-                                <div class="alert-sub">Talhão 3 — Soja · Vence amanhã</div>
-                            </div>
-                            <div class="alert-item al-amber">
-                                <div class="alert-name">Monitorar milho</div>
-                                <div class="alert-sub">Talhão 1 — Cercosporiose ativa</div>
-                            </div>
-                            <div class="alert-item al-sage">
-                                <div class="alert-name">Irrigação programada</div>
-                                <div class="alert-sub">Estufa A · Hoje às 18h</div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
-            </div><!-- /main-grid -->
+            </div>
 
         </div>
-    </div><!-- /main -->
+    </main>
 
     <script>
-        /* ── SIDEBAR ── */
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('backdrop').classList.toggle('show');
-        }
-        function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('backdrop').classList.remove('show');
-        }
+        // ══════════════════════════════════════════════════════════════
+        // AgroScan — Gerenciador de Autenticação JWT
+        // Responsável por: armazenar tokens, injetar Bearer em requests,
+        // renovar AccessToken automaticamente quando expirado.
+        // ══════════════════════════════════════════════════════════════
 
-        /* ── USUÁRIO ── lê do localStorage igual ao app.js ── */
-        function carregarUsuario() {
-            const nome = localStorage.getItem('userNome') || 'Usuário';
-            const loc = localStorage.getItem('userCidade') || localStorage.getItem('userLocalizacao') || null;
+        const Auth = (() => {
+            const KEY_TOKEN = 'as_token';
+            const KEY_REFRESH = 'as_refresh';
+            const KEY_NOME = 'as_nome';
+            const KEY_UID = 'as_uid';
+            const KEY_EXP = 'as_exp';
 
-            document.getElementById('userNome').textContent = nome;
-            document.getElementById('welcomeTitle').textContent = 'Olá, ' + nome.split(' ')[0];
-            document.getElementById('avatarInitial').textContent = nome.charAt(0).toUpperCase();
+            function salvar(data) {
+                localStorage.setItem(KEY_TOKEN, data.token);
+                localStorage.setItem(KEY_REFRESH, data.refreshToken);
+                localStorage.setItem(KEY_NOME, data.nome);
+                localStorage.setItem(KEY_UID, data.usuarioId);
+                localStorage.setItem(KEY_EXP, data.expiracao);
+            }
 
-            carregarClima(loc);
-        }
+            function limpar() {
+                [KEY_TOKEN, KEY_REFRESH, KEY_NOME, KEY_UID, KEY_EXP].forEach(k => localStorage.removeItem(k));
+            }
 
-        /* ── CLIMA ── */
-        async function carregarClima(localizacao) {
-            let lat, lon, nomeCidade;
-            try {
-                if (localizacao) {
-                    const geo = await fetch(
-                        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(localizacao)}&format=json&limit=1`,
-                        { headers: { 'Accept-Language': 'pt-BR' } }
-                    ).then(r => r.json());
-                    if (geo.length) {
-                        lat = parseFloat(geo[0].lat);
-                        lon = parseFloat(geo[0].lon);
-                        nomeCidade = geo[0].display_name.split(',').slice(0, 2).join(',').trim();
+            function getToken() { return localStorage.getItem(KEY_TOKEN); }
+            function getNome() { return localStorage.getItem(KEY_NOME) || 'Produtor'; }
+            function estaLogado() { return !!getToken(); }
+
+            function tokenExpirado() {
+                const exp = localStorage.getItem(KEY_EXP);
+                if (!exp) return true;
+                // Considera expirado 60s antes para evitar requests com token vencendo
+                return new Date(exp) < new Date(Date.now() + 60000);
+            }
+
+            async function renovarToken() {
+                const refresh = localStorage.getItem(KEY_REFRESH);
+                if (!refresh) return false;
+                try {
+                    const resp = await fetch('/api/auth/refresh', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: refresh })
+                    });
+                    if (!resp.ok) { limpar(); return false; }
+                    const data = await resp.json();
+                    salvar(data);
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            /** Retorna headers com Bearer válido, renovando se necessário. */
+            async function getHeaders(extra = {}) {
+                if (tokenExpirado()) {
+                    const ok = await renovarToken();
+                    if (!ok) {
+                        window.location.replace('login.html');
+                        return {};
                     }
                 }
-                if (!lat) {
-                    const pos = await new Promise((res, rej) =>
-                        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 })
-                    );
-                    lat = pos.coords.latitude; lon = pos.coords.longitude;
-                    const rev = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
-                        { headers: { 'Accept-Language': 'pt-BR' } }
-                    ).then(r => r.json());
-                    const a = rev.address || {};
-                    nomeCidade = (a.city || a.town || a.village || 'Sua localização') + (a.state ? ', ' + a.state : '');
+                return {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                    ...extra
+                };
+            }
+
+            /** Wrapper de fetch que injeta JWT automaticamente. */
+            async function fetchAuth(url, options = {}) {
+                const headers = await getHeaders(options.headers || {});
+                // Remove Content-Type para multipart (o browser define o boundary)
+                if (options.isMultipart) delete headers['Content-Type'];
+                return fetch(url, { ...options, headers });
+            }
+
+            async function logout() {
+                const refresh = localStorage.getItem(KEY_REFRESH);
+                if (refresh) {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: refresh })
+                    }).catch(() => { });
                 }
-            } catch {
-                lat = -22.8238; lon = -47.2699; nomeCidade = 'Sumaré, SP';
+                limpar();
+                window.location.replace('login.html');
             }
-            await fetchClima(lat, lon, nomeCidade);
-        }
 
-        async function fetchClima(lat, lon, cidade) {
-            try {
-                const data = await fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-                    `&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability` +
-                    `&wind_speed_unit=kmh&timezone=America%2FSao_Paulo`
-                ).then(r => r.json());
-                const c = data.current;
-                const { emoji, desc } = climaInfo(c.weather_code);
-                const alerta = gerarAlerta(c.weather_code, c.relative_humidity_2m, c.temperature_2m, c.precipitation_probability);
-                renderClima({
-                    emoji, desc, temp: Math.round(c.temperature_2m), umidade: c.relative_humidity_2m,
-                    vento: Math.round(c.wind_speed_10m), chuva: c.precipitation_probability || 0, cidade, alerta
-                });
-            } catch {
-                document.getElementById('weatherContent').innerHTML = `
-              <div class="weather-body">
-                <div class="weather-head-row">
-                  <span class="weather-head-title">🌤️ Clima</span>
-                  <span class="weather-city">📍 ${cidade}</span>
-                </div>
-                <p style="font-size:12px;color:var(--text3);padding:8px 0;">Não foi possível carregar o clima.</p>
-              </div>`;
+            /** Proteção de rota — chame no topo de páginas protegidas. */
+            function exigirLogin() {
+                const pagina = window.location.pathname.split('/').pop() || '';
+                const publicas = ['login.html', 'cadastro.html', 'index.html', ''];
+                if (publicas.includes(pagina)) return;
+                if (!estaLogado()) {
+                    window.location.replace('login.html');
+                }
             }
-        }
 
-        function climaInfo(code) {
-            const m = [
-                [[0], '☀️', 'Céu limpo'],
-                [[1, 2], '🌤️', 'Parcialmente nublado'],
-                [[3], '☁️', 'Nublado'],
-                [[45, 48], '🌫️', 'Neblina'],
-                [[51, 53, 55], '🌦️', 'Garoa'],
-                [[61, 63, 65], '🌧️', 'Chuva'],
-                [[80, 81, 82], '🌧️', 'Pancadas de chuva'],
-                [[95], '⛈️', 'Trovoada'],
-                [[96, 99], '⛈️', 'Tempestade com granizo'],
-            ];
-            for (const [codes, emoji, desc] of m) if (codes.includes(code)) return { emoji, desc };
-            return { emoji: '🌡️', desc: 'Variável' };
-        }
+            return { salvar, limpar, getToken, getNome, estaLogado, fetchAuth, logout, exigirLogin };
+        })();
 
-        function gerarAlerta(code, umidade, temp, chuva) {
-            // vinho apenas em tempestade (máxima criticidade)
-            if ([95, 96, 99].includes(code))
-                return { crit: true, title: '⛈️ Alerta de Tempestade', desc: 'Suspenda operações de campo. Risco de danos às lavouras.' };
-            if (umidade > 78 && temp > 18 && temp < 30)
-                return { crit: false, title: '⚠️ Alerta Agrícola', desc: 'Alta umidade favorece doenças fúngicas. Monitore suas lavouras.' };
-            if (chuva > 60)
-                return { crit: false, title: '🌧️ Chuva provável', desc: `${chuva}% de chance de chuva. Planeje suas aplicações.` };
-            if (temp > 36)
-                return { crit: false, title: '🌡️ Calor extremo', desc: 'Evite aplicações entre 10h–16h.' };
-            return null;
-        }
+        // Proteção automática ao carregar qualquer página
+        Auth.exigirLogin();
 
-        function renderClima({ emoji, desc, temp, umidade, vento, chuva, cidade, alerta }) {
-            const alertaHtml = alerta ? `
-            <div class="weather-alert${alerta.crit ? ' crit' : ''}">
-              <div class="weather-alert-title">${alerta.title}</div>
-              <div class="weather-alert-desc">${alerta.desc}</div>
-            </div>` : '';
-
-            document.getElementById('weatherContent').innerHTML = `
-            <div class="weather-body">
-              <div class="weather-head-row">
-                <span class="weather-head-title">🌤️ Clima atual</span>
-                <span class="weather-city">📍 ${cidade}</span>
-              </div>
-              <div class="weather-main">
-                <span class="weather-emoji">${emoji}</span>
-                <div>
-                  <div class="weather-temp">${temp}°C</div>
-                  <div class="weather-desc">${desc}</div>
-                </div>
-              </div>
-              <div class="weather-pills">
-                <span class="wpill">💧 ${umidade}%</span>
-                <span class="wpill">💨 ${vento} km/h</span>
-                <span class="wpill">🌧️ ${chuva}%</span>
-              </div>
-            </div>
-            ${alertaHtml}`;
-        }
-
-        window.addEventListener('DOMContentLoaded', carregarUsuario);
     </script>
-    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Mostra nome do usuário
+            const nome = Auth.getNome();
+            const nomeEl = document.getElementById('sidebarNome');
+            const avatarEl = document.getElementById('avatarLetra');
+            if (nomeEl) nomeEl.textContent = nome;
+            if (avatarEl) avatarEl.textContent = nome.charAt(0).toUpperCase();
+
+            await Promise.all([carregarHistorico(), carregarEstatisticas()]);
+        });
+
+        async function carregarHistorico() {
+            try {
+                const resp = await Auth.fetchAuth('/api/diagnostico/historico?pagina=1&tamanhoPagina=5');
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const tbody = document.getElementById('tabelaHistorico');
+
+                if (!data.dados || data.dados.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">
+                    <span class="emoji">🌱</span>
+                    Nenhum diagnóstico ainda. <a href="diagnosticar.html" style="color:var(--green-lt)">Faça o primeiro!</a>
+                </div></td></tr>`;
+                    document.getElementById('kpiTotal').textContent = '0';
+                    return;
+                }
+
+                document.getElementById('kpiTotal').textContent = data.dados.length >= 5 ? '5+' : data.dados.length;
+
+                tbody.innerHTML = data.dados.map(d => {
+                    const tipo = badgeTipo(d.tipoDiagnostico);
+                    const grav = chipGrav(d.gravidade);
+                    const conf = d.confianca || 0;
+                    return `<tr>
+                    <td style="color:var(--text);font-weight:500;">${d.nomeDoenca || 'Não identificado'}</td>
+                    <td>${tipo}</td>
+                    <td>${grav}</td>
+                    <td>
+                        <div class="conf-bar">
+                            <div class="conf-track"><div class="conf-fill" style="width:${conf}%"></div></div>
+                            <span>${conf}%</span>
+                        </div>
+                    </td>
+                </tr>`;
+                }).join('');
+
+                // KPI gravidade alta
+                const altas = data.dados.filter(d => d.gravidade === 'alta').length;
+                document.getElementById('kpiAlta').textContent = altas;
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function carregarEstatisticas() {
+            try {
+                const resp = await Auth.fetchAuth('/api/diagnostico/estatisticas');
+                if (!resp.ok) return;
+                const stats = await resp.json();
+
+                document.getElementById('kpiDoencas').textContent = stats.length;
+
+                const totalDiag = stats.reduce((s, x) => s + x.total, 0);
+                const confMedia = stats.length
+                    ? (stats.reduce((s, x) => s + x.confiancaMedia * x.total, 0) / (totalDiag || 1)).toFixed(0)
+                    : '—';
+                document.getElementById('kpiConf').textContent = confMedia + '%';
+                if (totalDiag > 0) document.getElementById('kpiTotal').textContent = totalDiag;
+
+                const listaEl = document.getElementById('listaTipos');
+                if (stats.length === 0) {
+                    listaEl.innerHTML = `<div class="empty-state"><span class="emoji">📊</span>Realize diagnósticos para ver estatísticas</div>`;
+                    return;
+                }
+
+                const max = stats[0].total;
+                listaEl.innerHTML = stats.map(s => `
+                <div class="disease-item">
+                    <div class="disease-name">${s.tipo || 'Outros'}</div>
+                    <div class="bar-mini"><div class="bar-mini-fill" style="width:${(s.total / max * 100).toFixed(0)}%"></div></div>
+                    <div class="disease-count">${s.total}</div>
+                </div>`).join('');
+
+            } catch (e) { console.error(e); }
+        }
+
+        function badgeTipo(tipo) {
+            const map = {
+                'Doença Fúngica': ['badge-fungica', '🍄 Fúngica'],
+                'Doença Bacteriana': ['badge-bacteriana', '🦠 Bacteriana'],
+                'Virose': ['badge-red', '🧬 Virose'],
+                'Praga de Inseto': ['badge-praga', '🐛 Inseto'],
+                'Praga de Ácaro': ['badge-acaro', '🕷️ Ácaro'],
+                'Deficiência Nutricional': ['badge-defic', '🌿 Deficiência'],
+                'Saudável': ['badge-saudavel', '✅ Saudável'],
+                'Inconclusivo': ['badge-inconcl', '❓ Inconclusivo'],
+            };
+            const [cls, label] = map[tipo] || ['badge-inconcl', tipo || '—'];
+            return `<span class="badge ${cls}">${label}</span>`;
+        }
+
+        function chipGrav(g) {
+            const map = { alta: 'chip-alta', media: 'chip-media', baixa: 'chip-baixa' };
+            return `<span class="${map[g] || ''}">${g ? g.charAt(0).toUpperCase() + g.slice(1) : '—'}</span>`;
+        }
+
+        function fazerLogout() {
+            Auth.logout();
+        }
+    </script>
 </body>
 </html>

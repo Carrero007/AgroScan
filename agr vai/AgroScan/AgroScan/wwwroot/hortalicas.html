@@ -1,0 +1,1075 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Catálogo de Hortaliças</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1a0f;
+            --surface: #172019;
+            --surface2: #1d2a1f;
+            --surface3: #223026;
+            --border: #243026;
+            --border2: #2d3d30;
+            --green-mid: #2d6a35;
+            --green-lt: #4caf5a;
+            --leaf: #6dbe7a;
+            --leaf-dim: rgba(109,190,122,.1);
+            --leaf-border: rgba(109,190,122,.2);
+            --text: #d6e8d8;
+            --text2: #8faa92;
+            --text3: #5a7060;
+            --amber: #d4a017;
+            --red: #c94040;
+            --blue: #4a90d4;
+            --r: 12px;
+            --sidebar-w: 240px;
+            --nav-h: 60px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans',sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px 28px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--green-mid);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-name {
+            font-family: 'Fraunces',serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+            .logo-name span {
+                color: var(--leaf);
+            }
+
+        .nav-section {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text3);
+            padding: 4px 20px 8px;
+            margin-top: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            margin: 1px 8px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            transition: background .15s,color .15s;
+            cursor: pointer;
+        }
+
+            .nav-item:hover {
+                background: var(--leaf-dim);
+                color: var(--text);
+            }
+
+            .nav-item.active {
+                background: var(--leaf-dim);
+                color: var(--leaf);
+                border: 1px solid var(--leaf-border);
+            }
+
+            .nav-item svg {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+            }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--green-mid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        /* MAIN */
+        .main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            padding: 0 32px;
+            height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-family: 'Fraunces',serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .page-body {
+            padding: 28px 32px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* FILTROS */
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+
+            .search-wrap svg {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 15px;
+                height: 15px;
+                color: var(--text3);
+                pointer-events: none;
+            }
+
+            .search-wrap input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--r);
+                font-family: 'DM Sans',sans-serif;
+                font-size: 13px;
+                color: var(--text);
+                outline: none;
+                transition: border-color .2s;
+            }
+
+                .search-wrap input:focus {
+                    border-color: var(--green-lt);
+                }
+
+                .search-wrap input::placeholder {
+                    color: var(--text3);
+                }
+
+        .filter-select {
+            padding: 9px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            font-family: 'DM Sans',sans-serif;
+            font-size: 13px;
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s;
+            appearance: none;
+            cursor: pointer;
+        }
+
+            .filter-select:focus {
+                border-color: var(--green-lt);
+            }
+
+            .filter-select option {
+                background: var(--surface2);
+            }
+
+        /* GRID DE CARDS */
+        .hortalicas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
+            gap: 16px;
+        }
+
+        .h-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color .2s,transform .15s;
+        }
+
+            .h-card:hover {
+                border-color: var(--leaf);
+                transform: translateY(-2px);
+            }
+
+        .h-card-header {
+            padding: 18px 18px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .h-card-emoji {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--leaf-dim);
+            border: 1px solid var(--leaf-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .h-card-nome {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .h-card-cientifico {
+            font-size: 11px;
+            color: var(--text3);
+            font-style: italic;
+            margin-top: 2px;
+        }
+
+        .h-card-body {
+            padding: 0 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .h-card-cat {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .cat-folhosa {
+            background: rgba(76,175,90,.12);
+            color: var(--green-lt);
+            border: 1px solid rgba(76,175,90,.2);
+        }
+
+        .cat-fruto {
+            background: rgba(212,100,23,.12);
+            color: #d46a17;
+            border: 1px solid rgba(212,100,23,.2);
+        }
+
+        .cat-raiz {
+            background: rgba(212,160,23,.12);
+            color: var(--amber);
+            border: 1px solid rgba(212,160,23,.2);
+        }
+
+        .cat-bulbo {
+            background: rgba(74,144,212,.12);
+            color: var(--blue);
+            border: 1px solid rgba(74,144,212,.2);
+        }
+
+        .cat-legume {
+            background: rgba(109,190,122,.1);
+            color: var(--leaf);
+            border: 1px solid var(--leaf-border);
+        }
+
+        .cat-brassica {
+            background: rgba(120,200,120,.1);
+            color: #70d080;
+            border: 1px solid rgba(120,200,120,.2);
+        }
+
+        .cat-outro {
+            background: rgba(150,150,150,.1);
+            color: #aaa;
+            border: 1px solid rgba(150,150,150,.2);
+        }
+
+        .h-card-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--text3);
+            margin-bottom: 2px;
+        }
+
+        .info-item span {
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .h-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 4px;
+        }
+
+        .tag {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: var(--surface2);
+            color: var(--text3);
+            border: 1px solid var(--border);
+        }
+
+        .tag-praga {
+            border-color: rgba(201,64,64,.3);
+            color: var(--red);
+            background: rgba(201,64,64,.08);
+        }
+
+        /* MODAL */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.75);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+        }
+
+            .overlay.open {
+                opacity: 1;
+                pointer-events: all;
+            }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 640px;
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+        }
+
+        .modal-emoji {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: var(--leaf-dim);
+            border: 1px solid var(--leaf-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .modal-nome {
+            font-family: 'Fraunces',serif;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-cientifico {
+            font-size: 12px;
+            font-style: italic;
+            color: var(--text3);
+        }
+
+        .modal-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            font-size: 22px;
+            line-height: 1;
+            transition: color .15s;
+        }
+
+            .modal-close:hover {
+                color: var(--text);
+            }
+
+        .modal-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .modal-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text3);
+            margin-bottom: 10px;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 10px;
+        }
+
+        .modal-item {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px 12px;
+        }
+
+            .modal-item label {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                color: var(--text3);
+                display: block;
+                margin-bottom: 4px;
+            }
+
+            .modal-item span {
+                font-size: 13px;
+                color: var(--text2);
+            }
+
+        .modal-block {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 12px 14px;
+        }
+
+            .modal-block label {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                color: var(--text3);
+                display: block;
+                margin-bottom: 6px;
+            }
+
+            .modal-block p {
+                font-size: 13px;
+                color: var(--text2);
+                line-height: 1.65;
+            }
+
+        .btn-diag-modal {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 20px;
+            background: var(--green-mid);
+            color: white;
+            border-radius: var(--r);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background .2s;
+            border: none;
+            cursor: pointer;
+        }
+
+            .btn-diag-modal:hover {
+                background: #256030;
+            }
+
+        /* EMPTY + SKELETON */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text3);
+        }
+
+            .empty-state .emoji {
+                font-size: 40px;
+                margin-bottom: 12px;
+                display: block;
+            }
+
+        .skeleton {
+            background: linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0
+            }
+
+            100% {
+                background-position: -200% 0
+            }
+        }
+
+        @media(max-width:768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .page-body {
+                padding: 16px;
+            }
+
+            .hortalicas-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">🥬</div><div class="logo-name">Agro<span>Scan</span></div></div>
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3M5 8h6M5 11h4" /></svg>Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>Histórico
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>Hortaliças
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>Dashboard
+        </a>
+        <div class="nav-item" onclick="fazerLogout()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>Sair
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div><div class="user-name" id="nomeUsuario">Produtor</div><div class="user-role">Produtor Rural</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">📚 Catálogo de Hortaliças</div>
+        </div>
+
+        <div class="page-body">
+            <!-- FILTROS -->
+            <div class="filter-row">
+                <div class="search-wrap">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6.5" cy="6.5" r="4" /><path d="m11 11 3 3" /></svg>
+                    <input type="text" id="busca" placeholder="Buscar hortaliça..." oninput="filtrar()" />
+                </div>
+                <select class="filter-select" id="filtroCat" onchange="filtrar()">
+                    <option value="">Todas as categorias</option>
+                    <option value="folhosa">Folhosa</option>
+                    <option value="fruto">Fruto</option>
+                    <option value="raiz">Raiz</option>
+                    <option value="bulbo">Bulbo</option>
+                    <option value="legume">Legume</option>
+                    <option value="brassica">Brássica</option>
+                </select>
+            </div>
+
+            <!-- GRID -->
+            <div class="hortalicas-grid" id="grid">
+                <!-- skeletons -->
+                <div class="h-card" style="pointer-events:none">
+                    <div class="h-card-header"><div class="skeleton" style="width:44px;height:44px;border-radius:10px"></div><div><div class="skeleton" style="height:13px;width:100px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:70px"></div></div></div>
+                </div>
+                <div class="h-card" style="pointer-events:none">
+                    <div class="h-card-header"><div class="skeleton" style="width:44px;height:44px;border-radius:10px"></div><div><div class="skeleton" style="height:13px;width:110px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:80px"></div></div></div>
+                </div>
+                <div class="h-card" style="pointer-events:none">
+                    <div class="h-card-header"><div class="skeleton" style="width:44px;height:44px;border-radius:10px"></div><div><div class="skeleton" style="height:13px;width:90px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:60px"></div></div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL -->
+    <div class="overlay" id="overlay" onclick="fecharModal(event)">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <div class="modal-emoji" id="mEmoji">🌱</div>
+                <div>
+                    <div class="modal-nome" id="mNome">—</div>
+                    <div class="modal-cientifico" id="mCientifico">—</div>
+                </div>
+                <button class="modal-close" onclick="fecharModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+// ── AUTH INLINE ────────────────────────────────────────────────
+const Auth = (() => {
+    const K = { t:'as_token', r:'as_refresh', n:'as_nome', u:'as_uid', e:'as_exp' };
+    const salvar = d => {
+        localStorage.setItem(K.t, d.token);
+        localStorage.setItem(K.r, d.refreshToken);
+        localStorage.setItem(K.n, d.nome);
+        localStorage.setItem(K.u, d.usuarioId);
+        localStorage.setItem(K.e, d.expiracao);
+    };
+    const limpar = () => Object.values(K).forEach(k => localStorage.removeItem(k));
+    const getToken   = () => localStorage.getItem(K.t);
+    const getNome    = () => localStorage.getItem(K.n) || 'Produtor';
+    const estaLogado = () => !!getToken();
+    const tokenExpirado = () => {
+        const exp = localStorage.getItem(K.e);
+        return !exp || new Date(exp) < new Date(Date.now() + 60000);
+    };
+    const renovarToken = async () => {
+        const refresh = localStorage.getItem(K.r);
+        if (!refresh) return false;
+        try {
+            const resp = await fetch('/api/auth/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({refreshToken:refresh}) });
+            if (!resp.ok) { limpar(); return false; }
+            salvar(await resp.json()); return true;
+        } catch { return false; }
+    };
+    const fetchAuth = async (url, opts = {}) => {
+        if (tokenExpirado()) { const ok = await renovarToken(); if (!ok) { window.location.replace('login.html'); return new Response(); } }
+        const headers = { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json', ...(opts.headers||{}) };
+        if (opts.isMultipart) delete headers['Content-Type'];
+        return fetch(url, { ...opts, headers });
+    };
+    const logout = async () => {
+        const refresh = localStorage.getItem(K.r);
+        if (refresh) await fetch('/api/auth/logout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({refreshToken:refresh}) }).catch(()=>{});
+        limpar(); window.location.replace('login.html');
+    };
+    const exigirLogin = () => {
+        const p = window.location.pathname.split('/').pop() || '';
+        if (!['login.html','cadastro.html','index.html',''].includes(p) && !estaLogado()) window.location.replace('login.html');
+    };
+    return { salvar, limpar, getToken, getNome, estaLogado, fetchAuth, logout, exigirLogin };
+})();
+Auth.exigirLogin();
+
+// ── DADOS ESTÁTICOS (mais dados vêm da API se cadastrados) ─────
+const HORTALICAS_BASE = [
+    { id:0, nome:'Tomate', cientifico:'Solanum lycopersicum', familia:'Solanaceae', categoria:'fruto',
+      diasGerminacao:7, diasColheita:90, espacamento:'50-100 cm', temperaturaIdeal:'18-25°C',
+      luminosidade:'Sol pleno', irrigacao:'Gotejamento', tipoSolo:'Argiloso rico em MO', phIdeal:'5.5-6.5',
+      adubacao:'Alta demanda de NPK; adubação de cobertura quinzenal com nitrogênio e potássio',
+      pragasPrincipais:'Traça (Tuta absoluta), Mosca-branca, Broca do fruto',
+      doencasPrincipais:'Requeima (Phytophthora infestans), Pinta-preta (Alternaria solani), Murcha bacteriana',
+      dicasCultivo:'Tutorar plantas acima de 30cm. Desbrotar para variedades indeterminadas. Evitar molhar folhagem.'
+    },
+    { id:0, nome:'Alface', cientifico:'Lactuca sativa', familia:'Asteraceae', categoria:'folhosa',
+      diasGerminacao:5, diasColheita:55, espacamento:'25-30 cm', temperaturaIdeal:'15-22°C',
+      luminosidade:'Sol pleno / meia sombra', irrigacao:'Aspersão', tipoSolo:'Arenoso-argiloso, fértil',
+      phIdeal:'6.0-7.0', adubacao:'Moderada; adubação de base com composto orgânico e nitrogênio',
+      pragasPrincipais:'Pulgão, Tripes, Lagarta-rosca',
+      doencasPrincipais:'Míldio, Podridão-mole, Tip Burn (deficiência de cálcio)',
+      dicasCultivo:'Prefere clima ameno. Em verão, usar variedades resistentes ao calor. Colher cedo evita amargamento.'
+    },
+    { id:0, nome:'Cenoura', cientifico:'Daucus carota', familia:'Apiaceae', categoria:'raiz',
+      diasGerminacao:10, diasColheita:90, espacamento:'5-8 cm', temperaturaIdeal:'16-22°C',
+      luminosidade:'Sol pleno', irrigacao:'Aspersão/Gotejamento', tipoSolo:'Arenoso profundo, sem pedras',
+      phIdeal:'5.5-6.5', adubacao:'Evitar excesso de nitrogênio (bifurca a raiz); foco em fósforo e potássio',
+      pragasPrincipais:'Mosca-da-cenoura, Pulgão',
+      doencasPrincipais:'Alternariose, Cercosporiose, Oídio',
+      dicasCultivo:'Solo fundo e solto é essencial. Desbaste obrigatório 3 semanas após emergência.'
+    },
+    { id:0, nome:'Pimentão', cientifico:'Capsicum annuum', familia:'Solanaceae', categoria:'fruto',
+      diasGerminacao:10, diasColheita:120, espacamento:'50-60 cm', temperaturaIdeal:'20-30°C',
+      luminosidade:'Sol pleno', irrigacao:'Gotejamento', tipoSolo:'Argiloso rico em MO',
+      phIdeal:'5.5-7.0', adubacao:'Alta demanda de cálcio e potássio; adubação parcelada',
+      pragasPrincipais:'Ácaro-rajado, Mosca-branca, Tripes',
+      doencasPrincipais:'Podridão apical (Ca), Mancha bacteriana, Antracnose',
+      dicasCultivo:'Exige tutores. Irrigação regular evita podridão apical. Colheita verde ou madura conforme uso.'
+    },
+    { id:0, nome:'Pepino', cientifico:'Cucumis sativus', familia:'Cucurbitaceae', categoria:'fruto',
+      diasGerminacao:5, diasColheita:55, espacamento:'30-50 cm', temperaturaIdeal:'22-30°C',
+      luminosidade:'Sol pleno', irrigacao:'Gotejamento', tipoSolo:'Franco-arenoso, bem drenado',
+      phIdeal:'5.5-7.0', adubacao:'Alta demanda em produção; adubação nitrogenada em cobertura',
+      pragasPrincipais:'Ácaro-rajado, Mosca-branca, Tripes',
+      doencasPrincipais:'Míldio, Oídio, Antracnose, CMV',
+      dicasCultivo:'Treliça aumenta produtividade e qualidade. Colher frequentemente estimula novas flores.'
+    },
+    { id:0, nome:'Abobrinha', cientifico:'Cucurbita pepo', familia:'Cucurbitaceae', categoria:'fruto',
+      diasGerminacao:5, diasColheita:50, espacamento:'80-100 cm', temperaturaIdeal:'20-30°C',
+      luminosidade:'Sol pleno', irrigacao:'Gotejamento/Sulco', tipoSolo:'Franco-argiloso, fértil',
+      phIdeal:'5.5-7.0', adubacao:'Alta demanda; adubação completa de base e cobertura com nitrogênio',
+      pragasPrincipais:'Ácaro-rajado, Mosca-branca, Broca-do-caule',
+      doencasPrincipais:'Míldio, Oídio, CMV, Podridão-de-Sclerotinia',
+      dicasCultivo:'Colher com 15-20cm para sabor ideal e estimular produção contínua.'
+    },
+    { id:0, nome:'Cebola', cientifico:'Allium cepa', familia:'Amaryllidaceae', categoria:'bulbo',
+      diasGerminacao:8, diasColheita:120, espacamento:'10-15 cm', temperaturaIdeal:'15-25°C',
+      luminosidade:'Sol pleno', irrigacao:'Aspersão', tipoSolo:'Franco-arenoso, bem drenado',
+      phIdeal:'5.5-6.5', adubacao:'Fósforo na base; potássio e nitrogênio em cobertura',
+      pragasPrincipais:'Tripes, Lagarta-rosca',
+      doencasPrincipais:'Míldio, Mancha-púrpura (Alternaria), Podridão-do-colo',
+      dicasCultivo:'Suspender irrigação 2 semanas antes da colheita para cura. Curar ao sol 7-10 dias após colheita.'
+    },
+    { id:0, nome:'Alho', cientifico:'Allium sativum', familia:'Amaryllidaceae', categoria:'bulbo',
+      diasGerminacao:15, diasColheita:150, espacamento:'10-15 cm', temperaturaIdeal:'10-20°C',
+      luminosidade:'Sol pleno', irrigacao:'Aspersão', tipoSolo:'Franco-argiloso, bem drenado',
+      phIdeal:'5.5-7.0', adubacao:'Boa adubação orgânica de base; fósforo e potássio em cobertura',
+      pragasPrincipais:'Tripes, Ácaro-rajado',
+      doencasPrincipais:'Ferrugem, Podridão-branca (Sclerotium), Míldio',
+      dicasCultivo:'Vernalização dos bulbilhos aumenta produtividade. Cortar escapo floral quando surgir.'
+    },
+    { id:0, nome:'Repolho', cientifico:'Brassica oleracea var. capitata', familia:'Brassicaceae', categoria:'brassica',
+      diasGerminacao:5, diasColheita:90, espacamento:'50-60 cm', temperaturaIdeal:'15-22°C',
+      luminosidade:'Sol pleno', irrigacao:'Aspersão', tipoSolo:'Argiloso fértil, bem drenado',
+      phIdeal:'6.0-7.0', adubacao:'Alta demanda de nitrogênio; boa adubação de base e cobertura',
+      pragasPrincipais:'Traça-das-crucíferas (Plutella), Pulgão, Lagarta-militar',
+      doencasPrincipais:'Hérnia-das-crucíferas, Podridão-negra (Xanthomonas), Míldio',
+      dicasCultivo:'Rotação de cultura obrigatória. Evitar solo com histórico de hérnia.'
+    },
+    { id:0, nome:'Brócolis', cientifico:'Brassica oleracea var. italica', familia:'Brassicaceae', categoria:'brassica',
+      diasGerminacao:5, diasColheita:80, espacamento:'50-60 cm', temperaturaIdeal:'15-22°C',
+      luminosidade:'Sol pleno', irrigacao:'Aspersão', tipoSolo:'Argiloso fértil',
+      phIdeal:'6.0-7.0', adubacao:'Alta demanda de nitrogênio e boro; adubação de cobertura quinzenal',
+      pragasPrincipais:'Traça-das-crucíferas, Pulgão-cinzento, Lagarta-da-couve',
+      doencasPrincipais:'Podridão-negra, Míldio, Alternariose',
+      dicasCultivo:'Colher inflorescência antes de abrir as flores. Pode produzir brotos laterais após colheita.'
+    },
+    { id:0, nome:'Couve', cientifico:'Brassica oleracea var. acephala', familia:'Brassicaceae', categoria:'brassica',
+      diasGerminacao:5, diasColheita:60, espacamento:'50-80 cm', temperaturaIdeal:'15-25°C',
+      luminosidade:'Sol pleno / meia sombra', irrigacao:'Aspersão/Manual', tipoSolo:'Argiloso fértil',
+      phIdeal:'6.0-7.0', adubacao:'Alta demanda de nitrogênio; adubação frequente para produção contínua',
+      pragasPrincipais:'Traça-das-crucíferas, Pulgão, Lagarta-da-couve',
+      doencasPrincipais:'Podridão-negra, Míldio, Hérnia-das-crucíferas',
+      dicasCultivo:'Planta perene produtiva. Colher folhas de baixo para cima. Muito rústica e adaptável.'
+    },
+    { id:0, nome:'Beterraba', cientifico:'Beta vulgaris', familia:'Amaranthaceae', categoria:'raiz',
+      diasGerminacao:7, diasColheita:70, espacamento:'10-15 cm', temperaturaIdeal:'15-20°C',
+      luminosidade:'Sol pleno', irrigacao:'Aspersão', tipoSolo:'Franco-arenoso profundo',
+      phIdeal:'6.0-7.5', adubacao:'Moderada; foco em potássio e fósforo para desenvolvimento da raiz',
+      pragasPrincipais:'Pulgão, Mosca-minadora',
+      doencasPrincipais:'Cercosporiose (mancha-de-Cercospora), Podridão-do-colo',
+      dicasCultivo:'Semear diretamente; desbaste para 8-10cm. Folhas também são comestíveis e nutritivas.'
+    },
+    { id:0, nome:'Quiabo', cientifico:'Abelmoschus esculentus', familia:'Malvaceae', categoria:'fruto',
+      diasGerminacao:7, diasColheita:60, espacamento:'50-80 cm', temperaturaIdeal:'25-35°C',
+      luminosidade:'Sol pleno', irrigacao:'Gotejamento/Sulco', tipoSolo:'Argiloso fértil e profundo',
+      phIdeal:'5.5-7.0', adubacao:'Alta demanda; adubação de base completa e cobertura nitrogenada',
+      pragasPrincipais:'Ácaro-rajado, Pulgão, Mosca-branca',
+      doencasPrincipais:'Mosaico-do-quiabo, Podridão-de-Phytophthora, Oídio',
+      dicasCultivo:'Planta tropical, exige calor. Colher frutos jovens (5-7cm) a cada 2-3 dias. Frutos velhos ficam fibrosos.'
+    },
+    { id:0, nome:'Berinjela', cientifico:'Solanum melongena', familia:'Solanaceae', categoria:'fruto',
+      diasGerminacao:10, diasColheita:100, espacamento:'70-100 cm', temperaturaIdeal:'22-32°C',
+      luminosidade:'Sol pleno', irrigacao:'Gotejamento', tipoSolo:'Argiloso rico em MO',
+      phIdeal:'5.5-6.5', adubacao:'Alta demanda; similar ao tomate; adubação parcelada',
+      pragasPrincipais:'Ácaro-rajado, Mosca-branca, Percevejo',
+      doencasPrincipais:'Verticiliose, Podridão-de-Phytophthora, Antracnose',
+      dicasCultivo:'Exige calor e tutores. Poda de formação melhora produtividade. Colher antes de amarelecer.'
+    },
+    { id:0, nome:'Espinafre', cientifico:'Spinacia oleracea', familia:'Amaranthaceae', categoria:'folhosa',
+      diasGerminacao:7, diasColheita:40, espacamento:'15-20 cm', temperaturaIdeal:'10-18°C',
+      luminosidade:'Sol pleno / meia sombra', irrigacao:'Aspersão', tipoSolo:'Franco-argiloso, rico em MO',
+      phIdeal:'6.5-7.5', adubacao:'Moderada; foco em nitrogênio para folhagem exuberante',
+      pragasPrincipais:'Pulgão, Minadora-de-folhas',
+      doencasPrincipais:'Míldio (Peronospora), Cercosporiose',
+      dicasCultivo:'Planta de clima frio. Altas temperaturas provocam florescimento precoce. Colher continuamente.'
+    },
+];
+
+let dados = [...HORTALICAS_BASE];
+let dadosAPI = [];
+let modalAtual = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const nome = Auth.getNome();
+    document.getElementById('nomeUsuario').textContent = nome;
+    document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
+
+    await carregarAPI();
+    renderGrid(dados);
+});
+
+async function carregarAPI() {
+    try {
+        const resp = await Auth.fetchAuth('/api/hortalicas');
+        if (!resp.ok) return;
+        const lista = await resp.json();
+        if (lista.length > 0) {
+            dadosAPI = lista.map(h => ({
+                id:             h.hortalicaId,
+                nome:           h.nomePopular || h.nomeCientifico,
+                cientifico:     h.nomeCientifico,
+                familia:        h.familia,
+                categoria:      (h.categoria || 'outro').toLowerCase(),
+                diasGerminacao: h.diasGerminacao,
+                diasColheita:   h.diasColheita,
+                espacamento:    h.espacamento,
+                temperaturaIdeal: h.tempeMin && h.tempeMax ? `${h.tempeMin}-${h.tempeMax}°C` : h.clima,
+                luminosidade:   h.luminosidade,
+                irrigacao:      h.irrigacao,
+                tipoSolo:       h.tipoSolo,
+                phIdeal:        h.phMin && h.phMax ? `${h.phMin}-${h.phMax}` : '—',
+                adubacao:       h.adubacao,
+                pragasPrincipais:  h.pragasPrincipais,
+                doencasPrincipais: h.doencasPrincipais,
+                dicasCultivo:   h.observacoes,
+            }));
+            // Mescla: API tem prioridade, base é fallback
+            const nomesAPI = dadosAPI.map(d => d.nome.toLowerCase());
+            const baseFiltrada = HORTALICAS_BASE.filter(h => !nomesAPI.includes(h.nome.toLowerCase()));
+            dados = [...dadosAPI, ...baseFiltrada];
+        }
+    } catch { /* usa dados estáticos */ }
+}
+
+function filtrar() {
+    const busca = document.getElementById('busca').value.toLowerCase().trim();
+    const cat   = document.getElementById('filtroCat').value.toLowerCase();
+    const filtrados = dados.filter(h => {
+        const matchBusca = !busca || h.nome.toLowerCase().includes(busca) || (h.cientifico||'').toLowerCase().includes(busca);
+        const matchCat   = !cat   || (h.categoria||'').toLowerCase() === cat;
+        return matchBusca && matchCat;
+    });
+    renderGrid(filtrados);
+}
+
+function renderGrid(lista) {
+    const grid = document.getElementById('grid');
+    if (lista.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+            <span class="emoji">🌱</span>
+            Nenhuma hortaliça encontrada para este filtro.
+        </div>`;
+        return;
+    }
+    grid.innerHTML = lista.map((h, i) => {
+        const emoji   = getEmoji(h.categoria);
+        const catCls  = getCatClass(h.categoria);
+        const catLabel = getCatLabel(h.categoria);
+        return `<div class="h-card" onclick="abrirModal(${i})">
+            <div class="h-card-header">
+                <div class="h-card-emoji">${emoji}</div>
+                <div>
+                    <div class="h-card-nome">${h.nome}</div>
+                    <div class="h-card-cientifico">${h.cientifico || ''}</div>
+                </div>
+            </div>
+            <div class="h-card-body">
+                <span class="h-card-cat ${catCls}">${emoji} ${catLabel}</span>
+                <div class="h-card-info">
+                    <div class="info-item">
+                        <label>⏱ Colheita</label>
+                        <span>${h.diasColheita ? h.diasColheita + ' dias' : '—'}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>🌡️ Temp. ideal</label>
+                        <span>${h.temperaturaIdeal || '—'}</span>
+                    </div>
+                </div>
+                <div class="h-card-tags">
+                    ${(h.pragasPrincipais||'').split(',').slice(0,2).map(p => `<span class="tag tag-praga">${p.trim().split('(')[0].trim()}</span>`).join('')}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    // Guarda a lista filtrada para o modal
+    window._listaAtual = lista;
+}
+
+function abrirModal(idx) {
+    const h = window._listaAtual[idx];
+    if (!h) return;
+    modalAtual = h;
+
+    document.getElementById('mEmoji').textContent      = getEmoji(h.categoria);
+    document.getElementById('mNome').textContent       = h.nome;
+    document.getElementById('mCientifico').textContent = h.cientifico || '';
+
+    document.getElementById('modalBody').innerHTML = `
+        <div>
+            <div class="modal-section-title">Dados agronômicos</div>
+            <div class="modal-grid">
+                <div class="modal-item"><label>⏱ Germinação</label><span>${h.diasGerminacao ? h.diasGerminacao+' dias' : '—'}</span></div>
+                <div class="modal-item"><label>🌾 Colheita</label><span>${h.diasColheita ? h.diasColheita+' dias' : '—'}</span></div>
+                <div class="modal-item"><label>🌡️ Temperatura</label><span>${h.temperaturaIdeal || '—'}</span></div>
+                <div class="modal-item"><label>📐 Espaçamento</label><span>${h.espacamento || '—'}</span></div>
+                <div class="modal-item"><label>☀️ Luminosidade</label><span>${h.luminosidade || '—'}</span></div>
+                <div class="modal-item"><label>💧 Irrigação</label><span>${h.irrigacao || '—'}</span></div>
+                <div class="modal-item"><label>🌍 Solo</label><span>${h.tipoSolo || '—'}</span></div>
+                <div class="modal-item"><label>⚗️ pH Ideal</label><span>${h.phIdeal || '—'}</span></div>
+                <div class="modal-item"><label>🌿 Família</label><span>${h.familia || '—'}</span></div>
+            </div>
+        </div>
+
+        ${h.adubacao ? `<div class="modal-block"><label>🧪 Adubação recomendada</label><p>${h.adubacao}</p></div>` : ''}
+
+        <div>
+            <div class="modal-section-title">Sanidade</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="modal-block"><label>🐛 Principais pragas</label><p>${h.pragasPrincipais || '—'}</p></div>
+                <div class="modal-block"><label>🦠 Principais doenças</label><p>${h.doencasPrincipais || '—'}</p></div>
+            </div>
+        </div>
+
+        ${h.dicasCultivo ? `<div class="modal-block"><label>💡 Dicas de cultivo</label><p>${h.dicasCultivo}</p></div>` : ''}
+
+        <div>
+            <a href="diagnosticar.html" class="btn-diag-modal">
+                🔬 Diagnosticar doença nesta hortaliça →
+            </a>
+        </div>
+    `;
+
+    document.getElementById('overlay').classList.add('open');
+}
+
+function fecharModal(e) {
+    if (!e || e.target === document.getElementById('overlay')) {
+        document.getElementById('overlay').classList.remove('open');
+    }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(); });
+
+function getEmoji(cat) {
+    const m = { folhosa:'🥬', fruto:'🍅', raiz:'🥕', bulbo:'🧅', legume:'🫛', brassica:'🥦', tubérculo:'🥔' };
+    return m[(cat||'').toLowerCase()] || '🌱';
+}
+
+function getCatClass(cat) {
+    const m = { folhosa:'cat-folhosa', fruto:'cat-fruto', raiz:'cat-raiz', bulbo:'cat-bulbo', legume:'cat-legume', brassica:'cat-brassica' };
+    return m[(cat||'').toLowerCase()] || 'cat-outro';
+}
+
+function getCatLabel(cat) {
+    const m = { folhosa:'Folhosa', fruto:'Fruto', raiz:'Raiz', bulbo:'Bulbo', legume:'Legume', brassica:'Brássica', tubérculo:'Tubérculo' };
+    return m[(cat||'').toLowerCase()] || (cat || 'Outro');
+}
+
+function fazerLogout() { Auth.logout(); }
+    </script>
+</body>
+</html>

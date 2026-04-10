@@ -1,0 +1,1303 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Diagnosticar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1a0f;
+            --surface: #172019;
+            --surface2: #1d2a1f;
+            --surface3: #223026;
+            --border: #243026;
+            --border2: #2d3d30;
+            --green-mid: #2d6a35;
+            --green-lt: #4caf5a;
+            --leaf: #6dbe7a;
+            --leaf-dim: rgba(109,190,122,.1);
+            --leaf-border: rgba(109,190,122,.2);
+            --text: #d6e8d8;
+            --text2: #8faa92;
+            --text3: #5a7060;
+            --amber: #d4a017;
+            --red: #c94040;
+            --blue: #4a90d4;
+            --r: 12px;
+            --sidebar-w: 240px;
+            --nav-h: 60px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans',sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px 28px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--green-mid);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-name {
+            font-family: 'Fraunces',serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+            .logo-name span {
+                color: var(--leaf);
+            }
+
+        .nav-section {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text3);
+            padding: 4px 20px 8px;
+            margin-top: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            margin: 1px 8px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            transition: background .15s,color .15s;
+            cursor: pointer;
+        }
+
+            .nav-item:hover {
+                background: var(--leaf-dim);
+                color: var(--text);
+            }
+
+            .nav-item.active {
+                background: var(--leaf-dim);
+                color: var(--leaf);
+                border: 1px solid var(--leaf-border);
+            }
+
+            .nav-item svg {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+            }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--green-mid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        /* MAIN */
+        .main {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            padding: 0 32px;
+            height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-family: 'Fraunces',serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .page-body {
+            padding: 28px 32px;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            overflow-y: auto;
+            flex: 1;
+            align-items: start;
+        }
+
+        /* CARDS */
+        .upload-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: sticky;
+            top: 28px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+        }
+
+        .card-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body {
+            padding: 18px;
+        }
+
+        /* UPLOAD */
+        .upload-zone {
+            border: 2px dashed var(--border2);
+            border-radius: var(--r);
+            background: var(--surface2);
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: border-color .2s,background .2s;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+
+            .upload-zone:hover {
+                border-color: var(--green-lt);
+                background: rgba(76,175,90,.04);
+            }
+
+            .upload-zone input {
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                cursor: pointer;
+                width: 100%;
+                height: 100%;
+            }
+
+        .upload-icon {
+            font-size: 28px;
+        }
+
+        .upload-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+        }
+
+        .upload-hint {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        .preview-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: var(--r);
+            display: none;
+            border: 1px solid var(--border2);
+        }
+
+        /* FORM */
+        .field {
+            margin-bottom: 14px;
+        }
+
+            .field:last-child {
+                margin-bottom: 0;
+            }
+
+            .field label {
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .05em;
+                text-transform: uppercase;
+                color: var(--text3);
+                margin-bottom: 7px;
+            }
+
+            .field input, .field select, .field textarea {
+                width: 100%;
+                padding: 9px 12px;
+                background: var(--surface2);
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                font-family: 'DM Sans',sans-serif;
+                font-size: 13px;
+                color: var(--text);
+                outline: none;
+                transition: border-color .2s;
+                appearance: none;
+                resize: vertical;
+            }
+
+                .field input::placeholder, .field textarea::placeholder {
+                    color: var(--text3);
+                }
+
+                .field input:focus, .field select:focus, .field textarea:focus {
+                    border-color: var(--green-lt);
+                }
+
+                .field select option {
+                    background: var(--surface2);
+                }
+
+        /* CHIPS */
+        .chips-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 7px;
+        }
+
+        .chip {
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1.5px solid var(--border2);
+            background: var(--surface2);
+            color: var(--text2);
+            cursor: pointer;
+            transition: all .15s;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+            .chip:hover {
+                border-color: var(--green-lt);
+                color: var(--leaf);
+            }
+
+            .chip.on {
+                background: var(--green-mid);
+                border-color: var(--green-mid);
+                color: white;
+            }
+
+        /* AUTOCOMPLETE */
+        .ac-wrap {
+            position: relative;
+        }
+
+        .ac-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 8px;
+            margin-top: 3px;
+            max-height: 160px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,.4);
+        }
+
+            .ac-list.show {
+                display: block;
+            }
+
+        .ac-item {
+            padding: 8px 13px;
+            font-size: 13px;
+            color: var(--text2);
+            cursor: pointer;
+        }
+
+            .ac-item:hover {
+                background: var(--surface3);
+                color: var(--leaf);
+            }
+
+        /* QUALIDADE DO CONTEXTO */
+        .ctx-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        .ctx-track {
+            flex: 1;
+            height: 5px;
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        .ctx-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width .35s,background .35s;
+        }
+
+        #ctxLabel {
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        /* BOTÃO ANALISAR */
+        .btn-analisar {
+            width: 100%;
+            padding: 14px;
+            background: var(--green-mid);
+            color: white;
+            border: none;
+            border-radius: var(--r);
+            font-family: 'DM Sans',sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: .02em;
+        }
+
+            .btn-analisar:hover:not(:disabled) {
+                background: #256030;
+            }
+
+            .btn-analisar:disabled {
+                opacity: .4;
+                cursor: not-allowed;
+            }
+
+        .spinner-btn {
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid rgba(255,255,255,.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            display: none;
+        }
+
+        .btn-analisar.loading .spinner-btn {
+            display: block;
+        }
+
+        .btn-analisar.loading .lbl {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* RESULTADO */
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-height: 300px;
+        }
+
+        .estado-vazio {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 40px;
+            color: var(--text3);
+        }
+
+            .estado-vazio .emoji {
+                font-size: 48px;
+                margin-bottom: 14px;
+            }
+
+            .estado-vazio h3 {
+                font-family: 'Fraunces',serif;
+                font-size: 20px;
+                color: var(--text2);
+                margin-bottom: 8px;
+            }
+
+            .estado-vazio p {
+                font-size: 13px;
+                line-height: 1.65;
+                max-width: 320px;
+            }
+
+        /* CARDS DE RESULTADO */
+        .result-hero {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            padding: 22px;
+        }
+
+        .r-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .rt-fungica {
+            background: rgba(212,160,23,.15);
+            color: var(--amber);
+            border: 1px solid rgba(212,160,23,.3);
+        }
+
+        .rt-bacteriana, .rt-virose {
+            background: rgba(201,64,64,.15);
+            color: var(--red);
+            border: 1px solid rgba(201,64,64,.3);
+        }
+
+        .rt-praga {
+            background: rgba(74,144,212,.15);
+            color: var(--blue);
+            border: 1px solid rgba(74,144,212,.3);
+        }
+
+        .rt-acaro {
+            background: rgba(212,100,23,.15);
+            color: #d46a17;
+            border: 1px solid rgba(212,100,23,.3);
+        }
+
+        .rt-defic {
+            background: var(--leaf-dim);
+            color: var(--leaf);
+            border: 1px solid var(--leaf-border);
+        }
+
+        .rt-saudavel {
+            background: rgba(76,175,90,.12);
+            color: var(--green-lt);
+            border: 1px solid rgba(76,175,90,.2);
+        }
+
+        .rt-inconcl {
+            background: rgba(140,140,140,.1);
+            color: #888;
+            border: 1px solid rgba(140,140,140,.2);
+        }
+
+        .r-doenca {
+            font-family: 'Fraunces',serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .r-cientifico {
+            font-style: italic;
+            font-size: 13px;
+            color: var(--text3);
+            margin-bottom: 18px;
+        }
+
+        .r-metrics {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 10px;
+        }
+
+        .r-metric {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 11px 13px;
+            text-align: center;
+        }
+
+            .r-metric .ml {
+                font-size: 10px;
+                font-weight: 700;
+                color: var(--text3);
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                margin-bottom: 5px;
+            }
+
+            .r-metric .mv {
+                font-family: 'Fraunces',serif;
+                font-size: 22px;
+                font-weight: 600;
+            }
+
+        .mv-green {
+            color: var(--green-lt);
+        }
+
+        .mv-amber {
+            color: var(--amber);
+        }
+
+        .mv-red {
+            color: var(--red);
+        }
+
+        .urg-banner {
+            border-radius: var(--r);
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .urg-imediata {
+            background: rgba(201,64,64,.12);
+            color: var(--red);
+            border: 1px solid rgba(201,64,64,.3);
+        }
+
+        .urg-48h {
+            background: rgba(212,160,23,.12);
+            color: var(--amber);
+            border: 1px solid rgba(212,160,23,.3);
+        }
+
+        .urg-7dias {
+            background: rgba(74,144,212,.12);
+            color: var(--blue);
+            border: 1px solid rgba(74,144,212,.3);
+        }
+
+        .urg-monitorar {
+            background: var(--leaf-dim);
+            color: var(--leaf);
+            border: 1px solid var(--leaf-border);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .det-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+        }
+
+        .det-header {
+            padding: 10px 14px;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .det-body {
+            padding: 12px 14px;
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.65;
+        }
+
+        .trat-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .trat-step {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--green-mid);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .step-text {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .btn-salvar {
+            padding: 10px 18px;
+            background: transparent;
+            border: 1px solid var(--green-lt);
+            color: var(--green-lt);
+            border-radius: var(--r);
+            font-family: 'DM Sans',sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s,color .2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+            .btn-salvar:hover {
+                background: var(--green-mid);
+                color: white;
+                border-color: var(--green-mid);
+            }
+
+            .btn-salvar.salvo {
+                background: var(--green-mid);
+                color: white;
+                border-color: var(--green-mid);
+                cursor: default;
+            }
+
+        @media(max-width:1100px) {
+            .page-body {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-panel {
+                position: static;
+            }
+
+            .r-metrics {
+                grid-template-columns: repeat(3,1fr);
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .page-body {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">🥬</div><div class="logo-name">Agro<span>Scan</span></div></div>
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3M5 8h6M5 11h4" /></svg>Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>Histórico
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>Hortaliças
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>Dashboard
+        </a>
+        <div class="nav-item" onclick="Auth.logout()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>Sair
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div><div class="user-name" id="nomeUsuario">Produtor</div><div class="user-role">Produtor Rural</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="topbar"><div class="topbar-title">🔬 Diagnosticar Hortaliça</div></div>
+
+        <div class="page-body">
+
+            <!-- COLUNA ESQUERDA: upload + contexto -->
+            <div class="upload-panel">
+
+                <!-- UPLOAD -->
+                <div class="card">
+                    <div class="card-header">📷 Foto da Hortaliça</div>
+                    <div class="card-body">
+                        <div class="upload-zone" id="uploadZone">
+                            <input type="file" id="inputImagem" accept="image/jpeg,image/png,image/webp" onchange="onImageSelecionada(event)">
+                            <div class="upload-icon">🖼️</div>
+                            <div class="upload-label">Clique ou arraste a foto aqui</div>
+                            <div class="upload-hint">JPG, PNG ou WEBP · máx. 10 MB</div>
+                        </div>
+                        <img id="previewImg" class="preview-img" alt="Preview">
+                    </div>
+                </div>
+
+                <!-- CONTEXTO -->
+                <div class="card">
+                    <div class="card-header">🌱 Contexto <span style="font-size:11px;font-weight:400;color:var(--text3);margin-left:4px;">melhora muito a precisão</span></div>
+                    <div class="card-body">
+
+                        <!-- Hortaliça -->
+                        <div class="field">
+                            <label>Qual hortaliça é?</label>
+                            <div class="ac-wrap">
+                                <input type="text" id="hortalicaNome" placeholder="Ex: tomate, alface, pimentão..."
+                                       autocomplete="off" oninput="onAcInput(this.value)" onblur="fecharAc()">
+                                <div class="ac-list" id="acList"></div>
+                            </div>
+                            <div class="chips-group" id="chipsHort">
+                                <div class="chip" onclick="chipHort(this)">🍅 Tomate</div>
+                                <div class="chip" onclick="chipHort(this)">🥬 Alface</div>
+                                <div class="chip" onclick="chipHort(this)">🫑 Pimentão</div>
+                                <div class="chip" onclick="chipHort(this)">🥒 Pepino</div>
+                                <div class="chip" onclick="chipHort(this)">🥕 Cenoura</div>
+                                <div class="chip" onclick="chipHort(this)">🧅 Cebola</div>
+                                <div class="chip" onclick="chipHort(this)">🥦 Brócolis</div>
+                                <div class="chip" onclick="chipHort(this)">🫘 Feijão-vagem</div>
+                            </div>
+                        </div>
+
+                        <!-- Estágio -->
+                        <div class="field">
+                            <label>Estágio da planta</label>
+                            <div class="chips-group" id="chipsEst">
+                                <div class="chip" onclick="chipEst(this,'')">❓ Não sei</div>
+                                <div class="chip" onclick="chipEst(this,'muda / transplante')">🌱 Muda</div>
+                                <div class="chip" onclick="chipEst(this,'crescimento vegetativo')">🌿 Crescimento</div>
+                                <div class="chip" onclick="chipEst(this,'floração')">🌸 Floração</div>
+                                <div class="chip" onclick="chipEst(this,'frutificação')">🍅 Frutificação</div>
+                                <div class="chip" onclick="chipEst(this,'maturação / colheita')">🌾 Colheita</div>
+                            </div>
+                        </div>
+
+                        <!-- Sintomas visíveis -->
+                        <div class="field">
+                            <label>O que você está vendo? <span style="font-weight:400">(pode marcar vários)</span></label>
+                            <div class="chips-group" id="chipsSint">
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🟡 Manchas amarelas</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">⚫ Manchas escuras</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">⬜ Pó branco</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">💧 Lesões úmidas/encharcadas</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🥀 Planta murchando</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🐛 Insetos visíveis</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🕸️ Teia fina</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🍎 Fruto apodrecendo</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🔴 Manchas marrons/avermelhadas</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🌀 Folhas deformadas/enroladas</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🟫 Galhas ou verrugosidades</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">📉 Folhas caindo</div>
+                            </div>
+                            <input type="text" id="sintomasExtra" placeholder="Descreva mais detalhes... (opcional)"
+                                   style="margin-top:8px;" oninput="atualizarQualidade()">
+                        </div>
+
+                        <!-- Clima recente -->
+                        <div class="field">
+                            <label>Clima das últimas semanas</label>
+                            <div class="chips-group" id="chipsClima">
+                                <div class="chip" onclick="chipToggle(this,climaSet)">🌧️ Muita chuva</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">☀️ Seca intensa</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">🌡️ Muito quente</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">❄️ Frio</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">🌫️ Muito úmido</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">💨 Vento forte</div>
+                            </div>
+                        </div>
+
+                        <!-- Região e tratamentos -->
+                        <div class="field">
+                            <label>Região / Estado</label>
+                            <input type="text" id="regiaoClima" placeholder="Ex: SP, MG, Nordeste, cerrado..." oninput="atualizarQualidade()">
+                        </div>
+                        <div class="field" style="margin-bottom:0">
+                            <label>Já aplicou algum tratamento?</label>
+                            <input type="text" id="tratamentosAnteriores" placeholder="Ex: cobre há 3 dias, nenhum..." oninput="atualizarQualidade()">
+                        </div>
+
+                        <!-- Barra de qualidade do contexto -->
+                        <div class="ctx-bar-wrap">
+                            <span>Contexto:</span>
+                            <div class="ctx-track"><div class="ctx-fill" id="ctxFill" style="width:0%;background:var(--red)"></div></div>
+                            <span id="ctxLabel">Vazio</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- BOTÃO ANALISAR -->
+                <button class="btn-analisar" id="btnAnalisar" onclick="diagnosticar()" disabled>
+                    <div class="spinner-btn"></div>
+                    <span class="lbl">🔬 Analisar com IA</span>
+                </button>
+
+            </div>
+
+            <!-- COLUNA DIREITA: resultado -->
+            <div class="result-panel" id="resultPanel">
+                <div class="estado-vazio" id="estadoVazio">
+                    <div class="emoji">🥬</div>
+                    <h3>Pronto para diagnosticar</h3>
+                    <p>Selecione a foto da planta afetada e preencha o contexto para um diagnóstico mais preciso.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // ── AUTH INLINE ────────────────────────────────────────────────
+        const Auth = (() => {
+            const K = { t: 'as_token', r: 'as_refresh', n: 'as_nome', u: 'as_uid', e: 'as_exp' };
+            const salvar = d => { localStorage.setItem(K.t, d.token); localStorage.setItem(K.r, d.refreshToken); localStorage.setItem(K.n, d.nome); localStorage.setItem(K.u, d.usuarioId); localStorage.setItem(K.e, d.expiracao); };
+            const limpar = () => Object.values(K).forEach(k => localStorage.removeItem(k));
+            const getToken = () => localStorage.getItem(K.t);
+            const getNome = () => localStorage.getItem(K.n) || 'Produtor';
+            const estaLogado = () => !!getToken();
+            const tokenExpirado = () => { const e = localStorage.getItem(K.e); return !e || new Date(e) < new Date(Date.now() + 60000); };
+            const renovarToken = async () => { const r = localStorage.getItem(K.r); if (!r) return false; try { const res = await fetch('/api/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: r }) }); if (!res.ok) { limpar(); return false; } salvar(await res.json()); return true; } catch { return false; } };
+            const fetchAuth = async (url, opts = {}) => { if (tokenExpirado()) { const ok = await renovarToken(); if (!ok) { window.location.replace('login.html'); return new Response(); } } const h = { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json', ...(opts.headers || {}) }; if (opts.isMultipart) delete h['Content-Type']; return fetch(url, { ...opts, headers: h }); };
+            const logout = async () => { const r = localStorage.getItem(K.r); if (r) await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: r }) }).catch(() => { }); limpar(); window.location.replace('login.html'); };
+            const exigirLogin = () => { const p = window.location.pathname.split('/').pop() || ''; if (!['login.html', 'cadastro.html', 'index.html', ''].includes(p) && !estaLogado()) window.location.replace('login.html'); };
+            return { salvar, limpar, getToken, getNome, estaLogado, fetchAuth, logout, exigirLogin };
+        })();
+        Auth.exigirLogin();
+
+        // ── ESTADO ────────────────────────────────────────────────────
+        let imagemBase64 = null;
+        let mimeType = 'image/jpeg';
+        let resultadoAtual = null;
+        let estagioAtual = '';
+        const sintomasSet = new Set();
+        const climaSet = new Set();
+
+        const HORTALICAS = ['Tomate', 'Alface', 'Cenoura', 'Pimentão', 'Pepino', 'Abobrinha', 'Cebola',
+            'Alho', 'Repolho', 'Brócolis', 'Couve', 'Beterraba', 'Quiabo', 'Berinjela', 'Espinafre',
+            'Chuchu', 'Batata-doce', 'Jiló', 'Mandioca', 'Rabanete', 'Ervilha', 'Feijão-vagem',
+            'Milho-verde', 'Rúcula', 'Kale'];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nome = Auth.getNome();
+            document.getElementById('nomeUsuario').textContent = nome;
+            document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
+        });
+
+        // ── UPLOAD / DRAG & DROP ─────────────────────────────────────
+        const zona = document.getElementById('uploadZone');
+        zona.addEventListener('dragover', e => { e.preventDefault(); zona.style.borderColor = 'var(--green-lt)'; });
+        zona.addEventListener('dragleave', () => zona.style.borderColor = '');
+        zona.addEventListener('drop', e => { e.preventDefault(); zona.style.borderColor = ''; if (e.dataTransfer.files[0]) processarArquivo(e.dataTransfer.files[0]); });
+
+        function onImageSelecionada(e) { if (e.target.files[0]) processarArquivo(e.target.files[0]); }
+
+        function processarArquivo(file) {
+            mimeType = file.type || 'image/jpeg';
+            const reader = new FileReader();
+            reader.onload = ev => {
+                imagemBase64 = ev.target.result.split(',')[1];
+                const prev = document.getElementById('previewImg');
+                prev.src = ev.target.result;
+                prev.style.display = 'block';
+                // Esconde o placeholder da zona de upload
+                zona.querySelector('.upload-icon').style.display = 'none';
+                zona.querySelector('.upload-label').style.display = 'none';
+                zona.querySelector('.upload-hint').style.display = 'none';
+                zona.style.minHeight = '0';
+                document.getElementById('btnAnalisar').disabled = false;
+                atualizarQualidade();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ── AUTOCOMPLETE HORTALIÇAS ───────────────────────────────────
+        function onAcInput(v) {
+            const list = document.getElementById('acList');
+            if (!v || v.length < 2) { list.classList.remove('show'); atualizarQualidade(); return; }
+            const m = HORTALICAS.filter(h => h.toLowerCase().includes(v.toLowerCase())).slice(0, 6);
+            if (!m.length) { list.classList.remove('show'); return; }
+            list.innerHTML = m.map(h => `<div class="ac-item" onmousedown="escolherAC('${h}')">${h}</div>`).join('');
+            list.classList.add('show');
+            atualizarQualidade();
+        }
+        function escolherAC(v) {
+            document.getElementById('hortalicaNome').value = v;
+            document.getElementById('acList').classList.remove('show');
+            // Marca o chip correspondente se existir
+            document.querySelectorAll('#chipsHort .chip').forEach(c => {
+                c.classList.toggle('on', c.textContent.replace(/\s/g, '').toLowerCase().includes(v.toLowerCase()));
+            });
+            atualizarQualidade();
+        }
+        function fecharAc() { setTimeout(() => document.getElementById('acList').classList.remove('show'), 200); }
+
+        // ── CHIPS ─────────────────────────────────────────────────────
+        function chipHort(el) {
+            const era = el.classList.contains('on');
+            document.querySelectorAll('#chipsHort .chip').forEach(c => c.classList.remove('on'));
+            if (!era) {
+                el.classList.add('on');
+                document.getElementById('hortalicaNome').value = el.textContent.replace(/[^\w\sÀ-ÿ-]/g, '').trim();
+            } else {
+                document.getElementById('hortalicaNome').value = '';
+            }
+            atualizarQualidade();
+        }
+
+        function chipEst(el, valor) {
+            const era = el.classList.contains('on');
+            document.querySelectorAll('#chipsEst .chip').forEach(c => c.classList.remove('on'));
+            if (!era) { el.classList.add('on'); estagioAtual = valor; }
+            else estagioAtual = '';
+            atualizarQualidade();
+        }
+
+        function chipToggle(el, conjunto) {
+            // Extrai texto limpo do chip (remove emoji)
+            const txt = el.textContent.replace(/^\S+\s/, '').trim();
+            if (el.classList.toggle('on')) conjunto.add(txt);
+            else conjunto.delete(txt);
+            atualizarQualidade();
+        }
+
+        // ── QUALIDADE DO CONTEXTO ─────────────────────────────────────
+        function atualizarQualidade() {
+            let pts = 0;
+            if (imagemBase64) pts += 20; // imagem é base
+            if (document.getElementById('hortalicaNome').value.trim()) pts += 25;
+            if (estagioAtual) pts += 15;
+            if (sintomasSet.size > 0) pts += 25;
+            if (climaSet.size > 0) pts += 10;
+            if (document.getElementById('regiaoClima').value.trim()) pts += 5;
+
+            const fill = document.getElementById('ctxFill');
+            const label = document.getElementById('ctxLabel');
+            fill.style.width = pts + '%';
+
+            if (pts === 0) { fill.style.background = 'var(--red)'; label.textContent = 'Selecione uma foto'; }
+            else if (pts < 25) { fill.style.background = 'var(--red)'; label.textContent = 'Só a foto'; }
+            else if (pts < 50) { fill.style.background = 'var(--amber)'; label.textContent = 'Básico'; }
+            else if (pts < 75) { fill.style.background = 'var(--green-lt)'; label.textContent = 'Bom'; }
+            else { fill.style.background = 'var(--leaf)'; label.textContent = '🎯 Excelente!'; }
+        }
+
+        // ── DIAGNOSTICAR ─────────────────────────────────────────────
+        async function diagnosticar() {
+            if (!imagemBase64) return;
+
+            const btn = document.getElementById('btnAnalisar');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            document.getElementById('estadoVazio').style.display = 'none';
+            document.getElementById('resultPanel').innerHTML = `
+            <div class="estado-vazio">
+                <div class="emoji" style="animation:spin 2s linear infinite;display:inline-block;">🔬</div>
+                <h3>Analisando com IA...</h3>
+                <p>Nossa IA especializada em hortaliças está examinando a imagem.</p>
+            </div>`;
+
+            // Monta sintomas: chips + texto extra
+            const sintomasFinal = [...sintomasSet, document.getElementById('sintomasExtra').value.trim()]
+                .filter(Boolean).join('. ');
+            const climaFinal = [...climaSet].join(', ');
+
+            try {
+                const body = {
+                    imagemBase64,
+                    mimeType,
+                    hortalicaNome: document.getElementById('hortalicaNome').value.trim() || null,
+                    estagioPlanta: estagioAtual || null,
+                    regiaoClima: document.getElementById('regiaoClima').value.trim() || null,
+                    condicoesClimaticas: climaFinal || null,
+                    sintomasDescricao: sintomasFinal || null,
+                    tratamentosAnteriores: document.getElementById('tratamentosAnteriores').value.trim() || null,
+                };
+
+                const resp = await Auth.fetchAuth('/api/diagnostico/diagnosticar', {
+                    method: 'POST',
+                    body: JSON.stringify(body)
+                });
+
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    document.getElementById('resultPanel').innerHTML = `
+                    <div class="estado-vazio">
+                        <div class="emoji">⚠️</div>
+                        <h3>Erro na análise</h3>
+                        <p>${data.erro || 'Falha ao analisar. Tente novamente.'}</p>
+                        ${data.detalhe ? `<pre style="font-size:10px;color:var(--text3);margin-top:10px;white-space:pre-wrap;text-align:left;max-width:400px;">${data.detalhe}</pre>` : ''}
+                    </div>`;
+                    return;
+                }
+
+                resultadoAtual = data;
+                renderizarResultado(data);
+
+            } catch (e) {
+                document.getElementById('resultPanel').innerHTML = `
+                <div class="estado-vazio">
+                    <div class="emoji">⚠️</div>
+                    <h3>Falha de conexão</h3>
+                    <p>Verifique sua internet e tente novamente.</p>
+                </div>`;
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // ── RENDERIZAR RESULTADO ──────────────────────────────────────
+        function renderizarResultado(d) {
+            const tipoCls = tipoClass(d.tipoDiagnostico);
+            const confCor = d.confianca >= 75 ? 'mv-green' : d.confianca >= 50 ? 'mv-amber' : 'mv-red';
+            const gravCor = d.gravidadeNivel >= 7 ? 'mv-red' : d.gravidadeNivel >= 4 ? 'mv-amber' : 'mv-green';
+            const riscoCor = d.riscoPropagacaoNivel >= 7 ? 'mv-red' : d.riscoPropagacaoNivel >= 4 ? 'mv-amber' : 'mv-green';
+            const urgHtml = urgBanner(d.recomendacaoUrgencia, d.diasParaAcao);
+
+            const passos = [d.tratamentoPasso1, d.tratamentoPasso2, d.tratamentoPasso3].filter(Boolean);
+
+            document.getElementById('resultPanel').innerHTML = `
+            <div class="result-hero">
+                <div class="r-badge ${tipoCls}">${d.tipoDiagnostico || 'Inconclusivo'}</div>
+                <div class="r-doenca">${d.nomeDoenca || 'Não identificado'}</div>
+                <div class="r-cientifico">${[d.nomeCientifico, d.agenteCausador].filter(Boolean).join(' · ')}</div>
+                <div class="r-metrics">
+                    <div class="r-metric"><div class="ml">Confiança</div><div class="mv ${confCor}">${d.confianca || 0}%</div></div>
+                    <div class="r-metric"><div class="ml">Gravidade</div><div class="mv ${gravCor}">${d.gravidadeNivel || 0}/10</div></div>
+                    <div class="r-metric"><div class="ml">Propagação</div><div class="mv ${riscoCor}">${d.riscoPropagacaoNivel || 0}/10</div></div>
+                </div>
+            </div>
+
+            ${urgHtml}
+
+            <div class="detail-grid">
+                <div class="det-card">
+                    <div class="det-header">🔍 Sintomas Observados</div>
+                    <div class="det-body">${d.sintomasObservados || '—'}</div>
+                </div>
+                <div class="det-card">
+                    <div class="det-header">🌡️ Condições Favoráveis</div>
+                    <div class="det-body">${d.condicoesFavoraveis || '—'}</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">💊 Protocolo de Tratamento</div>
+                <div class="card-body">
+                    <div class="trat-steps">
+                        ${passos.map((p, i) => `<div class="trat-step"><div class="step-num">${i + 1}</div><div class="step-text">${p}</div></div>`).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="det-card">
+                    <div class="det-header">🌿 Tratamento Ecológico</div>
+                    <div class="det-body">${d.tratamentoEcologico || '—'}</div>
+                </div>
+                <div class="det-card">
+                    <div class="det-header">🧪 Tratamento Químico</div>
+                    <div class="det-body">${d.tratamentoQuimico || '—'}</div>
+                </div>
+                <div class="det-card">
+                    <div class="det-header">🛡️ Prevenção</div>
+                    <div class="det-body">${d.prevencao || '—'}</div>
+                </div>
+                <div class="det-card">
+                    <div class="det-header">⚠️ Risco / Plantas Afetadas</div>
+                    <div class="det-body">${d.plantasAfetadas || '—'}<br><br><strong>${d.riscoPropagacaoTexto || ''}</strong></div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+                <button class="btn-salvar" id="btnSalvar" onclick="salvarDiagnostico()">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M13 11v2H3v-2M8 3v7M5 7l3 3 3-3"/></svg>
+                    Salvar no histórico
+                </button>
+                <button class="btn-salvar" onclick="window.print()" style="border-color:var(--text3);color:var(--text3);">
+                    🖨️ Imprimir
+                </button>
+            </div>
+        `;
+        }
+
+        async function salvarDiagnostico() {
+            if (!resultadoAtual) return;
+            const btn = document.getElementById('btnSalvar');
+            btn.disabled = true; btn.textContent = 'Salvando...';
+            try {
+                const resp = await Auth.fetchAuth('/api/diagnostico/salvar', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        tipoDiagnostico: resultadoAtual.tipoDiagnostico,
+                        nomeDoenca: resultadoAtual.nomeDoenca,
+                        nomeCientifico: resultadoAtual.nomeCientifico,
+                        agenteCausador: resultadoAtual.agenteCausador,
+                        confianca: resultadoAtual.confianca || 0,
+                        gravidadeNivel: resultadoAtual.gravidadeNivel || 0,
+                        gravidade: resultadoAtual.gravidade,
+                        sintomasObservados: resultadoAtual.sintomasObservados,
+                        tratamento: resultadoAtual.tratamentoPasso1,
+                        tratamentoEcologico: resultadoAtual.tratamentoEcologico,
+                        tratamentoQuimico: resultadoAtual.tratamentoQuimico,
+                        prevencao: resultadoAtual.prevencao,
+                        riscoPropagacao: resultadoAtual.riscoPropagacao,
+                        riscoPropagacaoNivel: resultadoAtual.riscoPropagacaoNivel || 0,
+                        plantasAfetadas: resultadoAtual.plantasAfetadas,
+                        condicoesFavoraveis: resultadoAtual.condicoesFavoraveis,
+                    })
+                });
+                if (resp.ok) { btn.classList.add('salvo'); btn.textContent = '✓ Salvo no histórico!'; }
+                else { btn.disabled = false; btn.textContent = 'Erro ao salvar. Tentar novamente'; }
+            } catch { btn.disabled = false; btn.textContent = 'Erro de conexão'; }
+        }
+
+        function tipoClass(tipo) {
+            const m = {
+                'Doença Fúngica': 'rt-fungica', 'Doença Bacteriana': 'rt-bacteriana', 'Virose': 'rt-virose',
+                'Praga de Inseto': 'rt-praga', 'Praga de Ácaro': 'rt-acaro',
+                'Deficiência Nutricional': 'rt-defic', 'Saudável': 'rt-saudavel'
+            };
+            return m[tipo] || 'rt-inconcl';
+        }
+
+        function urgBanner(u, dias) {
+            if (!u || u === 'nenhuma') return '';
+            const cls = { imediata: 'urg-imediata', 'em 48h': 'urg-48h', 'em 7 dias': 'urg-7dias', monitorar: 'urg-monitorar' }[u] || 'urg-monitorar';
+            const icon = { imediata: '🚨', 'em 48h': '⚠️', 'em 7 dias': '📅', monitorar: '👁️' }[u] || '📋';
+            const lab = { imediata: 'Imediata', 'em 48h': 'Em até 48h', 'em 7 dias': 'Em até 7 dias', monitorar: 'Monitorar' }[u] || u;
+            const diasTxt = dias > 0 ? ` — Agir em até ${dias} dia${dias > 1 ? 's' : ''}` : '';
+            return `<div class="urg-banner ${cls}">${icon} <strong>Urgência: ${lab}</strong>${diasTxt}</div>`;
+        }
+    </script>
+</body>
+</html>

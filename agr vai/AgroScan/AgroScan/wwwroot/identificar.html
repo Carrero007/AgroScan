@@ -1,0 +1,1044 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Identificar Hortaliça</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1a0f;
+            --surface: #172019;
+            --surface2: #1d2a1f;
+            --surface3: #223026;
+            --border: #243026;
+            --border2: #2d3d30;
+            --green-mid: #2d6a35;
+            --green-lt: #4caf5a;
+            --leaf: #6dbe7a;
+            --leaf-dim: rgba(109,190,122,.1);
+            --leaf-border: rgba(109,190,122,.2);
+            --text: #d6e8d8;
+            --text2: #8faa92;
+            --text3: #5a7060;
+            --amber: #d4a017;
+            --r: 12px;
+            --sidebar-w: 240px;
+            --nav-h: 60px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px 28px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--green-mid);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-name {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+            .logo-name span {
+                color: var(--leaf);
+            }
+
+        .nav-section {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text3);
+            padding: 4px 20px 8px;
+            margin-top: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            margin: 1px 8px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            transition: background .15s, color .15s;
+        }
+
+            .nav-item:hover {
+                background: var(--leaf-dim);
+                color: var(--text);
+            }
+
+            .nav-item.active {
+                background: var(--leaf-dim);
+                color: var(--leaf);
+                border: 1px solid var(--leaf-border);
+            }
+
+            .nav-item svg {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+            }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--green-mid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        /* Main */
+        .main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            padding: 0 32px;
+            height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .page-body {
+            padding: 28px 32px;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 24px;
+            flex: 1;
+            overflow-y: auto;
+            align-items: start;
+        }
+
+        /* Upload */
+        .upload-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: sticky;
+            top: 28px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+        }
+
+        .card-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body {
+            padding: 18px;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border2);
+            border-radius: var(--r);
+            background: var(--surface2);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+
+            .upload-zone:hover {
+                border-color: var(--green-lt);
+                background: rgba(76,175,90,.04);
+            }
+
+            .upload-zone input[type="file"] {
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                cursor: pointer;
+                width: 100%;
+                height: 100%;
+            }
+
+        .upload-icon {
+            font-size: 32px;
+        }
+
+        .upload-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+        }
+
+        .upload-hint {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        .preview-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: var(--r);
+            display: none;
+            border: 1px solid var(--border2);
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+            .field label {
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .05em;
+                text-transform: uppercase;
+                color: var(--text3);
+                margin-bottom: 6px;
+            }
+
+            .field input {
+                width: 100%;
+                padding: 9px 12px;
+                background: var(--surface2);
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 13px;
+                color: var(--text);
+                outline: none;
+                transition: border-color .2s;
+            }
+
+                .field input::placeholder {
+                    color: var(--text3);
+                }
+
+                .field input:focus {
+                    border-color: var(--green-lt);
+                }
+
+        .btn-ident {
+            width: 100%;
+            padding: 12px;
+            background: var(--green-mid);
+            color: white;
+            border: none;
+            border-radius: var(--r);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .btn-ident:hover:not(:disabled) {
+                background: #256030;
+            }
+
+            .btn-ident:disabled {
+                opacity: .4;
+                cursor: not-allowed;
+            }
+
+        .spinner-btn {
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid rgba(255,255,255,.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            display: none;
+        }
+
+        .btn-ident.loading .spinner-btn {
+            display: block;
+        }
+
+        .btn-ident.loading .lbl {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Resultado */
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .estado-vazio {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 40px;
+            color: var(--text3);
+        }
+
+            .estado-vazio .emoji {
+                font-size: 52px;
+                margin-bottom: 14px;
+            }
+
+            .estado-vazio h3 {
+                font-family: 'Fraunces', serif;
+                font-size: 22px;
+                color: var(--text2);
+                margin-bottom: 8px;
+            }
+
+            .estado-vazio p {
+                font-size: 14px;
+                line-height: 1.6;
+                max-width: 320px;
+            }
+
+        /* Card resultado */
+        .result-hero {
+            background: linear-gradient(135deg, var(--surface) 0%, #1f3022 100%);
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            padding: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .result-badge-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--green-mid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 8px rgba(45,106,53,.15);
+        }
+
+        .result-hero-text h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .result-hero-text .cientifico {
+            font-style: italic;
+            font-size: 13px;
+            color: var(--text3);
+            margin-bottom: 8px;
+        }
+
+        .result-hero-text .familia {
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .conf-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            background: var(--leaf-dim);
+            border: 1px solid var(--leaf-border);
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--leaf);
+            margin-top: 8px;
+        }
+
+        /* Grid de dados agronômicos */
+        .agro-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .agro-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 14px;
+        }
+
+            .agro-card .label {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+                color: var(--text3);
+                margin-bottom: 5px;
+            }
+
+            .agro-card .value {
+                font-size: 13px;
+                color: var(--text);
+                font-weight: 500;
+            }
+
+        .detail-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .detail-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+        }
+
+        .detail-card-header {
+            padding: 11px 14px;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .detail-card-body {
+            padding: 13px 14px;
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .btn-diag-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            background: var(--green-mid);
+            color: white;
+            border-radius: var(--r);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background .2s;
+        }
+
+            .btn-diag-link:hover {
+                background: #256030;
+            }
+
+        @media (max-width: 1100px) {
+            .page-body {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-panel {
+                position: static;
+            }
+
+            .agro-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .page-body {
+                padding: 16px;
+            }
+
+            .agro-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .detail-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-salvar-ht {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 18px;
+            background: transparent;
+            border: 1px solid var(--leaf);
+            color: var(--leaf);
+            border-radius: var(--r);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+        }
+
+            .btn-salvar-ht:hover {
+                background: var(--green-mid);
+                color: white;
+                border-color: var(--green-mid);
+            }
+
+            .btn-salvar-ht.salvo {
+                background: var(--green-mid);
+                color: white;
+                border-color: var(--green-mid);
+                cursor: default;
+            }
+
+            .btn-salvar-ht.erro {
+                border-color: var(--red);
+                color: var(--red);
+            }
+
+        .acoes-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">🥬</div><div class="logo-name">Agro<span>Scan</span></div></div>
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3M5 8h6M5 11h4" /></svg>Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>Histórico
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>Hortaliças
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>Dashboard
+        </a>
+        <div class="nav-item" onclick="Auth.logout()" style="cursor:pointer;">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>Sair
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div><div class="user-name" id="nomeUsuario">Produtor</div><div class="user-role">Produtor Rural</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">🌿 Identificar Hortaliça</div>
+        </div>
+
+        <div class="page-body">
+
+            <!-- ESQUERDA: UPLOAD -->
+            <div class="upload-panel">
+                <div class="card">
+                    <div class="card-header">📷 Foto da hortaliça</div>
+                    <div class="card-body">
+                        <div class="upload-zone" id="uploadZone">
+                            <input type="file" id="inputImagem" accept="image/jpeg,image/png,image/webp" onchange="onImageSelecionada(event)" />
+                            <div class="upload-icon">🌱</div>
+                            <div class="upload-label">Clique ou arraste a foto</div>
+                            <div class="upload-hint">JPG, PNG, WEBP · máx. 10 MB</div>
+                        </div>
+                        <img id="previewImg" class="preview-img" alt="Preview" />
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">📍 Contexto (opcional)</div>
+                    <div class="card-body">
+                        <div class="field">
+                            <label>Região / Clima</label>
+                            <input type="text" id="regiaoClima" placeholder="Ex: nordeste, sul, cerrado..." />
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-ident" id="btnIdent" onclick="identificar()" disabled>
+                    <div class="spinner-btn"></div>
+                    <span class="lbl">🔍 Identificar com IA</span>
+                </button>
+            </div>
+
+            <!-- DIREITA: RESULTADO -->
+            <div class="result-panel" id="resultPanel">
+                <div class="estado-vazio">
+                    <div class="emoji">🌿</div>
+                    <h3>Identifique uma hortaliça</h3>
+                    <p>Envie uma foto clara da planta para receber nome científico, família, ciclo, dicas de cultivo e muito mais.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // ══════════════════════════════════════════════════════════════
+        // AgroScan — Gerenciador de Autenticação JWT
+        // Responsável por: armazenar tokens, injetar Bearer em requests,
+        // renovar AccessToken automaticamente quando expirado.
+        // ══════════════════════════════════════════════════════════════
+
+        const Auth = (() => {
+            const KEY_TOKEN = 'as_token';
+            const KEY_REFRESH = 'as_refresh';
+            const KEY_NOME = 'as_nome';
+            const KEY_UID = 'as_uid';
+            const KEY_EXP = 'as_exp';
+
+            function salvar(data) {
+                localStorage.setItem(KEY_TOKEN, data.token);
+                localStorage.setItem(KEY_REFRESH, data.refreshToken);
+                localStorage.setItem(KEY_NOME, data.nome);
+                localStorage.setItem(KEY_UID, data.usuarioId);
+                localStorage.setItem(KEY_EXP, data.expiracao);
+            }
+
+            function limpar() {
+                [KEY_TOKEN, KEY_REFRESH, KEY_NOME, KEY_UID, KEY_EXP].forEach(k => localStorage.removeItem(k));
+            }
+
+            function getToken() { return localStorage.getItem(KEY_TOKEN); }
+            function getNome() { return localStorage.getItem(KEY_NOME) || 'Produtor'; }
+            function estaLogado() { return !!getToken(); }
+
+            function tokenExpirado() {
+                const exp = localStorage.getItem(KEY_EXP);
+                if (!exp) return true;
+                // Considera expirado 60s antes para evitar requests com token vencendo
+                return new Date(exp) < new Date(Date.now() + 60000);
+            }
+
+            async function renovarToken() {
+                const refresh = localStorage.getItem(KEY_REFRESH);
+                if (!refresh) return false;
+                try {
+                    const resp = await fetch('/api/auth/refresh', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: refresh })
+                    });
+                    if (!resp.ok) { limpar(); return false; }
+                    const data = await resp.json();
+                    salvar(data);
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            /** Retorna headers com Bearer válido, renovando se necessário. */
+            async function getHeaders(extra = {}) {
+                if (tokenExpirado()) {
+                    const ok = await renovarToken();
+                    if (!ok) {
+                        window.location.replace('login.html');
+                        return {};
+                    }
+                }
+                return {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                    ...extra
+                };
+            }
+
+            /** Wrapper de fetch que injeta JWT automaticamente. */
+            async function fetchAuth(url, options = {}) {
+                const headers = await getHeaders(options.headers || {});
+                // Remove Content-Type para multipart (o browser define o boundary)
+                if (options.isMultipart) delete headers['Content-Type'];
+                return fetch(url, { ...options, headers });
+            }
+
+            async function logout() {
+                const refresh = localStorage.getItem(KEY_REFRESH);
+                if (refresh) {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: refresh })
+                    }).catch(() => { });
+                }
+                limpar();
+                window.location.replace('login.html');
+            }
+
+            /** Proteção de rota — chame no topo de páginas protegidas. */
+            function exigirLogin() {
+                const pagina = window.location.pathname.split('/').pop() || '';
+                const publicas = ['login.html', 'cadastro.html', 'index.html', ''];
+                if (publicas.includes(pagina)) return;
+                if (!estaLogado()) {
+                    window.location.replace('login.html');
+                }
+            }
+
+            return { salvar, limpar, getToken, getNome, estaLogado, fetchAuth, logout, exigirLogin };
+        })();
+
+        // Proteção automática ao carregar qualquer página
+        Auth.exigirLogin();
+
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nome = Auth.getNome();
+            document.getElementById('nomeUsuario').textContent = nome;
+            document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
+        });
+
+        let imagemBase64 = null;
+        let mimeType = 'image/jpeg';
+
+        // Drag & drop
+        const zona = document.getElementById('uploadZone');
+        zona.addEventListener('dragover', e => { e.preventDefault(); zona.style.borderColor = 'var(--green-lt)'; });
+        zona.addEventListener('dragleave', () => zona.style.borderColor = '');
+        zona.addEventListener('drop', e => { e.preventDefault(); zona.style.borderColor = ''; processarArquivo(e.dataTransfer.files[0]); });
+
+        function onImageSelecionada(e) { processarArquivo(e.target.files[0]); }
+
+        function processarArquivo(file) {
+            if (!file) return;
+            mimeType = file.type || 'image/jpeg';
+            const reader = new FileReader();
+            reader.onload = ev => {
+                imagemBase64 = ev.target.result.split(',')[1];
+                const prev = document.getElementById('previewImg');
+                prev.src = ev.target.result;
+                prev.style.display = 'block';
+                document.getElementById('btnIdent').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function identificar() {
+            if (!imagemBase64) return;
+            const btn = document.getElementById('btnIdent');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            document.getElementById('resultPanel').innerHTML = `
+            <div class="estado-vazio">
+                <div class="emoji" style="animation:spin 2s linear infinite;display:inline-block">🔬</div>
+                <h3>Identificando...</h3>
+                <p>A IA está analisando características botânicas da planta.</p>
+            </div>`;
+
+            try {
+                const resp = await Auth.fetchAuth('/api/diagnostico/identificar', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        imagemBase64,
+                        mimeType,
+                        regiaoClima: document.getElementById('regiaoClima').value.trim() || null
+                    })
+                });
+
+                const d = await resp.json();
+
+                if (!resp.ok) {
+                    document.getElementById('resultPanel').innerHTML = `
+                    <div class="estado-vazio"><div class="emoji">⚠️</div><h3>Erro</h3><p>${d.erro || 'Falha na análise.'}</p></div>`;
+                    return;
+                }
+
+                renderizarResultado(d);
+
+            } catch {
+                document.getElementById('resultPanel').innerHTML = `
+                <div class="estado-vazio"><div class="emoji">⚠️</div><h3>Falha de conexão</h3><p>Verifique sua internet e tente novamente.</p></div>`;
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        function renderizarResultado(d) {
+            window._resultadoAtual = d; // guarda para o botão salvar
+            const emojiPlanta = getEmoji(d.categoria);
+
+            document.getElementById('resultPanel').innerHTML = `
+            <!-- HERO -->
+            <div class="result-hero">
+                <div class="result-badge-circle">${emojiPlanta}</div>
+                <div class="result-hero-text">
+                    <h2>${d.nomePopular || 'Hortaliça identificada'}</h2>
+                    <div class="cientifico">${d.nomeCientifico || ''}</div>
+                    <div class="familia">Família: <strong>${d.familia || '—'}</strong> · Categoria: <strong>${d.categoria || '—'}</strong></div>
+                    <div class="conf-pill">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M13 4L6 11l-3-3"/></svg>
+                        ${d.confiancaIdentificacao || 0}% de confiança
+                    </div>
+                </div>
+            </div>
+
+            <!-- DADOS AGRONÔMICOS -->
+            <div class="agro-grid">
+                <div class="agro-card">
+                    <div class="label">⏱️ Ciclo de vida</div>
+                    <div class="value">${d.cicloVida || '—'}</div>
+                </div>
+                <div class="agro-card">
+                    <div class="label">🌱 Germinação</div>
+                    <div class="value">${d.diasGerminacao ? d.diasGerminacao + ' dias' : '—'}</div>
+                </div>
+                <div class="agro-card">
+                    <div class="label">🌾 Colheita</div>
+                    <div class="value">${d.diasColheita ? d.diasColheita + ' dias' : '—'}</div>
+                </div>
+                <div class="agro-card">
+                    <div class="label">☀️ Luminosidade</div>
+                    <div class="value">${d.luminosidade || '—'}</div>
+                </div>
+                <div class="agro-card">
+                    <div class="label">💧 Irrigação</div>
+                    <div class="value">${d.irrigacao || '—'}</div>
+                </div>
+                <div class="agro-card">
+                    <div class="label">🌡️ Temperatura ideal</div>
+                    <div class="value">${d.temperaturaIdeal || '—'}</div>
+                </div>
+            </div>
+
+            <!-- DETALHES -->
+            <div class="detail-cards">
+                <div class="detail-card">
+                    <div class="detail-card-header">🌍 Clima / Solo</div>
+                    <div class="detail-card-body">${d.clima || '—'}<br><strong>Solo:</strong> ${d.tipoSolo || '—'}<br><strong>pH:</strong> ${d.phIdeal || '—'}</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-card-header">📐 Espaçamento</div>
+                    <div class="detail-card-body">${d.espacamento || '—'}</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-card-header">🌿 Adubação recomendada</div>
+                    <div class="detail-card-body">${d.adubacao || '—'}</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-card-header">🥗 Valor nutricional</div>
+                    <div class="detail-card-body">${d.valorNutricional || '—'}</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-card-header">🐛 Principais pragas</div>
+                    <div class="detail-card-body">${d.pragasPrincipais || '—'}</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-card-header">🦠 Principais doenças</div>
+                    <div class="detail-card-body">${d.doencasPrincipais || '—'}</div>
+                </div>
+            </div>
+
+            ${d.dicasCultivo ? `
+            <div class="card">
+                <div class="card-header">💡 Dicas de cultivo</div>
+                <div class="card-body" style="font-size:13px;color:var(--text2);line-height:1.7;">${d.dicasCultivo}</div>
+            </div>` : ''}
+
+            <div class="acoes-row">
+                <a href="diagnosticar.html" class="btn-diag-link">
+                    🔬 Diagnosticar doença nesta hortaliça →
+                </a>
+                <button class="btn-salvar-ht" id="btnSalvarHt" onclick="salvarHortalica()">
+                    💾 Salvar no catálogo
+                </button>
+            </div>
+        `;
+        }
+
+        function getEmoji(cat) {
+            const m = {
+                folhosa: '🥬', fruto: '🍅', raiz: '🥕', bulbo: '🧅',
+                legume: '🫛', tubérculo: '🥔', brássica: '🥦'
+            };
+            return m[(cat || '').toLowerCase()] || '🌱';
+        }
+
+        // ── SALVAR HORTALIÇA IDENTIFICADA ────────────────────────────
+        async function salvarHortalica() {
+            if (!window._resultadoAtual) return;
+            const btn = document.getElementById('btnSalvarHt');
+            if (!btn || btn.classList.contains('salvo')) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Salvando...';
+
+            const d = window._resultadoAtual;
+            const body = {
+                nomeCientifico: d.nomeCientifico || '',
+                nomePopular: d.nomePopular || '',
+                familia: d.familia || null,
+                categoria: d.categoria || null,
+                cicloVida: d.cicloVida || null,
+                diasGerminacao: d.diasGerminacao || null,
+                diasColheita: d.diasColheita || null,
+                espacamento: d.espacamento || null,
+                clima: d.clima || null,
+                luminosidade: d.luminosidade || null,
+                irrigacao: d.irrigacao || null,
+                tipoSolo: d.tipoSolo || null,
+                adubacao: d.adubacao || null,
+                pragasPrincipais: d.pragasPrincipais || null,
+                doencasPrincipais: d.doencasPrincipais || null,
+                origem: d.clima || null,
+                valorNutricional: d.valorNutricional || null,
+                observacoes: d.dicasCultivo || null,
+            };
+
+            try {
+                const resp = await Auth.fetchAuth('/api/diagnostico/salvar-hortalica', {
+                    method: 'POST',
+                    body: JSON.stringify(body)
+                });
+
+                const data = await resp.json();
+
+                if (resp.ok) {
+                    btn.classList.add('salvo');
+                    btn.textContent = data.jaExistia ? '✓ Já estava no catálogo' : '✓ Salvo no catálogo!';
+                } else {
+                    btn.classList.add('erro');
+                    btn.textContent = data.erro || 'Erro ao salvar';
+                    btn.disabled = false;
+                }
+            } catch {
+                btn.classList.add('erro');
+                btn.textContent = 'Erro de conexão';
+                btn.disabled = false;
+            }
+        }
+
+    </script>
+</body>
+</html>

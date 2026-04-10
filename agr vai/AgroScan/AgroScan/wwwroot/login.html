@@ -1,145 +1,477 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroScan · Login</title>
+    <title>AgroScan · Entrar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="auth.css" />
-</head>
-<body class="page-login">
-
-    <div id="app">
-
-        <!-- ═══════════════════════════════════════
-             CÍRCULO — fica à DIREITA no login
-        ═══════════════════════════════════════ -->
-        <div id="circle-panel">
-            <div class="circle-ring"></div>
-            <div id="circle-content">
-                <span class="circle-eyebrow">AgroScan · Plataforma</span>
-                <h2 class="circle-headline">Inteligência<br>para o <em>campo</em></h2>
-                <p class="circle-desc">Monitore suas lavouras, registre ocorrências e tome decisões baseadas em dados — de onde você estiver.</p>
-                <div class="circle-pills">
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2C5.2 2 3 4.2 3 7c0 4 5 9 5 9s5-5 5-9c0-2.8-2.2-5-5-5z" /></svg>
-                        Geolocalização
-                    </span>
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12l4-4 3 3 5-6" /></svg>
-                        Monitoramento
-                    </span>
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="2" width="10" height="12" rx="1.5" /><path d="M5 6h6M5 9h4" /></svg>
-                        Relatórios
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════
-             FORMULÁRIO — fica à ESQUERDA no login
-        ═══════════════════════════════════════ -->
-        <div class="form-panel" id="formPanel">
-            <div class="form-wrap">
-
-                <div class="brand">
-                    <div class="brand-mark">🌿</div>
-                    <span class="brand-name">Agro<strong>Scan</strong></span>
-                </div>
-
-                <h1 class="form-title">Bem-vindo</h1>
-                <p class="form-sub">Entre com sua conta para continuar</p>
-
-                <div class="field">
-                    <label>
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6h12" /></svg>
-                        CPF
-                    </label>
-                    <div class="input-wrap">
-                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6h12" /></svg>
-                        <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" autocomplete="off" />
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label>
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
-                        Senha
-                    </label>
-                    <div class="input-wrap">
-                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
-                        <input type="password" id="senha" placeholder="••••••••" />
-                    </div>
-                </div>
-
-                <button class="btn-main" onclick="login()">
-                    Entrar
-                    <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
-                </button>
-
-                <p class="switch-link">
-                    Não tem conta? <a href="cadastro.html" id="linkCadastro">Cadastre-se</a>
-                </p>
-
-            </div>
-        </div>
-
-    </div><!-- /#app -->
-
-    <script>
-        /* ── CPF mask ── */
-        document.getElementById('cpf').addEventListener('input', function () {
-            let v = this.value.replace(/\D/g, '').slice(0, 11);
-            if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
-            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
-            else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,3})/, '$1.$2');
-            this.value = v;
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const from = sessionStorage.getItem('agro-from');
-            sessionStorage.removeItem('agro-from');
-            const form = document.getElementById('formPanel');
-
-            if (from === 'cadastro') {
-                form.classList.add('form-enter-left');
-            } else {
-                form.classList.add('form-enter-right');
-            }
-
-            document.getElementById('circle-content').classList.add('circle-content-reveal');
-        });
-
-        document.getElementById('linkCadastro').addEventListener('click', function (e) {
-            e.preventDefault();
-            sessionStorage.setItem('agro-from', 'login');
-            const form = document.getElementById('formPanel');
-            form.classList.add('form-exit-left');
-            setTimeout(() => { window.location.href = 'cadastro.html'; }, 420);
-        });
-
-        /* ── Login API ── */
-        function login() {
-            const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
-            const senha = document.getElementById('senha').value;
-            if (cpf.length !== 11) { alert('CPF inválido.'); return; }
-            if (!senha) { alert('Informe a senha.'); return; }
-            fetch('https://localhost:7238/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ CPF: cpf, Senha: senha })
-            })
-                .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-                .then(d => {
-                    localStorage.setItem('authenticated', 'true');
-                    localStorage.setItem('userNome', d.nome || 'Usuário');
-                    window.location.href = 'dashboard.html';
-                })
-                .catch(() => alert('CPF ou senha incorretos.'));
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green-deep: #1a3a1f;
+            --green-mid: #2d6a35;
+            --green-lt: #4caf5a;
+            --leaf: #6dbe7a;
+            --soil: #5c3d1e;
+            --cream: #f5f0e8;
+            --cream2: #ede5d6;
+            --text-dark: #1a2b1c;
+            --text-soft: #4a6150;
+            --r: 14px;
         }
 
-        document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+        }
+
+        /* ── PAINEL ESQUERDO — decorativo ── */
+        .panel-left {
+            background: var(--green-deep);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 48px;
+            color: white;
+        }
+
+            .panel-left::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(ellipse at 20% 80%, rgba(109,190,122,.25) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(45,106,53,.4) 0%, transparent 50%);
+            }
+
+        .leaf-bg {
+            position: absolute;
+            right: -60px;
+            top: -60px;
+            width: 380px;
+            height: 380px;
+            opacity: .08;
+            font-size: 360px;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(109,190,122,.18);
+            border: 1px solid rgba(109,190,122,.3);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .05em;
+            color: var(--leaf);
+            text-transform: uppercase;
+            margin-bottom: 32px;
+            position: relative;
+            width: fit-content;
+        }
+
+        .panel-left h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(36px, 4vw, 52px);
+            font-weight: 600;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+            .panel-left h1 em {
+                color: var(--leaf);
+                font-style: italic;
+            }
+
+        .panel-left p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: rgba(255,255,255,.65);
+            max-width: 360px;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 14px;
+            color: rgba(255,255,255,.8);
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(109,190,122,.15);
+            border: 1px solid rgba(109,190,122,.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ── PAINEL DIREITO — formulário ── */
+        .panel-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 32px;
+            background: var(--cream);
+        }
+
+        .form-box {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--green-mid);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .brand-name {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--green-deep);
+        }
+
+            .brand-name span {
+                color: var(--green-lt);
+            }
+
+        h2.title {
+            font-family: 'Fraunces', serif;
+            font-size: 28px;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-soft);
+            margin-bottom: 32px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+            .field label {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-dark);
+                margin-bottom: 8px;
+                letter-spacing: .02em;
+            }
+
+        .input-wrap {
+            position: relative;
+        }
+
+            .input-wrap svg {
+                position: absolute;
+                left: 14px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 16px;
+                height: 16px;
+                color: var(--text-soft);
+                pointer-events: none;
+            }
+
+            .input-wrap input {
+                width: 100%;
+                padding: 12px 14px 12px 42px;
+                border: 1.5px solid var(--cream2);
+                border-radius: var(--r);
+                background: white;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 14px;
+                color: var(--text-dark);
+                transition: border-color .2s, box-shadow .2s;
+                outline: none;
+            }
+
+                .input-wrap input:focus {
+                    border-color: var(--green-lt);
+                    box-shadow: 0 0 0 3px rgba(76,175,90,.15);
+                }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--green-mid);
+            color: white;
+            border: none;
+            border-radius: var(--r);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s, transform .1s;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .btn-submit:hover {
+                background: var(--green-deep);
+            }
+
+            .btn-submit:active {
+                transform: scale(.98);
+            }
+
+            .btn-submit .spinner {
+                width: 18px;
+                height: 18px;
+                border: 2px solid rgba(255,255,255,.3);
+                border-top-color: white;
+                border-radius: 50%;
+                animation: spin .7s linear infinite;
+                display: none;
+            }
+
+            .btn-submit.loading .spinner {
+                display: block;
+            }
+
+            .btn-submit.loading .btn-label {
+                opacity: 0;
+                position: absolute;
+            }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .link-row {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+
+            .link-row a {
+                color: var(--green-mid);
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+                .link-row a:hover {
+                    text-decoration: underline;
+                }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--r);
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+            .alert.erro {
+                background: #fde8e8;
+                color: #c0392b;
+                border: 1px solid #f5c6c6;
+                display: block;
+            }
+
+            .alert.ok {
+                background: #e8f8eb;
+                color: #1a6b2a;
+                border: 1px solid #a8d8b0;
+                display: block;
+            }
+
+        /* responsive */
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-left {
+                display: none;
+            }
+
+            .panel-right {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ESQUERDA -->
+    <div class="panel-left">
+        <div class="leaf-bg">🌿</div>
+        <div class="badge">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="8" cy="8" r="6" /><path d="M8 5v3l2 2" /></svg>
+            IA Agronômica
+        </div>
+        <h1>Diagnóstico<br>inteligente para<br>suas <em>hortaliças</em></h1>
+        <p>Identifique pragas e doenças em segundos com IA especializada. Tratamentos precisos, diretamente no campo.</p>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🔬</div>
+                Diagnóstico visual por IA com 90%+ de precisão
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🌱</div>
+                Tratamentos ecológicos e convencionais
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                Histórico e estatísticas da sua lavoura
+            </div>
+        </div>
+    </div>
+
+    <!-- DIREITA -->
+    <div class="panel-right">
+        <div class="form-box">
+            <div class="brand">
+                <div class="brand-icon">🥬</div>
+                <div class="brand-name">Agro<span>Scan</span></div>
+            </div>
+
+            <h2 class="title">Bem-vindo</h2>
+            <p class="subtitle">Entre com sua conta para diagnosticar</p>
+
+            <div id="alerta" class="alert"></div>
+
+            <div class="field">
+                <label>CPF</label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6h12" /></svg>
+                    <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Senha</label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
+                    <input type="password" id="senha" placeholder="••••••••" />
+                </div>
+            </div>
+
+            <button class="btn-submit" id="btnLogin" onclick="fazerLogin()">
+                <div class="spinner"></div>
+                <span class="btn-label">Entrar</span>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" width="16" height="16"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+            </button>
+
+            <div class="link-row">
+                Não tem conta? <a href="cadastro.html">Criar conta grátis</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Máscara CPF
+        document.getElementById('cpf').addEventListener('input', function () {
+            let v = this.value.replace(/\D/g, '');
+            if (v.length > 3) v = v.slice(0, 3) + '.' + v.slice(3);
+            if (v.length > 7) v = v.slice(0, 7) + '.' + v.slice(7);
+            if (v.length > 11) v = v.slice(0, 11) + '-' + v.slice(11);
+            this.value = v.slice(0, 14);
+        });
+
+        document.getElementById('senha').addEventListener('keydown', e => {
+            if (e.key === 'Enter') fazerLogin();
+        });
+
+        async function fazerLogin() {
+            const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+            const senha = document.getElementById('senha').value;
+            const btn = document.getElementById('btnLogin');
+            const alerta = document.getElementById('alerta');
+            alerta.className = 'alert';
+
+            if (!cpf || !senha) {
+                alerta.className = 'alert erro';
+                alerta.textContent = 'Preencha CPF e senha.';
+                return;
+            }
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                const resp = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cpf, senha })
+                });
+
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    alerta.className = 'alert erro';
+                    alerta.textContent = data.erro || 'CPF ou senha inválidos.';
+                    return;
+                }
+
+                // Salva token JWT e dados
+                localStorage.setItem('as_token', data.token);
+                localStorage.setItem('as_refresh', data.refreshToken);
+                localStorage.setItem('as_nome', data.nome);
+                localStorage.setItem('as_uid', data.usuarioId);
+                localStorage.setItem('as_exp', data.expiracao);
+
+                window.location.replace('dashboard.html');
+            } catch (err) {
+                alerta.className = 'alert erro';
+                alerta.textContent = 'Falha de conexão. Tente novamente.';
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
     </script>
 </body>
 </html>

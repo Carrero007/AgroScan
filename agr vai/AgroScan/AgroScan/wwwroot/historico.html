@@ -1,0 +1,954 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Histórico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1a0f;
+            --surface: #172019;
+            --surface2: #1d2a1f;
+            --surface3: #223026;
+            --border: #243026;
+            --border2: #2d3d30;
+            --green-mid: #2d6a35;
+            --green-lt: #4caf5a;
+            --leaf: #6dbe7a;
+            --leaf-dim: rgba(109,190,122,.1);
+            --leaf-border: rgba(109,190,122,.2);
+            --text: #d6e8d8;
+            --text2: #8faa92;
+            --text3: #5a7060;
+            --amber: #d4a017;
+            --red: #c94040;
+            --blue: #4a90d4;
+            --r: 12px;
+            --sidebar-w: 240px;
+            --nav-h: 60px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar igual demais páginas */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px 28px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--green-mid);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-name {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+            .logo-name span {
+                color: var(--leaf);
+            }
+
+        .nav-section {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text3);
+            padding: 4px 20px 8px;
+            margin-top: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            margin: 1px 8px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            transition: background .15s, color .15s;
+        }
+
+            .nav-item:hover {
+                background: var(--leaf-dim);
+                color: var(--text);
+            }
+
+            .nav-item.active {
+                background: var(--leaf-dim);
+                color: var(--leaf);
+                border: 1px solid var(--leaf-border);
+            }
+
+            .nav-item svg {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+            }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--green-mid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        /* MAIN */
+        .main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            padding: 0 32px;
+            height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--green-mid);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: background .2s;
+        }
+
+            .btn-primary:hover {
+                background: #256030;
+            }
+
+        .page-body {
+            padding: 28px 32px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* FILTROS */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+            .filter-bar select,
+            .filter-bar input {
+                padding: 8px 12px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 13px;
+                color: var(--text);
+                outline: none;
+                transition: border-color .2s;
+                appearance: none;
+            }
+
+                .filter-bar select:focus,
+                .filter-bar input:focus {
+                    border-color: var(--green-lt);
+                }
+
+                .filter-bar select option {
+                    background: var(--surface2);
+                }
+
+            .filter-bar label {
+                font-size: 12px;
+                color: var(--text3);
+                font-weight: 600;
+            }
+
+        /* TABELA */
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--text3);
+            text-align: left;
+            background: var(--surface2);
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 14px 16px;
+            font-size: 13px;
+            color: var(--text2);
+            border-top: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background .1s;
+        }
+
+            tbody tr:hover td {
+                background: var(--surface2);
+                cursor: pointer;
+            }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-fungica {
+            background: rgba(212,160,23,.15);
+            color: var(--amber);
+            border: 1px solid rgba(212,160,23,.25);
+        }
+
+        .badge-bacteriana {
+            background: rgba(201,64,64,.15);
+            color: var(--red);
+            border: 1px solid rgba(201,64,64,.25);
+        }
+
+        .badge-praga {
+            background: rgba(74,144,212,.15);
+            color: var(--blue);
+            border: 1px solid rgba(74,144,212,.25);
+        }
+
+        .badge-acaro {
+            background: rgba(212,100,23,.15);
+            color: #d46a17;
+            border: 1px solid rgba(212,100,23,.25);
+        }
+
+        .badge-defic {
+            background: rgba(109,190,122,.1);
+            color: var(--leaf);
+            border: 1px solid var(--leaf-border);
+        }
+
+        .badge-saudavel {
+            background: rgba(76,175,90,.12);
+            color: var(--green-lt);
+            border: 1px solid rgba(76,175,90,.2);
+        }
+
+        .badge-inconcl {
+            background: rgba(120,120,120,.12);
+            color: #888;
+            border: 1px solid rgba(120,120,120,.2);
+        }
+
+        .badge-virose {
+            background: rgba(201,64,64,.1);
+            color: #e06060;
+            border: 1px solid rgba(201,64,64,.2);
+        }
+
+        .chip-alta {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(201,64,64,.12);
+            color: var(--red);
+            border: 1px solid rgba(201,64,64,.25);
+        }
+
+        .chip-media {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(212,160,23,.12);
+            color: var(--amber);
+            border: 1px solid rgba(212,160,23,.25);
+        }
+
+        .chip-baixa {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(76,175,90,.1);
+            color: var(--green-lt);
+            border: 1px solid rgba(76,175,90,.2);
+        }
+
+        .conf-bar {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .conf-track {
+            width: 50px;
+            height: 4px;
+            background: var(--border2);
+            border-radius: 2px;
+        }
+
+        .conf-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--green-lt);
+        }
+
+        /* PAGINAÇÃO */
+        .paginacao {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text3);
+        }
+
+        .pag-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .pag-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--text2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            transition: border-color .15s, color .15s;
+        }
+
+            .pag-btn:hover:not(:disabled) {
+                border-color: var(--green-lt);
+                color: var(--leaf);
+            }
+
+            .pag-btn:disabled {
+                opacity: .35;
+                cursor: not-allowed;
+            }
+
+            .pag-btn.ativo {
+                background: var(--green-mid);
+                border-color: var(--green-mid);
+                color: white;
+            }
+
+        /* MODAL DE DETALHE */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.7);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+        }
+
+            .overlay.open {
+                opacity: 1;
+                pointer-events: all;
+            }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+        }
+
+        .modal-title {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            font-size: 22px;
+            transition: color .15s;
+        }
+
+            .modal-close:hover {
+                color: var(--text);
+            }
+
+        .modal-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .info-block label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--text3);
+            margin-bottom: 5px;
+        }
+
+        .info-block p {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text3);
+        }
+
+            .empty-state .emoji {
+                font-size: 40px;
+                margin-bottom: 12px;
+                display: block;
+            }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0
+            }
+
+            100% {
+                background-position: -200% 0
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .page-body {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">🥬</div><div class="logo-name">Agro<span>Scan</span></div></div>
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3M5 8h6M5 11h4" /></svg>Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>Histórico
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>Hortaliças
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>Dashboard
+        </a>
+        <div class="nav-item" onclick="Auth.logout()" style="cursor:pointer;">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>Sair
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div><div class="user-name" id="nomeUsuario">Produtor</div><div class="user-role">Produtor Rural</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">📋 Histórico de Diagnósticos</div>
+            <div class="topbar-actions">
+                <a href="diagnosticar.html" class="btn-primary">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3v10M3 8h10" /></svg>
+                    Novo diagnóstico
+                </a>
+            </div>
+        </div>
+
+        <div class="page-body">
+
+            <!-- FILTROS -->
+            <div class="filter-bar">
+                <label>Tipo:</label>
+                <select id="filtroTipo" onchange="carregarPagina(1)">
+                    <option value="">Todos</option>
+                    <option value="Doença Fúngica">Doença Fúngica</option>
+                    <option value="Doença Bacteriana">Doença Bacteriana</option>
+                    <option value="Virose">Virose</option>
+                    <option value="Praga de Inseto">Praga de Inseto</option>
+                    <option value="Praga de Ácaro">Praga de Ácaro</option>
+                    <option value="Deficiência Nutricional">Deficiência Nutricional</option>
+                    <option value="Saudável">Saudável</option>
+                </select>
+                <label>Gravidade:</label>
+                <select id="filtroGrav" onchange="carregarPagina(1)">
+                    <option value="">Todas</option>
+                    <option value="alta">Alta</option>
+                    <option value="media">Média</option>
+                    <option value="baixa">Baixa</option>
+                </select>
+            </div>
+
+            <!-- TABELA -->
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Doença / Praga</th>
+                            <th>Tipo</th>
+                            <th>Gravidade</th>
+                            <th>Risco Propagação</th>
+                            <th>Confiança</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>
+                        <tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;width:75%;"></div></td></tr>
+                        <tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;width:90%;"></div></td></tr>
+                    </tbody>
+                </table>
+                <div class="paginacao">
+                    <span id="paginfoText">Carregando...</span>
+                    <div class="pag-btns" id="paginacaoBtns"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL DETALHE -->
+    <div class="overlay" id="modalOverlay" onclick="fecharModal(event)">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Diagnóstico</div>
+                <button class="modal-close" onclick="fecharModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // ══════════════════════════════════════════════════════════════
+        // AgroScan — Gerenciador de Autenticação JWT
+        // Responsável por: armazenar tokens, injetar Bearer em requests,
+        // renovar AccessToken automaticamente quando expirado.
+        // ══════════════════════════════════════════════════════════════
+
+        const Auth = (() => {
+            const KEY_TOKEN = 'as_token';
+            const KEY_REFRESH = 'as_refresh';
+            const KEY_NOME = 'as_nome';
+            const KEY_UID = 'as_uid';
+            const KEY_EXP = 'as_exp';
+
+            function salvar(data) {
+                localStorage.setItem(KEY_TOKEN, data.token);
+                localStorage.setItem(KEY_REFRESH, data.refreshToken);
+                localStorage.setItem(KEY_NOME, data.nome);
+                localStorage.setItem(KEY_UID, data.usuarioId);
+                localStorage.setItem(KEY_EXP, data.expiracao);
+            }
+
+            function limpar() {
+                [KEY_TOKEN, KEY_REFRESH, KEY_NOME, KEY_UID, KEY_EXP].forEach(k => localStorage.removeItem(k));
+            }
+
+            function getToken() { return localStorage.getItem(KEY_TOKEN); }
+            function getNome() { return localStorage.getItem(KEY_NOME) || 'Produtor'; }
+            function estaLogado() { return !!getToken(); }
+
+            function tokenExpirado() {
+                const exp = localStorage.getItem(KEY_EXP);
+                if (!exp) return true;
+                // Considera expirado 60s antes para evitar requests com token vencendo
+                return new Date(exp) < new Date(Date.now() + 60000);
+            }
+
+            async function renovarToken() {
+                const refresh = localStorage.getItem(KEY_REFRESH);
+                if (!refresh) return false;
+                try {
+                    const resp = await fetch('/api/auth/refresh', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: refresh })
+                    });
+                    if (!resp.ok) { limpar(); return false; }
+                    const data = await resp.json();
+                    salvar(data);
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            /** Retorna headers com Bearer válido, renovando se necessário. */
+            async function getHeaders(extra = {}) {
+                if (tokenExpirado()) {
+                    const ok = await renovarToken();
+                    if (!ok) {
+                        window.location.replace('login.html');
+                        return {};
+                    }
+                }
+                return {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                    ...extra
+                };
+            }
+
+            /** Wrapper de fetch que injeta JWT automaticamente. */
+            async function fetchAuth(url, options = {}) {
+                const headers = await getHeaders(options.headers || {});
+                // Remove Content-Type para multipart (o browser define o boundary)
+                if (options.isMultipart) delete headers['Content-Type'];
+                return fetch(url, { ...options, headers });
+            }
+
+            async function logout() {
+                const refresh = localStorage.getItem(KEY_REFRESH);
+                if (refresh) {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: refresh })
+                    }).catch(() => { });
+                }
+                limpar();
+                window.location.replace('login.html');
+            }
+
+            /** Proteção de rota — chame no topo de páginas protegidas. */
+            function exigirLogin() {
+                const pagina = window.location.pathname.split('/').pop() || '';
+                const publicas = ['login.html', 'cadastro.html', 'index.html', ''];
+                if (publicas.includes(pagina)) return;
+                if (!estaLogado()) {
+                    window.location.replace('login.html');
+                }
+            }
+
+            return { salvar, limpar, getToken, getNome, estaLogado, fetchAuth, logout, exigirLogin };
+        })();
+
+        // Proteção automática ao carregar qualquer página
+        Auth.exigirLogin();
+
+    </script>
+    <script>
+        let todosDiag = [];
+        let paginaAtual = 1;
+        const TAM = 15;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nome = Auth.getNome();
+            document.getElementById('nomeUsuario').textContent = nome;
+            document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
+            carregarPagina(1);
+        });
+
+        async function carregarPagina(pag) {
+            paginaAtual = pag;
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `<tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>`.repeat(3);
+
+            try {
+                const resp = await Auth.fetchAuth(`/api/diagnostico/historico?pagina=${pag}&tamanhoPagina=${TAM}`);
+                const data = await resp.json();
+                const lista = data.dados || [];
+
+                // Filtros client-side
+                const ftipo = document.getElementById('filtroTipo').value;
+                const fgrav = document.getElementById('filtroGrav').value;
+                const filtrada = lista.filter(d =>
+                    (!ftipo || d.tipoDiagnostico === ftipo) &&
+                    (!fgrav || d.gravidade === fgrav)
+                );
+
+                if (filtrada.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+                    <span class="emoji">🌱</span>
+                    Nenhum diagnóstico encontrado. <a href="diagnosticar.html" style="color:var(--green-lt)">Faça o primeiro!</a>
+                </div></td></tr>`;
+                    document.getElementById('paginfoText').textContent = '0 registros';
+                    document.getElementById('paginacaoBtns').innerHTML = '';
+                    return;
+                }
+
+                tbody.innerHTML = filtrada.map(d => {
+                    const data_ = new Date(d.dataDiagnostico).toLocaleDateString('pt-BR');
+                    return `<tr onclick="abrirModal(${d.diagnosticoId})" data-id="${d.diagnosticoId}" data-json='${JSON.stringify(d).replace(/'/g, "&#39;")}'>
+                    <td style="color:var(--text3);font-size:12px;">${data_}</td>
+                    <td style="color:var(--text);font-weight:500;">${d.nomeDoenca || '—'}<br><span style="font-size:11px;color:var(--text3);font-style:italic;">${d.nomeCientifico || ''}</span></td>
+                    <td>${badgeTipo(d.tipoDiagnostico)}</td>
+                    <td>${chipGrav(d.gravidade)}</td>
+                    <td>${chipRisco(d.riscoPropagacao)}</td>
+                    <td>
+                        <div class="conf-bar">
+                            <div class="conf-track"><div class="conf-fill" style="width:${d.confianca || 0}%"></div></div>
+                            <span style="font-size:12px;">${d.confianca || 0}%</span>
+                        </div>
+                    </td>
+                </tr>`;
+                }).join('');
+
+                document.getElementById('paginfoText').textContent = `${filtrada.length} registro${filtrada.length !== 1 ? 's' : ''}`;
+
+                // Paginação simples
+                const btnsEl = document.getElementById('paginacaoBtns');
+                btnsEl.innerHTML = `
+                <button class="pag-btn" onclick="carregarPagina(${pag - 1})" ${pag <= 1 ? 'disabled' : ''}>‹</button>
+                <button class="pag-btn ativo">${pag}</button>
+                <button class="pag-btn" onclick="carregarPagina(${pag + 1})" ${lista.length < TAM ? 'disabled' : ''}>›</button>
+            `;
+
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--red);">Erro ao carregar histórico.</td></tr>`;
+            }
+        }
+
+        function abrirModal(id) {
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (!row) return;
+            const d = JSON.parse(row.dataset.json);
+
+            document.getElementById('modalTitle').textContent = d.nomeDoenca || 'Diagnóstico';
+            document.getElementById('modalBody').innerHTML = `
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                ${badgeTipo(d.tipoDiagnostico)} ${chipGrav(d.gravidade)} ${chipRisco(d.riscoPropagacao)}
+            </div>
+            <div class="modal-row">
+                <div class="info-block"><label>Nome científico</label><p><em>${d.nomeCientifico || '—'}</em></p></div>
+                <div class="info-block"><label>Agente causador</label><p>${d.agenteCausador || '—'}</p></div>
+            </div>
+            <div class="info-block"><label>Sintomas observados</label><p>${d.sintomasObservados || '—'}</p></div>
+            <div class="modal-row">
+                <div class="info-block"><label>Tratamento ecológico</label><p>${d.tratamentoEcologico || '—'}</p></div>
+                <div class="info-block"><label>Tratamento químico</label><p>${d.tratamentoQuimico || '—'}</p></div>
+            </div>
+            <div class="info-block"><label>Prevenção</label><p>${d.prevencao || '—'}</p></div>
+            <div class="info-block"><label>Plantas afetadas / Propagação</label><p>${d.plantasAfetadas || '—'}</p></div>
+            <div class="modal-row">
+                <div class="info-block"><label>Confiança da IA</label><p style="font-size:20px;font-family:'Fraunces',serif;color:var(--green-lt)">${d.confianca || 0}%</p></div>
+                <div class="info-block"><label>Data</label><p>${new Date(d.dataDiagnostico).toLocaleString('pt-BR')}</p></div>
+            </div>
+        `;
+
+            document.getElementById('modalOverlay').classList.add('open');
+        }
+
+        function fecharModal(e) {
+            if (!e || e.target === document.getElementById('modalOverlay') || !e.target) {
+                document.getElementById('modalOverlay').classList.remove('open');
+            }
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(); });
+
+        function badgeTipo(tipo) {
+            const m = {
+                'Doença Fúngica': ['badge-fungica', '🍄'],
+                'Doença Bacteriana': ['badge-bacteriana', '🦠'],
+                'Virose': ['badge-virose', '🧬'],
+                'Praga de Inseto': ['badge-praga', '🐛'],
+                'Praga de Ácaro': ['badge-acaro', '🕷️'],
+                'Deficiência Nutricional': ['badge-defic', '🌿'],
+                'Saudável': ['badge-saudavel', '✅'],
+                'Inconclusivo': ['badge-inconcl', '❓'],
+            };
+            const [cls, icon] = m[tipo] || ['badge-inconcl', '?'];
+            return `<span class="badge ${cls}">${icon} ${tipo || '—'}</span>`;
+        }
+
+        function chipGrav(g) {
+            const m = { alta: 'chip-alta', media: 'chip-media', baixa: 'chip-baixa' };
+            const labels = { alta: 'Alta', media: 'Média', baixa: 'Baixa' };
+            return g ? `<span class="${m[g] || ''}">${labels[g] || g}</span>` : '<span style="color:var(--text3)">—</span>';
+        }
+
+        function chipRisco(r) {
+            const m = { alto: 'chip-alta', medio: 'chip-media', baixo: 'chip-baixa' };
+            const labels = { alto: 'Alto', medio: 'Médio', baixo: 'Baixo' };
+            return r ? `<span class="${m[r] || ''}">${labels[r] || r}</span>` : '<span style="color:var(--text3)">—</span>';
+        }
+    </script>
+</body>
+</html>
