@@ -1,67 +1,123 @@
-CREATE TABLE [dbo].[Login] (
+CREATE TABLE [dbo].[Usuarios] (
+    [UsuarioId]    INT             IDENTITY (1, 1) NOT NULL,
+    [CPF]          VARCHAR (11)    NOT NULL,
+    [Nome]         VARCHAR (100)   DEFAULT ('') NOT NULL,
+    [SenhaHash]    VARCHAR (256)   NOT NULL,
+    [Whatsapp]     VARCHAR (20)    NULL,
+    [Latitude]     FLOAT (53)      NULL,
+    [Longitude]    FLOAT (53)      NULL,
+    [TipoProdutor] VARCHAR (50)    NULL,
+    [AreaHectares] DECIMAL (10, 2) NULL,
+    [Ativo]        BIT             DEFAULT ((1)) NOT NULL,
+    [DataCriacao]  DATETIME        DEFAULT (getdate()) NOT NULL,
+    [UltimoLogin]  DATETIME        NULL,
+    CONSTRAINT [PK_Usuarios] PRIMARY KEY CLUSTERED ([UsuarioId] ASC),
+    CONSTRAINT [UQ_Usuarios_CPF] UNIQUE NONCLUSTERED ([CPF] ASC)
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Usuarios_CPF]
+    ON [dbo].[Usuarios]([CPF] ASC);
+
+
+CREATE TABLE [dbo].[RefreshTokens] (
     [Id]        INT           IDENTITY (1, 1) NOT NULL,
-    [CPF]       VARCHAR (11)  NOT NULL,
-    [Senha]     VARCHAR (50)  NOT NULL,
-    [Latitude]  FLOAT (53)    NULL,
-    [Longitude] FLOAT (53)    NULL,
-    [Nome]      VARCHAR (100) DEFAULT ('') NOT NULL,
-    [Whatsapp]  VARCHAR (20)  NULL,
-    PRIMARY KEY CLUSTERED ([Id] ASC)
+    [UsuarioId] INT           NOT NULL,
+    [Token]     VARCHAR (512) NOT NULL,
+    [Expiracao] DATETIME      NOT NULL,
+    [Revogado]  BIT           DEFAULT ((0)) NOT NULL,
+    [CriadoEm]  DATETIME      DEFAULT (getdate()) NOT NULL,
+    [IP]        VARCHAR (45)  NULL,
+    CONSTRAINT [PK_RefreshTokens] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_RefreshTokens_Usuarios] FOREIGN KEY ([UsuarioId]) REFERENCES [dbo].[Usuarios] ([UsuarioId]) ON DELETE CASCADE
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_RefreshTokens_Token]
+    ON [dbo].[RefreshTokens]([Token] ASC);
+
+
+CREATE TABLE [dbo].[Hortalicas] (
+    [HortalicaId]        INT            IDENTITY (1, 1) NOT NULL,
+    [NomeCientifico]     NVARCHAR (255) NOT NULL,
+    [NomePopular]        NVARCHAR (255) NULL,
+    [Familia]            NVARCHAR (100) NULL,
+    [Categoria]          NVARCHAR (50)  NULL,
+    [CicloVida]          NVARCHAR (50)  NULL,
+    [DiasGerminacao]     INT            NULL,
+    [DiasColheita]       INT            NULL,
+    [Espacamento]        NVARCHAR (100) NULL,
+    [ProfundidadeSemeio] NVARCHAR (50)  NULL,
+    [Clima]              NVARCHAR (100) NULL,
+    [TemperaturaMin]     DECIMAL (4, 1) NULL,
+    [TemperaturaMax]     DECIMAL (4, 1) NULL,
+    [Luminosidade]       NVARCHAR (100) NULL,
+    [Irrigacao]          NVARCHAR (100) NULL,
+    [NecessidadeAgua]    NVARCHAR (50)  NULL,
+    [TipoSolo]           NVARCHAR (255) NULL,
+    [PHMin]              DECIMAL (3, 1) NULL,
+    [PHMax]              DECIMAL (3, 1) NULL,
+    [Adubacao]           NVARCHAR (MAX) NULL,
+    [PragasPrincipais]   NVARCHAR (MAX) NULL,
+    [DoencasPrincipais]  NVARCHAR (MAX) NULL,
+    [Origem]             NVARCHAR (255) NULL,
+    [ValorNutricional]   NVARCHAR (MAX) NULL,
+    [Observacoes]        NVARCHAR (MAX) NULL,
+    [DataCriacao]        DATETIME       DEFAULT (getdate()) NULL,
+    [DataAtualizacao]    DATETIME       NULL,
+    CONSTRAINT [PK_Hortalicas] PRIMARY KEY CLUSTERED ([HortalicaId] ASC)
 );
 
 CREATE TABLE [dbo].[Diagnosticos] (
-    [DiagnosticoId]       INT            IDENTITY (1, 1) NOT NULL,
-    [PlantaId]            INT            NULL,
-    [NomeDoenca]          NVARCHAR (200) NULL,
-    [NomeCientifico]      NVARCHAR (200) NULL,
-    [Confianca]           INT            NULL,
-    [Tratamento]          NVARCHAR (MAX) NULL,
-    [TratamentoEcologico] NVARCHAR (MAX) NULL,
-    [RiscoPropagacao]     NVARCHAR (50)  NULL,
-    [DataDiagnostico]     DATETIME       DEFAULT (getdate()) NULL,
-    PRIMARY KEY CLUSTERED ([DiagnosticoId] ASC),
-    FOREIGN KEY ([PlantaId]) REFERENCES [dbo].[Plantas] ([PlantaId])
-);
-
-CREATE TABLE [dbo].[Plantas] (
-    [PlantaId]        INT            IDENTITY (1, 1) NOT NULL,
-    [NomeCientifico]  NVARCHAR (255) NOT NULL,
-    [NomePopular]     NVARCHAR (255) NULL,
-    [OutrosNomes]     NVARCHAR (500) NULL,
-    [Reino]           NVARCHAR (100) DEFAULT ('Plantae') NULL,
-    [Filo]            NVARCHAR (100) NULL,
-    [Classe]          NVARCHAR (100) NULL,
-    [Ordem]           NVARCHAR (100) NULL,
-    [Familia]         NVARCHAR (100) NULL,
-    [Genero]          NVARCHAR (100) NULL,
-    [Especie]         NVARCHAR (100) NULL,
-    [TipoPlanta]      NVARCHAR (100) NULL,
-    [CicloVida]       NVARCHAR (50)  NULL,
-    [AlturaMin]       DECIMAL (5, 2) NULL,
-    [AlturaMax]       DECIMAL (5, 2) NULL,
-    [TaxaCrescimento] NVARCHAR (50)  NULL,
-    [Clima]           NVARCHAR (100) NULL,
-    [Luminosidade]    NVARCHAR (100) NULL,
-    [Rega]            NVARCHAR (100) NULL,
-    [TipoSolo]        NVARCHAR (255) NULL,
-    [PHMin]           DECIMAL (3, 1) NULL,
-    [PHMax]           DECIMAL (3, 1) NULL,
-    [Origem]          NVARCHAR (255) NULL,
-    [RegiaoNativa]    NVARCHAR (255) NULL,
-    [EpocaPlantio]    NVARCHAR (100) NULL,
-    [EpocaFloracao]   NVARCHAR (100) NULL,
-    [EpocaColheita]   NVARCHAR (100) NULL,
-    [EhMedicinal]     BIT            DEFAULT ((0)) NULL,
-    [EhComestivel]    BIT            DEFAULT ((0)) NULL,
-    [EhToxica]        BIT            DEFAULT ((0)) NULL,
-    [Usos]            NVARCHAR (MAX) NULL,
-    [Descricao]       NVARCHAR (MAX) NULL,
-    [Observacoes]     NVARCHAR (MAX) NULL,
-    [DataCriacao]     DATETIME       DEFAULT (getdate()) NULL,
-    [DataAtualizacao] DATETIME       NULL,
-    PRIMARY KEY CLUSTERED ([PlantaId] ASC)
+    [DiagnosticoId]        INT            IDENTITY (1, 1) NOT NULL,
+    [UsuarioId]            INT            NULL,
+    [HortalicaId]          INT            NULL,
+    [TipoDiagnostico]      NVARCHAR (80)  NULL,
+    [NomeDoenca]           NVARCHAR (200) NULL,
+    [NomeCientifico]       NVARCHAR (200) NULL,
+    [AgenteCausador]       NVARCHAR (200) NULL,
+    [Confianca]            INT            NULL,
+    [GravidadeNivel]       INT            NULL,
+    [Gravidade]            NVARCHAR (20)  NULL,
+    [SintomasObservados]   NVARCHAR (MAX) NULL,
+    [Tratamento]           NVARCHAR (MAX) NULL,
+    [TratamentoEcologico]  NVARCHAR (MAX) NULL,
+    [TratamentoQuimico]    NVARCHAR (MAX) NULL,
+    [Prevencao]            NVARCHAR (MAX) NULL,
+    [RiscoPropagacao]      NVARCHAR (20)  NULL,
+    [RiscoPropagacaoNivel] INT            NULL,
+    [PlantasAfetadas]      NVARCHAR (MAX) NULL,
+    [CondicoesFavoraveis]  NVARCHAR (MAX) NULL,
+    [ImagemBase64]         NVARCHAR (MAX) NULL,
+    [Latitude]             FLOAT (53)     NULL,
+    [Longitude]            FLOAT (53)     NULL,
+    [DataDiagnostico]      DATETIME       DEFAULT (getdate()) NULL,
+    CONSTRAINT [PK_Diagnosticos] PRIMARY KEY CLUSTERED ([DiagnosticoId] ASC),
+    CONSTRAINT [FK_Diag_Usuarios] FOREIGN KEY ([UsuarioId]) REFERENCES [dbo].[Usuarios] ([UsuarioId]),
+    CONSTRAINT [FK_Diag_Hortalica] FOREIGN KEY ([HortalicaId]) REFERENCES [dbo].[Hortalicas] ([HortalicaId])
 );
 
 
+GO
+CREATE NONCLUSTERED INDEX [IX_Diagnosticos_UsuarioId]
+    ON [dbo].[Diagnosticos]([UsuarioId] ASC);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Diagnosticos_Data]
+    ON [dbo].[Diagnosticos]([DataDiagnostico] DESC);
+
+CREATE TABLE [dbo].[AuditLog] (
+    [LogId]        INT           IDENTITY (1, 1) NOT NULL,
+    [UsuarioId]    INT           NULL,
+    [Acao]         VARCHAR (100) NOT NULL,
+    [IP]           VARCHAR (45)  NULL,
+    [Modelo]       VARCHAR (100) NULL,
+    [TokensUsados] INT           NULL,
+    [CriadoEm]     DATETIME      DEFAULT (getdate()) NOT NULL,
+    CONSTRAINT [PK_AuditLog] PRIMARY KEY CLUSTERED ([LogId] ASC)
+);
 
 
