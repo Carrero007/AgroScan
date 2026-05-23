@@ -995,6 +995,7 @@
         // ── ESTADO ────────────────────────────────────────────────────
         let imagemBase64 = null;
         let mimeType = 'image/jpeg';
+        let nomeArquivo = null;
         let resultadoAtual = null;
         let estagioAtual = '';
         const sintomasSet = new Set();
@@ -1021,6 +1022,7 @@
 
         function processarArquivo(file) {
             mimeType = file.type || 'image/jpeg';
+            nomeArquivo = file.name;
             const reader = new FileReader();
             reader.onload = ev => {
                 imagemBase64 = ev.target.result.split(',')[1];
@@ -1133,6 +1135,7 @@
                 const body = {
                     imagemBase64,
                     mimeType,
+                    nomeArquivo,
                     hortalicaNome: document.getElementById('hortalicaNome').value.trim() || null,
                     estagioPlanta: estagioAtual || null,
                     regiaoClima: document.getElementById('regiaoClima').value.trim() || null,

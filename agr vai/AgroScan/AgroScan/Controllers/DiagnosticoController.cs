@@ -15,6 +15,7 @@ namespace AgroScan.Controllers
     [Authorize]
     public class DiagnosticoController : ControllerBase
     {
+
         private readonly IConfiguration _config;
         private readonly HttpClient _http;
         private readonly ILogger<DiagnosticoController> _logger;
@@ -38,7 +39,58 @@ namespace AgroScan.Controllers
             _http = httpFactory.CreateClient();
             _logger = logger;
         }
+        private object? BuscarDiagnosticoDemo(AnaliseRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.NomeArquivo))
+                return null;
 
+            var nomeArquivo = Path
+                .GetFileNameWithoutExtension(req.NomeArquivo)
+                .ToLower()
+                .Trim();
+
+            using var conn = new SqlConnection(ConnStr);
+
+            const string sql = @"
+        SELECT TOP 1 d.*
+        FROM DiagnosticosDemo dd
+        INNER JOIN Diagnosticos d
+            ON d.DiagnosticoId = dd.DiagnosticoId
+        WHERE LOWER(dd.NomeArquivo) = @nome";
+
+            using var cmd = new SqlCommand(sql, conn);
+
+            cmd.Parameters.AddWithValue("@nome", nomeArquivo);
+
+            conn.Open();
+
+            using var reader = cmd.ExecuteReader();
+
+            if (!reader.Read())
+                return null;
+
+            return new
+            {
+                tipoDiagnostico = reader["TipoDiagnostico"]?.ToString(),
+                nomeDoenca = reader["NomeDoenca"]?.ToString(),
+                nomeCientifico = reader["NomeCientifico"]?.ToString(),
+                agenteCausador = reader["AgenteCausador"]?.ToString(),
+                confianca = Convert.ToInt32(reader["Confianca"]),
+                gravidadeNivel = Convert.ToInt32(reader["GravidadeNivel"]),
+                gravidade = reader["Gravidade"]?.ToString(),
+                sintomasObservados = reader["SintomasObservados"]?.ToString(),
+                tratamentoEcologico = reader["TratamentoEcologico"]?.ToString(),
+                tratamentoQuimico = reader["TratamentoQuimico"]?.ToString(),
+                prevencao = reader["Prevencao"]?.ToString(),
+                riscoPropagacao = reader["RiscoPropagacao"]?.ToString(),
+                riscoPropagacaoNivel = Convert.ToInt32(reader["RiscoPropagacaoNivel"]),
+                plantasAfetadas = reader["PlantasAfetadas"]?.ToString(),
+                condicoesFavoraveis = reader["CondicoesFavoraveis"]?.ToString(),
+                tratamentoPasso1 = reader["Tratamento"]?.ToString(),
+                recomendacaoUrgencia = "em 48h",
+                diasParaAcao = 2
+            };
+        }
         // ── Diagnóstico via multipart (Swagger) ──────────────────
 
         [HttpPost("diagnosticar-arquivo")]
@@ -83,12 +135,27 @@ namespace AgroScan.Controllers
             if (string.IsNullOrWhiteSpace(req.ImagemBase64))
                 return BadRequest(new { erro = "ImagemBase64 e obrigatorio." });
 
-            var (system, userText) = PromptService.MontarPromptDiagnostico(req);
-            return await ChamarGroq(system, userText, req.ImagemBase64,
-                req.MimeType ?? "image/jpeg", "diagnosticar",
-                UsuarioIdAtual, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "");
-        }
+            // ── MODO OFFLINE / DEMO ─────────────────────────────
+            var demo = BuscarDiagnosticoDemo(req);
 
+            if (demo != null)
+            {
+                return Ok(demo);
+            }
+
+            // ── IA REAL ─────────────────────────────────────────
+            var (system, userText) = PromptService.MontarPromptDiagnostico(req);
+
+            return await ChamarGroq(
+                system,
+                userText,
+                req.ImagemBase64,
+                req.MimeType ?? "image/jpeg",
+                "diagnosticar",
+                UsuarioIdAtual,
+                HttpContext.Connection.RemoteIpAddress?.ToString() ?? ""
+            );
+        }
         // ── Identificação via multipart (Swagger) ────────────────
 
         [HttpPost("identificar-arquivo")]
@@ -186,7 +253,6 @@ namespace AgroScan.Controllers
             {
                 using var conn = new SqlConnection(ConnStr);
 
-                // Verifica se já existe para não duplicar
                 using (var chk = new SqlCommand(
                     "SELECT COUNT(1) FROM Hortalicas WHERE NomeCientifico = @nc", conn))
                 {

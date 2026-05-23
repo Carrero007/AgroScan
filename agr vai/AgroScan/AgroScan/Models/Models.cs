@@ -123,5 +123,6 @@
         public string? SintomasDescricao { get; set; }
         public string? CondicoesClimaticas { get; set; }
         public string? TratamentosAnteriores { get; set; }
+        public string? NomeArquivo { get; set; }
     }
 }
