@@ -256,5 +256,4 @@ const scansData = [
     buildCharts();
     initTheme();
     initSidebar();
-  });
-  
+  });  
