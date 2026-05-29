@@ -1,218 +1,260 @@
-
-        // ══════════════════════════════════════════════════════════════
-        // AgroScan — Gerenciador de Autenticação JWT
-        // Responsável por: armazenar tokens, injetar Bearer em requests,
-        // renovar AccessToken automaticamente quando expirado.
-        // ══════════════════════════════════════════════════════════════
-
-        const Auth = (() => {
-            const KEY_TOKEN = 'as_token';
-            const KEY_REFRESH = 'as_refresh';
-            const KEY_NOME = 'as_nome';
-            const KEY_UID = 'as_uid';
-            const KEY_EXP = 'as_exp';
-
-            function salvar(data) {
-                localStorage.setItem(KEY_TOKEN, data.token);
-                localStorage.setItem(KEY_REFRESH, data.refreshToken);
-                localStorage.setItem(KEY_NOME, data.nome);
-                localStorage.setItem(KEY_UID, data.usuarioId);
-                localStorage.setItem(KEY_EXP, data.expiracao);
-            }
-
-            function limpar() {
-                [KEY_TOKEN, KEY_REFRESH, KEY_NOME, KEY_UID, KEY_EXP].forEach(k => localStorage.removeItem(k));
-            }
-
-            function getToken() { return localStorage.getItem(KEY_TOKEN); }
-            function getNome() { return localStorage.getItem(KEY_NOME) || 'Produtor'; }
-            function estaLogado() { return !!getToken(); }
-
-            function tokenExpirado() {
-                const exp = localStorage.getItem(KEY_EXP);
-                if (!exp) return true;
-                // Considera expirado 60s antes para evitar requests com token vencendo
-                return new Date(exp) < new Date(Date.now() + 60000);
-            }
-
-            async function renovarToken() {
-                const refresh = localStorage.getItem(KEY_REFRESH);
-                if (!refresh) return false;
-                try {
-                    const resp = await fetch('/api/auth/refresh', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ refreshToken: refresh })
-                    });
-                    if (!resp.ok) { limpar(); return false; }
-                    const data = await resp.json();
-                    salvar(data);
-                    return true;
-                } catch {
-                    return false;
-                }
-            }
-
-            /** Retorna headers com Bearer válido, renovando se necessário. */
-            async function getHeaders(extra = {}) {
-                if (tokenExpirado()) {
-                    const ok = await renovarToken();
-                    if (!ok) {
-                        window.location.replace('login.html');
-                        return {};
-                    }
-                }
-                return {
-                    'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json',
-                    ...extra
-                };
-            }
-
-            /** Wrapper de fetch que injeta JWT automaticamente. */
-            async function fetchAuth(url, options = {}) {
-                const headers = await getHeaders(options.headers || {});
-                // Remove Content-Type para multipart (o browser define o boundary)
-                if (options.isMultipart) delete headers['Content-Type'];
-                return fetch(url, { ...options, headers });
-            }
-
-            async function logout() {
-                const refresh = localStorage.getItem(KEY_REFRESH);
-                if (refresh) {
-                    await fetch('/api/auth/logout', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ refreshToken: refresh })
-                    }).catch(() => { });
-                }
-                limpar();
-                window.location.replace('login.html');
-            }
-
-            /** Proteção de rota — chame no topo de páginas protegidas. */
-            function exigirLogin() {
-                const pagina = window.location.pathname.split('/').pop() || '';
-                const publicas = ['login.html', 'cadastro.html', 'index.html', ''];
-                if (publicas.includes(pagina)) return;
-                if (!estaLogado()) {
-                    window.location.replace('login.html');
-                }
-            }
-
-            return { salvar, limpar, getToken, getNome, estaLogado, fetchAuth, logout, exigirLogin };
-        })();
-
-        // Proteção automática ao carregar qualquer página
-        Auth.exigirLogin();
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Mostra nome do usuário
-            const nome = Auth.getNome();
-            const nomeEl = document.getElementById('sidebarNome');
-            const avatarEl = document.getElementById('avatarLetra');
-            if (nomeEl) nomeEl.textContent = nome;
-            if (avatarEl) avatarEl.textContent = nome.charAt(0).toUpperCase();
-
-            await Promise.all([carregarHistorico(), carregarEstatisticas()]);
-        });
-
-        async function carregarHistorico() {
-            try {
-                const resp = await Auth.fetchAuth('/api/diagnostico/historico?pagina=1&tamanhoPagina=5');
-                if (!resp.ok) return;
-                const data = await resp.json();
-                const tbody = document.getElementById('tabelaHistorico');
-
-                if (!data.dados || data.dados.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">
-                    <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.4" width="36" height="36" style="color:var(--text3);margin-bottom:12px;display:block;margin-left:auto;margin-right:auto"><circle cx="20" cy="20" r="16"/><path d="M20 13v7l4 4"/></svg>
-                    Ainda não há diagnósticos salvos.<br><a href="diagnosticar.html" style="color:var(--green-lt)">Faça o primeiro para começar a acompanhar a saúde da lavoura.</a>
-                </div></td></tr>`;
-                    document.getElementById('kpiTotal').textContent = '0';
-                    return;
-                }
-
-                document.getElementById('kpiTotal').textContent = data.dados.length >= 5 ? '5+' : data.dados.length;
-
-                tbody.innerHTML = data.dados.map(d => {
-                    const tipo = badgeTipo(d.tipoDiagnostico);
-                    const grav = chipGrav(d.gravidade);
-                    const conf = d.confianca || 0;
-                    return `<tr>
-                    <td style="color:var(--text);font-weight:500;">${d.nomeDoenca || 'Não identificado'}</td>
-                    <td>${tipo}</td>
-                    <td>${grav}</td>
-                    <td>
-                        <div class="conf-bar">
-                            <div class="conf-track"><div class="conf-fill" style="width:${conf}%"></div></div>
-                            <span>${conf}%</span>
-                        </div>
-                    </td>
-                </tr>`;
-                }).join('');
-
-                // KPI gravidade alta
-                const altas = data.dados.filter(d => d.gravidade === 'alta').length;
-                document.getElementById('kpiAlta').textContent = altas;
-
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        async function carregarEstatisticas() {
-            try {
-                const resp = await Auth.fetchAuth('/api/diagnostico/estatisticas');
-                if (!resp.ok) return;
-                const stats = await resp.json();
-
-                document.getElementById('kpiDoencas').textContent = stats.length;
-
-                const totalDiag = stats.reduce((s, x) => s + x.total, 0);
-                const confMedia = stats.length
-                    ? (stats.reduce((s, x) => s + x.confiancaMedia * x.total, 0) / (totalDiag || 1)).toFixed(0)
-                    : '—';
-                document.getElementById('kpiConf').textContent = confMedia + '%';
-                if (totalDiag > 0) document.getElementById('kpiTotal').textContent = totalDiag;
-
-                const listaEl = document.getElementById('listaTipos');
-                if (stats.length === 0) {
-                    listaEl.innerHTML = `<div class="empty-state"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32" style="color:var(--text3);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto"><path d="M8 30l8-10 6 6 8-12"/></svg>Os dados aparecem aqui conforme você for fazendo análises.</div>`;
-                    return;
-                }
-
-                const max = stats[0].total;
-                listaEl.innerHTML = stats.map(s => `
-                <div class="disease-item">
-                    <div class="disease-name">${s.tipo || 'Outros'}</div>
-                    <div class="bar-mini"><div class="bar-mini-fill" style="width:${(s.total / max * 100).toFixed(0)}%"></div></div>
-                    <div class="disease-count">${s.total}</div>
-                </div>`).join('');
-
-            } catch (e) { console.error(e); }
-        }
-
-        function badgeTipo(tipo) {
-            const map = {
-                'Doença Fúngica': ['badge-fungica', 'Fúngica'],
-                'Doença Bacteriana': ['badge-bacteriana', 'Bacteriana'],
-                'Virose': ['badge-red', 'Virose'],
-                'Praga de Inseto': ['badge-praga', 'Inseto'],
-                'Praga de Ácaro': ['badge-acaro', 'Ácaro'],
-                'Deficiência Nutricional': ['badge-defic', 'Def. Nutricional'],
-                'Saudável': ['badge-saudavel', 'Saudável'],
-                'Inconclusivo': ['badge-inconcl', 'Inconclusivo'],
-            };
-            const [cls, label] = map[tipo] || ['badge-inconcl', tipo || '—'];
-            return `<span class="badge ${cls}">${label}</span>`;
-        }
-
-        function chipGrav(g) {
-            const map = { alta: 'chip-alta', media: 'chip-media', baixa: 'chip-baixa' };
-            return `<span class="${map[g] || ''}">${g ? g.charAt(0).toUpperCase() + g.slice(1) : '—'}</span>`;
-        }
-
-        function fazerLogout() {
-            Auth.logout();
-        }
+/* ── DADOS ─────────────────────────────────────────────────── */
+const scansData = [
+    { d: "Seg", saudaveis: 124, alertas: 18 },
+    { d: "Ter", saudaveis: 142, alertas: 22 },
+    { d: "Qua", saudaveis: 138, alertas: 14 },
+    { d: "Qui", saudaveis: 165, alertas: 31 },
+    { d: "Sex", saudaveis: 178, alertas: 28 },
+    { d: "Sáb", saudaveis: 156, alertas: 19 },
+    { d: "Dom", saudaveis: 189, alertas: 24 },
+  ];
+  
+  const cultureData = [
+    { name: "Soja",    value: 42, hex: "#4a8c5c" },
+    { name: "Milho",   value: 28, hex: "#89c95a" },
+    { name: "Café",    value: 18, hex: "#c8b83a" },
+    { name: "Algodão", value: 12, hex: "#d4893a" },
+  ];
+  
+  const yieldData = [
+    { m: "Jan", v: 62 }, { m: "Fev", v: 68 }, { m: "Mar", v: 74 },
+    { m: "Abr", v: 71 }, { m: "Mai", v: 82 }, { m: "Jun", v: 88 },
+    { m: "Jul", v: 94 }, { m: "Ago", v: 91 }, { m: "Set", v: 97 },
+  ];
+  
+  const recentScans = [
+    { id: "AS-2841", talhao: "Talhão 12-A", cultura: "Soja",    problema: "Ferrugem asiática", severidade: "Alta",  confianca: 96 },
+    { id: "AS-2840", talhao: "Talhão 07-B", cultura: "Milho",   problema: "Saudável",           severidade: "—",     confianca: 99 },
+    { id: "AS-2839", talhao: "Talhão 03-C", cultura: "Café",    problema: "Bicho-mineiro",      severidade: "Média", confianca: 92 },
+    { id: "AS-2838", talhao: "Talhão 18-A", cultura: "Algodão", problema: "Deficiência N",      severidade: "Baixa", confianca: 88 },
+    { id: "AS-2837", talhao: "Talhão 22-D", cultura: "Soja",    problema: "Mancha alvo",        severidade: "Média", confianca: 94 },
+  ];
+  
+  /* ── HELPERS DE TEMA ───────────────────────────────────────── */
+  function isDark() {
+    return document.documentElement.classList.contains("dark");
+  }
+  
+  function getChartColors() {
+    return {
+      primary:      isDark() ? "#6db87a" : "#4a7c59",
+      chart4:       isDark() ? "#d4893a" : "#c47c2e",
+      gridLine:     isDark() ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)",
+      tick:         isDark() ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+      tooltip:      isDark() ? "#1c2e22" : "#ffffff",
+      tooltipBorder:isDark() ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)",
+      titleColor:   isDark() ? "#e8f5ea" : "#1a2e1e",
+      bodyColor:    isDark() ? "#9fbbaa" : "#4a6b53",
+    };
+  }
+  
+  /* ── POPULAR TABELA ────────────────────────────────────────── */
+  const badgeClass = {
+    Alta:  "badge-high",
+    Média: "badge-medium",
+    Baixa: "badge-low",
+    "—":   "badge-ok",
+  };
+  
+  function populateTable() {
+    const tbody = document.getElementById("scansTable");
+    tbody.innerHTML = "";
+    recentScans.forEach(s => {
+      tbody.innerHTML += `
+        <tr>
+          <td class="td-mono">${s.id}</td>
+          <td class="td-bold">${s.talhao}</td>
+          <td>${s.cultura}</td>
+          <td class="td-muted">${s.problema}</td>
+          <td><span class="badge ${badgeClass[s.severidade]}">${s.severidade}</span></td>
+          <td class="td-tabular">${s.confianca}%</td>
+        </tr>`;
+    });
+  }
+  
+  /* ── POPULAR LEGENDA DO PIE ────────────────────────────────── */
+  function populatePieLegend() {
+    const pieLegend = document.getElementById("pieLegend");
+    pieLegend.innerHTML = "";
+    cultureData.forEach(c => {
+      pieLegend.innerHTML += `
+        <li class="pie-legend-item">
+          <div class="pie-legend-item-left">
+            <span class="pie-legend-dot" style="background:${c.hex}"></span>
+            <span>${c.name}</span>
+          </div>
+          <span class="pie-legend-value">${c.value}%</span>
+        </li>`;
+    });
+  }
+  
+  /* ── GRÁFICOS ──────────────────────────────────────────────── */
+  let areaChart, pieChart, barChart;
+  
+  function buildCharts() {
+    const c = getChartColors();
+  
+    Chart.defaults.font.family = "'DM Sans', sans-serif";
+    Chart.defaults.font.size = 11;
+  
+    const tooltipDefaults = {
+      backgroundColor: c.tooltip,
+      borderColor: c.tooltipBorder,
+      borderWidth: 1,
+      titleColor: c.titleColor,
+      bodyColor: c.bodyColor,
+      padding: 10,
+      cornerRadius: 10,
+    };
+  
+    /* Gráfico de Área */
+    const aCtx = document.getElementById("areaChart").getContext("2d");
+    const gradSaud = aCtx.createLinearGradient(0, 0, 0, 260);
+    gradSaud.addColorStop(0, c.primary + "66");
+    gradSaud.addColorStop(1, c.primary + "00");
+    const gradAlert = aCtx.createLinearGradient(0, 0, 0, 260);
+    gradAlert.addColorStop(0, c.chart4 + "59");
+    gradAlert.addColorStop(1, c.chart4 + "00");
+  
+    areaChart = new Chart(aCtx, {
+      type: "line",
+      data: {
+        labels: scansData.map(d => d.d),
+        datasets: [
+          {
+            label: "Saudáveis",
+            data: scansData.map(d => d.saudaveis),
+            borderColor: c.primary,
+            backgroundColor: gradSaud,
+            borderWidth: 2,
+            fill: true,
+            tension: .4,
+            pointRadius: 3,
+            pointBackgroundColor: c.primary,
+          },
+          {
+            label: "Alertas",
+            data: scansData.map(d => d.alertas),
+            borderColor: c.chart4,
+            backgroundColor: gradAlert,
+            borderWidth: 2,
+            fill: true,
+            tension: .4,
+            pointRadius: 3,
+            pointBackgroundColor: c.chart4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: tooltipDefaults },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: c.tick }, border: { display: false } },
+          y: { grid: { color: c.gridLine }, ticks: { color: c.tick }, border: { display: false } },
+        },
+      },
+    });
+  
+    /* Gráfico de Pizza */
+    const pCtx = document.getElementById("pieChart").getContext("2d");
+    pieChart = new Chart(pCtx, {
+      type: "doughnut",
+      data: {
+        labels: cultureData.map(d => d.name),
+        datasets: [{
+          data: cultureData.map(d => d.value),
+          backgroundColor: cultureData.map(d => d.hex),
+          borderWidth: 0,
+          hoverOffset: 4,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "62%",
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            ...tooltipDefaults,
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` },
+          },
+        },
+      },
+    });
+  
+    /* Gráfico de Barras */
+    const bCtx = document.getElementById("barChart").getContext("2d");
+    barChart = new Chart(bCtx, {
+      type: "bar",
+      data: {
+        labels: yieldData.map(d => d.m),
+        datasets: [{
+          label: "sc/ha",
+          data: yieldData.map(d => d.v),
+          backgroundColor: c.primary,
+          borderRadius: 6,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: tooltipDefaults },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: c.tick }, border: { display: false } },
+          y: { grid: { color: c.gridLine }, ticks: { color: c.tick }, border: { display: false } },
+        },
+      },
+    });
+  }
+  
+  function destroyCharts() {
+    [areaChart, pieChart, barChart].forEach(c => c && c.destroy());
+  }
+  
+  /* ── TOGGLE DE TEMA ────────────────────────────────────────── */
+  function initTheme() {
+    const themeBtn = document.getElementById("themeBtn");
+    const sunIcon  = document.getElementById("sunIcon");
+    const moonIcon = document.getElementById("moonIcon");
+  
+    // Começa no modo escuro
+    sunIcon.style.display  = "block";
+    moonIcon.style.display = "none";
+  
+    themeBtn.addEventListener("click", () => {
+      const nowDark = document.documentElement.classList.toggle("dark");
+      sunIcon.style.display  = nowDark ? "block" : "none";
+      moonIcon.style.display = nowDark ? "none"  : "block";
+      destroyCharts();
+      buildCharts();
+    });
+  }
+  
+  /* ── SIDEBAR MOBILE ────────────────────────────────────────── */
+  function initSidebar() {
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+  
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("show");
+    });
+  
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    });
+  }
+  
+  /* ── INIT ──────────────────────────────────────────────────── */
+  document.addEventListener("DOMContentLoaded", () => {
+    populateTable();
+    populatePieLegend();
+    buildCharts();
+    initTheme();
+    initSidebar();
+  });
+  
