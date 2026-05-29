@@ -592,6 +592,36 @@
                     letter-spacing: 0.06em;
                 }
 
+                /*.mock-card-outer {
+                    background-image: linear-gradient(163deg, var(--c-accent) 0%, var(--c-green) 100%);
+                    border-radius: 20px;
+                    transition: box-shadow 0.3s;
+                }*/
+
+                .mock-card-outer:hover {
+                    box-shadow: 0px 0px 30px 1px rgba(79, 201, 122, 0.35);
+                }
+
+                .mock-card-outer:hover .mock-card {
+                    transform: scale(0.98);
+                    border-radius: 20px;
+                }
+
+                .mock-card-sm-outer {
+                    background-image: linear-gradient(163deg, var(--c-accent) 0%, var(--c-green) 100%);
+                    border-radius: 16px;
+                    transition: box-shadow 0.3s;
+                }
+
+                .mock-card-sm-outer:hover {
+                    box-shadow: 0px 0px 30px 1px rgba(79, 201, 122, 0.35);
+                }
+
+                .mock-card-sm-outer:hover .mock-card-sm {
+                    transform: scale(0.98);
+                    border-radius: 16px;
+                }
+
                 @media (max-width: 900px) {
                     .hero-inner {
                         grid-template-columns: 1fr;
@@ -1897,52 +1927,56 @@
             </div>
 
             <div class="hero-visual">
-                <div class="mock-card">
-                    <div class="mock-header">
-                        <div class="mock-icon"><img src="imagens/microscope.png" width="35"></div>
-                        <div class="mock-title-block">
-                            <div class="mock-title">Analisando Fruto...</div>
-                            <div class="mock-sub">Tomate · Variedade local</div>
+                <div class="mock-card-outer">
+                    <div class="mock-card">
+                        <div class="mock-header">
+                            <div class="mock-icon"><img src="imagens/microscope.png" width="35"></div>
+                            <div class="mock-title-block">
+                                <div class="mock-title">Analisando Fruto...</div>
+                                <div class="mock-sub">Tomate · Variedade local</div>
+                            </div>
+                            <div class="mock-status">
+                                <div class="status-dot"></div>
+                                ATIVO
+                            </div>
                         </div>
-                        <div class="mock-status">
-                            <div class="status-dot"></div>
-                            ATIVO
+                        <div class="mock-img"><img src="imagens/tomate-.png" width="250"></div>
+                        <div class="mock-bar-wrap">
+                            <div class="mock-bar-item">
+                                <span class="mock-bar-label">Míldio</span>
+                                <div class="mock-bar-track">
+                                    <div class="mock-bar-fill" style="width:91%"></div>
+                                </div>
+                                <span class="mock-bar-pct">91%</span>
+                            </div>
+                            <div class="mock-bar-item">
+                                <span class="mock-bar-label">Pinta-preta</span>
+                                <div class="mock-bar-track">
+                                    <div class="mock-bar-fill alt" style="width:30%"></div>
+                                </div>
+                                <span class="mock-bar-pct" style="color:rgba(255,255,255,0.3)">30%</span>
+                            </div>
+                            <div class="mock-bar-item">
+                                <span class="mock-bar-label">Ferrugem</span>
+                                <div class="mock-bar-track">
+                                    <div class="mock-bar-fill alt" style="width:9%"></div>
+                                </div>
+                                <span class="mock-bar-pct" style="color:rgba(255,255,255,0.3)">9%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="mock-img"><img src="imagens/tomate-.png" width="250"></div>
-                    <div class="mock-bar-wrap">
-                        <div class="mock-bar-item">
-                            <span class="mock-bar-label">Míldio</span>
-                            <div class="mock-bar-track">
-                                <div class="mock-bar-fill" style="width:91%"></div>
-                            </div>
-                            <span class="mock-bar-pct">91%</span>
-                        </div>
-                        <div class="mock-bar-item">
-                            <span class="mock-bar-label">Pinta-preta</span>
-                            <div class="mock-bar-track">
-                                <div class="mock-bar-fill alt" style="width:30%"></div>
-                            </div>
-                            <span class="mock-bar-pct" style="color:rgba(255,255,255,0.3)">30%</span>
-                        </div>
-                        <div class="mock-bar-item">
-                            <span class="mock-bar-label">Ferrugem</span>
-                            <div class="mock-bar-track">
-                                <div class="mock-bar-fill alt" style="width:9%"></div>
-                            </div>
-                            <span class="mock-bar-pct" style="color:rgba(255,255,255,0.3)">9%</span>
+                    </div>
+                <div class="mock-card-sm-outer">
+                    <div class="mock-card-sm">
+                        <div class="mock-card-sm-icon">🌿</div>
+                        <div class="mock-card-sm-text">
+                            <div class="mock-card-sm-title">Recomendação: Calda bordalesa</div>
+                            <div class="mock-card-sm-desc">Solução agroecológica · baixo custo · ingredientes locais</div>
                         </div>
                     </div>
-                </div>
-                <div class="mock-card-sm">
-                    <div class="mock-card-sm-icon">🌿</div>
-                    <div class="mock-card-sm-text">
-                        <div class="mock-card-sm-title">Recomendação: Calda bordalesa</div>
-                        <div class="mock-card-sm-desc">Solução agroecológica · baixo custo · ingredientes locais</div>
                     </div>
                 </div>
             </div>
-        </div>
     </section>
 
     <!-- ─── STATS STRIP ─── -->
