@@ -1,4 +1,4 @@
--- ═══════════════════════════════════════════════════════════════
+-- ══════════════════════════════════════════════════════════════
 -- AgroScan — Sistema Inteligente para Diagnóstico de Pragas e
 -- Doenças em Hortaliças
 -- Schema v2.0 — com suporte a JWT, auditoria e dados detalhados
