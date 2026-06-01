@@ -123,7 +123,7 @@ namespace AgroScan.Controllers
             };
 
             var (system, userText) = PromptService.MontarPromptDiagnostico(req);
-            return await ChamarGroq(system, userText, base64!, mime!, "diagnosticar",
+            return await ChamarGemini(system, userText, base64!, mime!, "diagnosticar",
                 UsuarioIdAtual, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "");
         }
 
@@ -146,7 +146,7 @@ namespace AgroScan.Controllers
             // ── IA REAL ─────────────────────────────────────────
             var (system, userText) = PromptService.MontarPromptDiagnostico(req);
 
-            return await ChamarGroq(
+            return await ChamarGemini(
                 system,
                 userText,
                 req.ImagemBase64,
@@ -172,7 +172,7 @@ namespace AgroScan.Controllers
 
             var req = new AnaliseRequest { ImagemBase64 = base64!, MimeType = mime!, RegiaoClima = regiaoClima };
             var (system, userText) = PromptService.MontarPromptIdentificacao(req);
-            return await ChamarGroq(system, userText, base64!, mime!, "identificar",
+            return await ChamarGemini(system, userText, base64!, mime!, "identificar",
                 UsuarioIdAtual, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "");
         }
 
@@ -185,7 +185,7 @@ namespace AgroScan.Controllers
                 return BadRequest(new { erro = "ImagemBase64 e obrigatorio." });
 
             var (system, userText) = PromptService.MontarPromptIdentificacao(req);
-            return await ChamarGroq(system, userText, req.ImagemBase64,
+            return await ChamarGemini(system, userText, req.ImagemBase64,
                 req.MimeType ?? "image/jpeg", "identificar",
                 UsuarioIdAtual, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "");
         }
@@ -390,72 +390,52 @@ namespace AgroScan.Controllers
             return (Convert.ToBase64String(ms.ToArray()), mime, null);
         }
 
-        /// <summary>
-        /// Chama a Groq Vision API.
-        ///
-        /// ATENÇÃO — serialização:
-        /// System.Text.Json NÃO serializa tipos anônimos corretamente quando
-        /// estão dentro de object[] inline no objeto raiz do Serialize().
-        /// O compilador infere o tipo como 'object' e o serializer só enxerga
-        /// as propriedades de 'object' (nenhuma), gerando {}.
-        ///
-        /// SOLUÇÃO: declarar as listas FORA do Serialize() com var (tipo real preservado)
-        /// e passar como variáveis — exatamente como o GroqController original fazia.
-        /// </summary>
-        private async Task<IActionResult> ChamarGroq(
-            string systemPrompt,
-            string userText,
-            string imagemBase64,
-            string mimeType,
-            string acao,
-            int usuarioId,
-            string ip)
+    
+        private async Task<IActionResult> ChamarGemini(
+    string systemPrompt,
+    string userText,
+    string imagemBase64,
+    string mimeType,
+    string acao,
+    int usuarioId,
+    string ip)
         {
-            var apiKey = _config["Groq:ApiKey"];
-            var model = _config["Groq:Model"] ?? "meta-llama/llama-4-scout-17b-16e-instruct";
+            var apiKey = _config["Gemini:ApiKey"];
+            var model = _config["Gemini:Model"] ?? "gemini-2.0-flash";
 
             if (string.IsNullOrWhiteSpace(apiKey))
-                return StatusCode(500, new { erro = "Groq:ApiKey nao configurada no appsettings.json." });
+                return StatusCode(500, new { erro = "Gemini:ApiKey nao configurada no appsettings.json." });
 
             try
             {
-                // Monta o content do user message como List<object>
-                // (CRÍTICO: var local preserva o tipo real para o serializer)
-                var userContent = new List<object>
-                {
-                    new
-                    {
-                        type      = "image_url",
-                        image_url = new { url = $"data:{mimeType};base64,{imagemBase64}" }
-                    },
-                    new
-                    {
-                        type = "text",
-                        text = userText
-                    }
-                };
+                var parts = new List<object>
+        {
+            new { text = userText },
+            new {
+                inline_data = new {
+                    mime_type = mimeType,
+                    data      = imagemBase64
+                }
+            }
+        };
 
-                // Monta a lista de messages como List<object>
-                var messages = new List<object>
-                {
-                    new { role = "system", content = systemPrompt },
-                    new { role = "user",   content = userContent  }
-                };
-
-                // Serializa com todas as listas já resolvidas como tipos concretos
                 var payload = JsonSerializer.Serialize(new
                 {
-                    model,
-                    max_tokens = 1500,
-                    temperature = 0.2,
-                    messages
+                    system_instruction = new { parts = new[] { new { text = systemPrompt } } },
+                    contents = new[]
+                    {
+                new { role = "user", parts }
+            },
+                    generationConfig = new
+                    {
+                        temperature = 0.2,
+                        maxOutputTokens = 1500
+                    }
                 });
 
-                using var httpReq = new HttpRequestMessage(
-                    HttpMethod.Post,
-                    "https://api.groq.com/openai/v1/chat/completions");
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
 
-                httpReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+                using var httpReq = new HttpRequestMessage(HttpMethod.Post, url);
                 httpReq.Content = new StringContent(payload, Encoding.UTF8, "application/json");
 
                 var resp = await _http.SendAsync(httpReq);
@@ -463,27 +443,26 @@ namespace AgroScan.Controllers
 
                 if (!resp.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Groq {Status}: {Body}", (int)resp.StatusCode, raw);
+                    _logger.LogError("Gemini {Status}: {Body}", (int)resp.StatusCode, raw);
                     return StatusCode((int)resp.StatusCode, new
                     {
-                        erro = $"Erro na API Groq (HTTP {(int)resp.StatusCode}).",
+                        erro = $"Erro na API Gemini (HTTP {(int)resp.StatusCode}).",
                         detalhe = raw
                     });
                 }
 
-                // Auditoria em background — parâmetros capturados, sem acesso ao HttpContext
-                var connStr = ConnStr;
-                _ = Task.Run(() => RegistrarAudit(acao, model, raw, usuarioId, ip, connStr));
+                _ = Task.Run(() => RegistrarAudit(acao, model, raw, usuarioId, ip, ConnStr));
 
                 using var doc = JsonDocument.Parse(raw);
                 var text = doc.RootElement
-                    .GetProperty("choices")[0]
-                    .GetProperty("message")
+                    .GetProperty("candidates")[0]
                     .GetProperty("content")
+                    .GetProperty("parts")[0]
+                    .GetProperty("text")
                     .GetString() ?? "{}";
 
-                // Remove markdown residual
                 text = text.Replace("```json", "").Replace("```", "").Trim();
+                text = PromptService.ExpandirAliases(text);
                 var start = text.IndexOf('{');
                 var end = text.LastIndexOf('}');
                 if (start >= 0 && end > start)
@@ -494,11 +473,11 @@ namespace AgroScan.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return StatusCode(503, new { erro = "Falha na comunicacao com a Groq.", detalhe = ex.Message });
+                return StatusCode(503, new { erro = "Falha na comunicacao com o Gemini.", detalhe = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro interno ao chamar Groq.");
+                _logger.LogError(ex, "Erro interno ao chamar Gemini.");
                 return StatusCode(500, new { erro = "Erro interno.", detalhe = ex.Message });
             }
         }
@@ -510,9 +489,9 @@ namespace AgroScan.Controllers
             {
                 int tokens = 0;
                 using var doc = JsonDocument.Parse(raw);
-                if (doc.RootElement.TryGetProperty("usage", out var usage) &&
-                    usage.TryGetProperty("total_tokens", out var t))
-                    tokens = t.GetInt32();
+                if (doc.RootElement.TryGetProperty("usageMetadata", out var usage) &&
+                usage.TryGetProperty("totalTokenCount", out var t))
+                tokens = t.GetInt32();
 
                 using var conn = new SqlConnection(connStr);
                 const string sql = @"

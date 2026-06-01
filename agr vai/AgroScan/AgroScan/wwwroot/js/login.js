@@ -180,4 +180,7 @@
         btn.classList.remove('loading'); btn.disabled = false;
       }
     }
- 
+
+window.switchTo = switchTo;
+window.fazerLogin = fazerLogin;
+window.cadastrar = cadastrar;
