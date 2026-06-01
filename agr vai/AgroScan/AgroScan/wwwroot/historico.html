@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Histórico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/historico.css" />
+    <script src="js/historico.js" defer></script>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">🥬</div><div class="logo-name">Agro<span>Scan</span></div></div>
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3M5 8h6M5 11h4" /></svg>Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>Histórico
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>Hortaliças
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>Dashboard
+        </a>
+        <div class="nav-item" onclick="Auth.logout()" style="cursor:pointer;">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>Sair
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div><div class="user-name" id="nomeUsuario">Produtor</div><div class="user-role">Produtor Rural</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">📋 Histórico de Diagnósticos</div>
+            <div class="topbar-actions">
+                <a href="diagnosticar.html" class="btn-primary">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3v10M3 8h10" /></svg>
+                    Novo diagnóstico
+                </a>
+            </div>
+        </div>
+
+        <div class="page-body">
+
+            <!-- FILTROS -->
+            <div class="filter-bar">
+                <label>Tipo:</label>
+                <select id="filtroTipo" onchange="carregarPagina(1)">
+                    <option value="">Todos</option>
+                    <option value="Doença Fúngica">Doença Fúngica</option>
+                    <option value="Doença Bacteriana">Doença Bacteriana</option>
+                    <option value="Virose">Virose</option>
+                    <option value="Praga de Inseto">Praga de Inseto</option>
+                    <option value="Praga de Ácaro">Praga de Ácaro</option>
+                    <option value="Deficiência Nutricional">Deficiência Nutricional</option>
+                    <option value="Saudável">Saudável</option>
+                </select>
+                <label>Gravidade:</label>
+                <select id="filtroGrav" onchange="carregarPagina(1)">
+                    <option value="">Todas</option>
+                    <option value="alta">Alta</option>
+                    <option value="media">Média</option>
+                    <option value="baixa">Baixa</option>
+                </select>
+            </div>
+
+            <!-- TABELA -->
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Doença / Praga</th>
+                            <th>Tipo</th>
+                            <th>Gravidade</th>
+                            <th>Risco Propagação</th>
+                            <th>Confiança</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>
+                        <tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;width:75%;"></div></td></tr>
+                        <tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;width:90%;"></div></td></tr>
+                    </tbody>
+                </table>
+                <div class="paginacao">
+                    <span id="paginfoText">Carregando...</span>
+                    <div class="pag-btns" id="paginacaoBtns"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL DETALHE -->
+    <div class="overlay" id="modalOverlay" onclick="fecharModal(event)">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Diagnóstico</div>
+                <button class="modal-close" onclick="fecharModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+</body>
+</html>

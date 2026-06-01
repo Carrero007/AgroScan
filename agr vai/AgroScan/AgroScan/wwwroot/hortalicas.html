@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Catálogo de Hortaliças</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/hortalicas.css" />
+    <script src="js/hortalicas.js" defer></script>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">🥬</div><div class="logo-name">Agro<span>Scan</span></div></div>
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3M5 8h6M5 11h4" /></svg>Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>Histórico
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>Hortaliças
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>Dashboard
+        </a>
+        <div class="nav-item" onclick="fazerLogout()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>Sair
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div><div class="user-name" id="nomeUsuario">Produtor</div><div class="user-role">Produtor Rural</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">📚 Catálogo de Hortaliças</div>
+        </div>
+
+        <div class="page-body">
+            <!-- FILTROS -->
+            <div class="filter-row">
+                <div class="search-wrap">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6.5" cy="6.5" r="4" /><path d="m11 11 3 3" /></svg>
+                    <input type="text" id="busca" placeholder="Buscar hortaliça..." oninput="filtrar()" />
+                </div>
+                <select class="filter-select" id="filtroCat" onchange="filtrar()">
+                    <option value="">Todas as categorias</option>
+                    <option value="folhosa">Folhosa</option>
+                    <option value="fruto">Fruto</option>
+                    <option value="raiz">Raiz</option>
+                    <option value="bulbo">Bulbo</option>
+                    <option value="legume">Legume</option>
+                    <option value="brassica">Brássica</option>
+                </select>
+            </div>
+
+            <!-- GRID -->
+            <div class="hortalicas-grid" id="grid">
+                <!-- skeletons -->
+                <div class="h-card" style="pointer-events:none">
+                    <div class="h-card-header"><div class="skeleton" style="width:44px;height:44px;border-radius:10px"></div><div><div class="skeleton" style="height:13px;width:100px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:70px"></div></div></div>
+                </div>
+                <div class="h-card" style="pointer-events:none">
+                    <div class="h-card-header"><div class="skeleton" style="width:44px;height:44px;border-radius:10px"></div><div><div class="skeleton" style="height:13px;width:110px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:80px"></div></div></div>
+                </div>
+                <div class="h-card" style="pointer-events:none">
+                    <div class="h-card-header"><div class="skeleton" style="width:44px;height:44px;border-radius:10px"></div><div><div class="skeleton" style="height:13px;width:90px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:60px"></div></div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL -->
+    <div class="overlay" id="overlay" onclick="fecharModal(event)">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <div class="modal-emoji" id="mEmoji">🌱</div>
+                <div>
+                    <div class="modal-nome" id="mNome">—</div>
+                    <div class="modal-cientifico" id="mCientifico">—</div>
+                </div>
+                <button class="modal-close" onclick="fecharModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Diagnosticar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="diagnosticar.css" />
+    <script src="js/diagnosticar.js" defer></script>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">🥬</div><div class="logo-name">Agro<span>Scan</span></div></div>
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3M5 8h6M5 11h4" /></svg>Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>Histórico
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>Hortaliças
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>Dashboard
+        </a>
+        <div class="nav-item" onclick="Auth.logout()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>Sair
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div><div class="user-name" id="nomeUsuario">Produtor</div><div class="user-role">Produtor Rural</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="topbar"><div class="topbar-title">🔬 Diagnosticar Hortaliça</div></div>
+
+        <div class="page-body">
+
+            <!-- COLUNA ESQUERDA: upload + contexto -->
+            <div class="upload-panel">
+
+                <!-- UPLOAD -->
+                <div class="card">
+                    <div class="card-header">📷 Foto da Hortaliça</div>
+                    <div class="card-body">
+                        <div class="upload-zone" id="uploadZone">
+                            <input type="file" id="inputImagem" accept="image/jpeg,image/png,image/webp" onchange="onImageSelecionada(event)">
+                            <div class="upload-icon">🖼️</div>
+                            <div class="upload-label">Clique ou arraste a foto aqui</div>
+                            <div class="upload-hint">JPG, PNG ou WEBP · máx. 10 MB</div>
+                        </div>
+                        <img id="previewImg" class="preview-img" alt="Preview">
+                    </div>
+                </div>
+
+                <!-- CONTEXTO -->
+                <div class="card">
+                    <div class="card-header">🌱 Contexto <span style="font-size:11px;font-weight:400;color:var(--text3);margin-left:4px;">melhora muito a precisão</span></div>
+                    <div class="card-body">
+
+                        <!-- Hortaliça -->
+                        <div class="field">
+                            <label>Qual hortaliça é?</label>
+                            <div class="ac-wrap">
+                                <input type="text" id="hortalicaNome" placeholder="Ex: tomate, alface, pimentão..."
+                                       autocomplete="off" oninput="onAcInput(this.value)" onblur="fecharAc()">
+                                <div class="ac-list" id="acList"></div>
+                            </div>
+                            <div class="chips-group" id="chipsHort">
+                                <div class="chip" onclick="chipHort(this)">🍅 Tomate</div>
+                                <div class="chip" onclick="chipHort(this)">🥬 Alface</div>
+                                <div class="chip" onclick="chipHort(this)">🫑 Pimentão</div>
+                                <div class="chip" onclick="chipHort(this)">🥒 Pepino</div>
+                                <div class="chip" onclick="chipHort(this)">🥕 Cenoura</div>
+                                <div class="chip" onclick="chipHort(this)">🧅 Cebola</div>
+                                <div class="chip" onclick="chipHort(this)">🥦 Brócolis</div>
+                                <div class="chip" onclick="chipHort(this)">🫘 Feijão-vagem</div>
+                            </div>
+                        </div>
+
+                        <!-- Estágio -->
+                        <div class="field">
+                            <label>Estágio da planta</label>
+                            <div class="chips-group" id="chipsEst">
+                                <div class="chip" onclick="chipEst(this,'')">❓ Não sei</div>
+                                <div class="chip" onclick="chipEst(this,'muda / transplante')">🌱 Muda</div>
+                                <div class="chip" onclick="chipEst(this,'crescimento vegetativo')">🌿 Crescimento</div>
+                                <div class="chip" onclick="chipEst(this,'floração')">🌸 Floração</div>
+                                <div class="chip" onclick="chipEst(this,'frutificação')">🍅 Frutificação</div>
+                                <div class="chip" onclick="chipEst(this,'maturação / colheita')">🌾 Colheita</div>
+                            </div>
+                        </div>
+
+                        <!-- Sintomas visíveis -->
+                        <div class="field">
+                            <label>O que você está vendo? <span style="font-weight:400">(pode marcar vários)</span></label>
+                            <div class="chips-group" id="chipsSint">
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🟡 Manchas amarelas</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">⚫ Manchas escuras</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">⬜ Pó branco</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">💧 Lesões úmidas/encharcadas</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🥀 Planta murchando</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🐛 Insetos visíveis</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🕸️ Teia fina</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🍎 Fruto apodrecendo</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🔴 Manchas marrons/avermelhadas</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🌀 Folhas deformadas/enroladas</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">🟫 Galhas ou verrugosidades</div>
+                                <div class="chip" onclick="chipToggle(this,sintomasSet)">📉 Folhas caindo</div>
+                            </div>
+                            <input type="text" id="sintomasExtra" placeholder="Descreva mais detalhes... (opcional)"
+                                   style="margin-top:8px;" oninput="atualizarQualidade()">
+                        </div>
+
+                        <!-- Clima recente -->
+                        <div class="field">
+                            <label>Clima das últimas semanas</label>
+                            <div class="chips-group" id="chipsClima">
+                                <div class="chip" onclick="chipToggle(this,climaSet)">🌧️ Muita chuva</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">☀️ Seca intensa</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">🌡️ Muito quente</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">❄️ Frio</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">🌫️ Muito úmido</div>
+                                <div class="chip" onclick="chipToggle(this,climaSet)">💨 Vento forte</div>
+                            </div>
+                        </div>
+
+                        <!-- Região e tratamentos -->
+                        <div class="field">
+                            <label>Região / Estado</label>
+                            <input type="text" id="regiaoClima" placeholder="Ex: SP, MG, Nordeste, cerrado..." oninput="atualizarQualidade()">
+                        </div>
+                        <div class="field" style="margin-bottom:0">
+                            <label>Já aplicou algum tratamento?</label>
+                            <input type="text" id="tratamentosAnteriores" placeholder="Ex: cobre há 3 dias, nenhum..." oninput="atualizarQualidade()">
+                        </div>
+
+                        <!-- Barra de qualidade do contexto -->
+                        <div class="ctx-bar-wrap">
+                            <span>Contexto:</span>
+                            <div class="ctx-track"><div class="ctx-fill" id="ctxFill" style="width:0%;background:var(--red)"></div></div>
+                            <span id="ctxLabel">Vazio</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- BOTÃO ANALISAR -->
+                <button class="btn-analisar" id="btnAnalisar" onclick="diagnosticar()" disabled>
+                    <div class="spinner-btn"></div>
+                    <span class="lbl">🔬 Analisar com IA</span>
+                </button>
+
+            </div>
+
+            <!-- COLUNA DIREITA: resultado -->
+            <div class="result-panel" id="resultPanel">
+                <div class="estado-vazio" id="estadoVazio">
+                    <div class="emoji">🥬</div>
+                    <h3>Pronto para diagnosticar</h3>
+                    <p>Selecione a foto da planta afetada e preencha o contexto para um diagnóstico mais preciso.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

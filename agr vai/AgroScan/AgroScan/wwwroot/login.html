@@ -1,145 +1,183 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroScan · Login</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="auth.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroScan · Acesso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="css/login.css">
+  <script src = "js/login.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+ 
 </head>
-<body class="page-login">
+<body class="state-login">
 
-    <div id="app">
+  <!-- VÍDEO FULLSCREEN — plano de fundo sutil -->
+  <div id="vbg">
+    <video id="bgv" autoplay muted loop playsinline preload="auto">
+      <source src="Design sem nome (4).mp4" type="video/mp4">
+    </video>
+  </div>
 
-        <!-- ═══════════════════════════════════════
-             CÍRCULO — fica à DIREITA no login
-        ═══════════════════════════════════════ -->
-        <div id="circle-panel">
-            <div class="circle-ring"></div>
-            <div id="circle-content">
-                <span class="circle-eyebrow">AgroScan · Plataforma</span>
-                <h2 class="circle-headline">Inteligência<br>para o <em>campo</em></h2>
-                <p class="circle-desc">Monitore suas lavouras, registre ocorrências e tome decisões baseadas em dados — de onde você estiver.</p>
-                <div class="circle-pills">
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2C5.2 2 3 4.2 3 7c0 4 5 9 5 9s5-5 5-9c0-2.8-2.2-5-5-5z" /></svg>
-                        Geolocalização
-                    </span>
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12l4-4 3 3 5-6" /></svg>
-                        Monitoramento
-                    </span>
-                    <span class="circle-pill">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="2" width="10" height="12" rx="1.5" /><path d="M5 6h6M5 9h4" /></svg>
-                        Relatórios
-                    </span>
-                </div>
+  <!-- CAMADAS ATMOSFÉRICAS -->
+  <div class="vignette"></div>
+  <div class="grain"></div>
+  <div class="scan"></div>
+  <div class="particles" id="pts"></div>
+
+  <!-- HUD decorativo -->
+  <div class="hud" aria-hidden="true">
+    <div class="hud-line-h" style="top:50%"></div>
+    <div class="hud-line-v" style="left:50%"></div>
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner tr"></div>
+    <div class="hud-corner bl"></div>
+    <div class="hud-corner br"></div>
+  </div>
+
+  <!-- FORM SHELL -->
+  <div id="shell">
+    <div id="form-wrap">
+      <div class="fcard" id="fcard">
+
+        <!-- LOGIN -->
+        <div class="fview" id="view-login">
+          <div class="brand">
+            <div class="bmark">🥬</div>
+            <div class="bname">Agro<em>Scan</em></div>
+          </div>
+          <h2 class="title">Bem-vindo <em>de volta</em></h2>
+          <p class="subtitle">Entre com sua conta para diagnosticar</p>
+          <div id="alLogin" class="alert"></div>
+          <div class="field">
+            <label>CPF</label>
+            <div class="iw">
+              <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 6.5h12"/></svg>
+              <input type="text" id="loginCpf" placeholder="000.000.000-00" maxlength="14" autocomplete="username"/>
+              <div class="fl"></div>
             </div>
+          </div>
+          <div class="field">
+            <label>Senha</label>
+            <div class="iw">
+              <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="7" width="8" height="7" rx="1"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+              <input type="password" id="loginSenha" placeholder="••••••••" autocomplete="current-password"/>
+              <div class="fl"></div>
+            </div>
+          </div>
+          <button class="btn" id="btnLogin" onclick="fazerLogin()">
+            <div class="spin"></div>
+            <span class="blbl">Entrar na plataforma</span>
+            <svg class="barr" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+          <div class="lrow">Não tem conta? <a onclick="switchTo('cadastro')">Criar conta grátis</a></div>
         </div>
 
-        <!-- ═══════════════════════════════════════
-             FORMULÁRIO — fica à ESQUERDA no login
-        ═══════════════════════════════════════ -->
-        <div class="form-panel" id="formPanel">
-            <div class="form-wrap">
-
-                <div class="brand">
-                    <div class="brand-mark">🌿</div>
-                    <span class="brand-name">Agro<strong>Scan</strong></span>
-                </div>
-
-                <h1 class="form-title">Bem-vindo</h1>
-                <p class="form-sub">Entre com sua conta para continuar</p>
-
-                <div class="field">
-                    <label>
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6h12" /></svg>
-                        CPF
-                    </label>
-                    <div class="input-wrap">
-                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6h12" /></svg>
-                        <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" autocomplete="off" />
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label>
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
-                        Senha
-                    </label>
-                    <div class="input-wrap">
-                        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
-                        <input type="password" id="senha" placeholder="••••••••" />
-                    </div>
-                </div>
-
-                <button class="btn-main" onclick="login()">
-                    Entrar
-                    <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
-                </button>
-
-                <p class="switch-link">
-                    Não tem conta? <a href="cadastro.html" id="linkCadastro">Cadastre-se</a>
-                </p>
-
+        <!-- CADASTRO -->
+        <div class="fview" id="view-cadastro">
+          <div class="brand">
+            <div class="bmark">🥬</div>
+            <div class="bname">Agro<em>Scan</em></div>
+          </div>
+          <h2 class="title">Criar <em>conta</em></h2>
+          <p class="subtitle">Comece a diagnosticar suas hortaliças hoje</p>
+          <div id="alCad" class="alert"></div>
+          <div class="field">
+            <label>Nome completo</label>
+            <div class="iw">
+              <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="5" r="2.8"/><path d="M2.5 14c0-3.1 2.5-5.5 5.5-5.5s5.5 2.4 5.5 5.5"/></svg>
+              <input type="text" id="cadNome" placeholder="Seu nome completo" autocomplete="name"/>
+              <div class="fl"></div>
             </div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>CPF</label><div class="iw">
+              <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 6.5h12"/></svg>
+              <input type="text" id="cadCpf" placeholder="000.000.000-00" maxlength="14"/><div class="fl"></div></div></div>
+            <div class="field"><label>Senha</label><div class="iw">
+              <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="7" width="8" height="7" rx="1"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+              <input type="password" id="cadSenha" placeholder="Mín. 6 caracteres"/><div class="fl"></div></div></div>
+          </div>
+          <div class="divider">Propriedade <span class="opt-label">Opcional</span></div>
+          <div class="row2">
+            <div class="field"><label>Tipo de produtor</label><div class="iw">
+              <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13V7l5-5 5 5v6"/><rect x="6" y="9" width="4" height="4"/></svg>
+              <select id="cadTipo"><option value="">Selecione</option><option value="familiar">Agricultura familiar</option><option value="comercial">Comercial</option><option value="cooperativa">Cooperativa</option><option value="organico">Orgânico certificado</option></select>
+              <div class="fl"></div></div></div>
+            <div class="field"><label>Área (ha)</label><div class="iw">
+              <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M2 8h12M8 2v12"/></svg>
+              <input type="number" id="cadArea" placeholder="0.5" step="0.1" min="0"/><div class="fl"></div></div></div>
+          </div>
+          <div class="field">
+            <label>WhatsApp <span class="opt-label">Opcional</span></label>
+            <div class="iw">
+              <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 10.5c0 .3-.1.6-.2.9-.1.3-.4.7-.7.9-.5.4-1 .6-1.6.6-1.1 0-2.1-.5-3.3-1.7L5.8 9.8C4.6 8.6 4.1 7.6 4.1 6.5c0-.6.2-1.1.6-1.6.2-.3.6-.6.9-.7.3-.1.6-.2.9-.2.2 0 .4.1.4.1L8.4 6c.1.2.1.4.1.5 0 .2-.1.4-.2.5l-.5.5c-.2.2-.2.4 0 .6l1.1 1.1c.2.2.4.2.6 0l.5-.5c.2-.2.4-.2.6-.2.2 0 .3 0 .5.1l1.9.9c.1.1.1.2.1.4z"/></svg>
+              <input type="tel" id="cadWhats" placeholder="(11) 99999-9999" maxlength="15"/>
+              <div class="fl"></div>
+            </div>
+          </div>
+          <button class="btn" id="btnCad" onclick="cadastrar()">
+            <div class="spin"></div>
+            <span class="blbl">Criar minha conta</span>
+            <svg class="barr" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+          <div class="lrow">Já tem conta? <a onclick="switchTo('login')">Entrar</a></div>
         </div>
 
-    </div><!-- /#app -->
+      </div>
+    </div>
+  </div>
 
-    <script>
-        /* ── CPF mask ── */
-        document.getElementById('cpf').addEventListener('input', function () {
-            let v = this.value.replace(/\D/g, '').slice(0, 11);
-            if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
-            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
-            else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,3})/, '$1.$2');
-            this.value = v;
-        });
+  <!-- PAINEL DESLIZANTE -->
+  <div id="panel" class="state-left">
+    <!-- slide login -->
+    <div class="pslide" id="ps-login">
+      <div class="badge"><div class="bdot"></div>IA Agronômica</div>
+      <div class="prule"></div>
+      <h1><strong>Diagnóstico</strong><br>inteligente para<br>suas <em>hortaliças</em></h1>
+      <p class="psub">Identifique pragas e doenças em segundos com IA especializada em cultivo. Tratamentos precisos, diretamente no campo.</p>
+      <div class="features">
+        <div class="feat"><div class="ficon">🔬</div>Diagnóstico visual com 90%+ de precisão</div>
+        <div class="feat"><div class="ficon">🌱</div>Tratamentos ecológicos e convencionais</div>
+        <div class="feat"><div class="ficon">📊</div>Histórico e estatísticas da sua lavoura</div>
+      </div>
+    </div>
+    <!-- slide cadastro -->
+    <div class="pslide hidden" id="ps-cad">
+      <div class="badge"><div class="bdot"></div>Criar conta grátis</div>
+      <div class="prule"></div>
+      <h1>Cuide melhor<br>das suas <em>hortaliças</em></h1>
+      <p class="psub">3 passos para começar a diagnosticar com IA agronômica de precisão</p>
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="scont"><h3>Crie sua conta</h3><p>Cadastro rápido com CPF. Dados protegidos com criptografia de ponta.</p></div></div>
+        <div class="step"><div class="snum">2</div><div class="scont"><h3>Fotografe a hortaliça</h3><p>Foto da folha, caule ou fruto afetado. Quanto mais nítida, mais preciso.</p></div></div>
+        <div class="step"><div class="snum">3</div><div class="scont"><h3>Receba o diagnóstico</h3><p>Nossa IA identifica a praga e indica o tratamento com urgência de ação.</p></div></div>
+      </div>
+    </div>
+    <!-- data readout -->
+    <div class="dreadout">
+      <div class="ri"><div class="rl">Sistema</div><div class="rv">v2.4.1</div></div>
+      <div class="rs"></div>
+      <div class="ri"><div class="rl">Precisão</div><div class="rv">94.7%</div></div>
+      <div class="rs"></div>
+      <div class="ri"><div class="rl">Culturas</div><div class="rv">148</div></div>
+    </div>
+  </div>
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const from = sessionStorage.getItem('agro-from');
-            sessionStorage.removeItem('agro-from');
-            const form = document.getElementById('formPanel');
+  <!-- TICKER BAR (novo) -->
+  <div class="ticker-bar" aria-hidden="true">
+    <div class="ticker-item ticker-live">
+      <div class="ticker-dot"></div>
+      Sistema operacional
+    </div>
+    <div class="ticker-sep"></div>
+    <div class="ticker-item">Modelos atualizados</div>
+    <div class="ticker-sep"></div>
+    <div class="ticker-item">+12.400 diagnósticos realizados</div>
+    <div class="ticker-sep"></div>
+    <div class="ticker-item">Cobertura em 23 estados</div>
+  </div>
 
-            if (from === 'cadastro') {
-                form.classList.add('form-enter-left');
-            } else {
-                form.classList.add('form-enter-right');
-            }
-
-            document.getElementById('circle-content').classList.add('circle-content-reveal');
-        });
-
-        document.getElementById('linkCadastro').addEventListener('click', function (e) {
-            e.preventDefault();
-            sessionStorage.setItem('agro-from', 'login');
-            const form = document.getElementById('formPanel');
-            form.classList.add('form-exit-left');
-            setTimeout(() => { window.location.href = 'cadastro.html'; }, 420);
-        });
-
-        /* ── Login API ── */
-        function login() {
-            const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
-            const senha = document.getElementById('senha').value;
-            if (cpf.length !== 11) { alert('CPF inválido.'); return; }
-            if (!senha) { alert('Informe a senha.'); return; }
-            fetch('https://localhost:7238/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ CPF: cpf, Senha: senha })
-            })
-                .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-                .then(d => {
-                    localStorage.setItem('authenticated', 'true');
-                    localStorage.setItem('userNome', d.nome || 'Usuário');
-                    window.location.href = 'dashboard.html';
-                })
-                .catch(() => alert('CPF ou senha incorretos.'));
-        }
-
-        document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-    </script>
+  
 </body>
 </html>

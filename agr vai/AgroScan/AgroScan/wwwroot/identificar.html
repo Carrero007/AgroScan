@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Identificar Hortaliça</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/identificar.css" />
+    <script src="js/identificar.js" defer></script>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">🥬</div><div class="logo-name">Agro<span>Scan</span></div></div>
+        <div class="nav-section">Diagnóstico</div>
+        <a href="diagnosticar.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 2" /></svg>Diagnosticar
+        </a>
+        <a href="identificar.html" class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5l-3-3z" /><path d="M10 2v3h3M5 8h6M5 11h4" /></svg>Identificar Hortaliça
+        </a>
+        <a href="historico.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2h10v12H3z" /><path d="M5 5h6M5 8h6M5 11h3" /></svg>Histórico
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Catálogo</div>
+        <a href="hortalicas.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2C5 2 3 5 3 8s2 3 5 3 5-1 5-4-2-5-5-5z" /><path d="M8 8v6" /></svg>Hortaliças
+        </a>
+        <div class="nav-section" style="margin-top:8px;">Conta</div>
+        <a href="dashboard.html" class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>Dashboard
+        </a>
+        <div class="nav-item" onclick="Auth.logout()" style="cursor:pointer;">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M6 8h7" /></svg>Sair
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="avatarLetra">P</div>
+                <div><div class="user-name" id="nomeUsuario">Produtor</div><div class="user-role">Produtor Rural</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">🌿 Identificar Hortaliça</div>
+        </div>
+
+        <div class="page-body">
+
+            <!-- ESQUERDA: UPLOAD -->
+            <div class="upload-panel">
+                <div class="card">
+                    <div class="card-header">📷 Foto da hortaliça</div>
+                    <div class="card-body">
+                        <div class="upload-zone" id="uploadZone">
+                            <input type="file" id="inputImagem" accept="image/jpeg,image/png,image/webp" onchange="onImageSelecionada(event)" />
+                            <div class="upload-icon">🌱</div>
+                            <div class="upload-label">Clique ou arraste a foto</div>
+                            <div class="upload-hint">JPG, PNG, WEBP · máx. 10 MB</div>
+                        </div>
+                        <img id="previewImg" class="preview-img" alt="Preview" />
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">📍 Contexto (opcional)</div>
+                    <div class="card-body">
+                        <div class="field">
+                            <label>Região / Clima</label>
+                            <input type="text" id="regiaoClima" placeholder="Ex: nordeste, sul, cerrado..." />
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-ident" id="btnIdent" onclick="identificar()" disabled>
+                    <div class="spinner-btn"></div>
+                    <span class="lbl">🔍 Identificar com IA</span>
+                </button>
+            </div>
+
+            <!-- DIREITA: RESULTADO -->
+            <div class="result-panel" id="resultPanel">
+                <div class="estado-vazio">
+                    <div class="emoji">🌿</div>
+                    <h3>Identifique uma hortaliça</h3>
+                    <p>Envie uma foto clara da planta para receber nome científico, família, ciclo, dicas de cultivo e muito mais.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>
