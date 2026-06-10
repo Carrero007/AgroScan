@@ -853,34 +853,34 @@ VALUES
 INSERT INTO DiagnosticosDemo
 (NomeArquivo, DiagnosticoId)
 VALUES
-(N'tomate_requeima', 2),
-(N'tomate_traca', 3),
+(N'tomate_requeima', 1),
+(N'tomate_traca', 2),
 
-(N'batata_requeima', 4),
-(N'batata_nematoide', 5),
+(N'batata_requeima', 3),
+(N'batata_nematoide', 4),
 
-(N'cebola_mildio', 6),
-(N'cebola_tripes', 7),
+(N'cebola_mildio', 5),
+(N'cebola_tripes', 6),
 
-(N'cenoura_podridao', 8),
-(N'cenoura_mosca', 9),
+(N'cenoura_podridao', 7),
+(N'cenoura_mosca', 8),
 
-(N'alface_mildio', 10),
-(N'alface_pulgao', 11),
+(N'alface_mildio', 9),
+(N'alface_pulgao', 10),
 
-(N'mandioca_bacteriose', 12),
-(N'mandioca_mandarova', 13),
+(N'mandioca_bacteriose', 11),
+(N'mandioca_mandarova', 12),
 
-(N'abobora_oidio', 14),
-(N'abobora_moscabranca', 15),
+(N'abobora_oidio', 13),
+(N'abobora_moscabranca', 14),
 
-(N'batatadoce_fusariose', 16),
-(N'batatadoce_broca', 17),
+(N'batatadoce_fusariose', 15),
+(N'batatadoce_broca', 16),
 
-(N'repolho_hernia', 18),
-(N'repolho_lagarta', 19),
+(N'repolho_hernia', 17),
+(N'repolho_lagarta', 18),
 
-(N'pimentao_murcha', 20),
-(N'pimentao_tripes', 21);
+(N'pimentao_murcha', 19),
+(N'pimentao_tripes', 20);
 
 
