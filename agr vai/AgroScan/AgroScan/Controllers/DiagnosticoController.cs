@@ -340,6 +340,193 @@ namespace AgroScan.Controllers
             }
         }
 
+
+        // ── Dashboard (visão geral) ────────────────────────────────
+
+        [HttpGet("dashboard")]
+        public IActionResult Dashboard()
+        {
+            try
+            {
+                using var conn = new SqlConnection(ConnStr);
+                conn.Open();
+
+                int diagnosticosHoje = 0, diagnosticosOntem = 0;
+                int totalUltimos30 = 0, totalBaixaUltimos30 = 0;
+                int alertasAtivos30d = 0, alertasCriticos7d = 0;
+                double confiancaMedia30d = 0, confiancaMediaAnterior30d = 0;
+
+                const string sqlKpis = @"
+            SELECT
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND CAST(DataDiagnostico AS DATE) = CAST(GETDATE() AS DATE)) AS Hoje,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND CAST(DataDiagnostico AS DATE) = CAST(DATEADD(DAY,-1,GETDATE()) AS DATE)) AS Ontem,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE())) AS Total30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE()) AND Gravidade='baixa') AS Baixa30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE()) AND Gravidade='alta') AS Alertas30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-7,GETDATE()) AND GravidadeNivel >= 8) AS Criticos7,
+              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE())) AS ConfMedia30,
+              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-60,GETDATE()) AND DataDiagnostico < DATEADD(DAY,-30,GETDATE())) AS ConfMediaAnt";
+
+                using (var cmd = new SqlCommand(sqlKpis, conn))
+                {
+                    cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+                    using var r = cmd.ExecuteReader();
+                    if (r.Read())
+                    {
+                        diagnosticosHoje = r["Hoje"] == DBNull.Value ? 0 : (int)r["Hoje"];
+                        diagnosticosOntem = r["Ontem"] == DBNull.Value ? 0 : (int)r["Ontem"];
+                        totalUltimos30 = r["Total30"] == DBNull.Value ? 0 : (int)r["Total30"];
+                        totalBaixaUltimos30 = r["Baixa30"] == DBNull.Value ? 0 : (int)r["Baixa30"];
+                        alertasAtivos30d = r["Alertas30"] == DBNull.Value ? 0 : (int)r["Alertas30"];
+                        alertasCriticos7d = r["Criticos7"] == DBNull.Value ? 0 : (int)r["Criticos7"];
+                        confiancaMedia30d = r["ConfMedia30"] == DBNull.Value ? 0 : (double)r["ConfMedia30"];
+                        confiancaMediaAnterior30d = r["ConfMediaAnt"] == DBNull.Value ? 0 : (double)r["ConfMediaAnt"];
+                    }
+                }
+
+                double VarPct(double atual, double anterior) =>
+                    anterior == 0 ? 0 : Math.Round(((atual - anterior) / anterior) * 100, 1);
+
+                var kpis = new
+                {
+                    diagnosticosHoje,
+                    diagnosticosHojeVariacaoPct = VarPct(diagnosticosHoje, diagnosticosOntem),
+                    percentualSaudavel = totalUltimos30 == 0 ? 0 : Math.Round((double)totalBaixaUltimos30 / totalUltimos30 * 100, 1),
+                    totalUltimos30,
+                    alertasAtivos30d,
+                    alertasCriticos7d,
+                    confiancaMedia = Math.Round(confiancaMedia30d, 1),
+                    confiancaMediaVariacaoPct = VarPct(confiancaMedia30d, confiancaMediaAnterior30d)
+                };
+
+                // Série semanal (últimos 7 dias)
+                var semanal = new List<object>();
+                const string sqlSemana = @"
+            SELECT CAST(DataDiagnostico AS DATE) AS Dia,
+                   SUM(CASE WHEN Gravidade = 'baixa' THEN 1 ELSE 0 END) AS Saudaveis,
+                   SUM(CASE WHEN Gravidade IN ('media','alta') THEN 1 ELSE 0 END) AS Alertas
+            FROM Diagnosticos
+            WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-6,CAST(GETDATE() AS DATE))
+            GROUP BY CAST(DataDiagnostico AS DATE)
+            ORDER BY Dia";
+                using (var cmd = new SqlCommand(sqlSemana, conn))
+                {
+                    cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+                    using var r = cmd.ExecuteReader();
+                    while (r.Read())
+                        semanal.Add(new
+                        {
+                            dia = ((DateTime)r["Dia"]).ToString("yyyy-MM-dd"),
+                            saudaveis = (int)r["Saudaveis"],
+                            alertas = (int)r["Alertas"]
+                        });
+                }
+
+                // Distribuição por cultura
+                var distribuicao = new List<object>();
+                const string sqlCultura = @"
+            SELECT ISNULL(h.NomePopular, 'Não identificado') AS Cultura, COUNT(*) AS Total
+            FROM Diagnosticos d
+            LEFT JOIN Hortalicas h ON h.HortalicaId = d.HortalicaId
+            WHERE d.UsuarioId=@uid
+            GROUP BY h.NomePopular
+            ORDER BY Total DESC";
+                using (var cmd = new SqlCommand(sqlCultura, conn))
+                {
+                    cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+                    using var r = cmd.ExecuteReader();
+                    var temp = new List<(string cultura, int total)>();
+                    int totalGeral = 0;
+                    while (r.Read())
+                    {
+                        var c = r["Cultura"].ToString()!;
+                        var t = (int)r["Total"];
+                        temp.Add((c, t));
+                        totalGeral += t;
+                    }
+                    foreach (var (cultura, total) in temp)
+                        distribuicao.Add(new
+                        {
+                            cultura,
+                            total,
+                            percentual = totalGeral == 0 ? 0 : Math.Round((double)total / totalGeral * 100, 1)
+                        });
+                }
+
+                // Diagnósticos recentes (tabela)
+                var recentes = new List<object>();
+                const string sqlRecentes = @"
+            SELECT TOP 8 d.DiagnosticoId, ISNULL(h.NomePopular,'—') AS Cultura,
+                   d.NomeDoenca, d.Gravidade, d.Confianca, d.DataDiagnostico
+            FROM Diagnosticos d
+            LEFT JOIN Hortalicas h ON h.HortalicaId = d.HortalicaId
+            WHERE d.UsuarioId=@uid
+            ORDER BY d.DataDiagnostico DESC";
+                using (var cmd = new SqlCommand(sqlRecentes, conn))
+                {
+                    cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+                    using var r = cmd.ExecuteReader();
+                    while (r.Read())
+                        recentes.Add(new
+                        {
+                            id = (int)r["DiagnosticoId"],
+                            cultura = r["Cultura"].ToString(),
+                            diagnostico = r["NomeDoenca"] == DBNull.Value ? "—" : r["NomeDoenca"].ToString(),
+                            severidade = r["Gravidade"] == DBNull.Value ? "—" : r["Gravidade"].ToString(),
+                            confianca = r["Confianca"] == DBNull.Value ? 0 : (int)r["Confianca"],
+                            data = ((DateTime)r["DataDiagnostico"]).ToString("dd/MM/yyyy HH:mm")
+                        });
+                }
+
+                // Alertas críticos (top 3, gravidade alta)
+                var alertasCriticos = new List<object>();
+                const string sqlAlertas = @"
+            SELECT TOP 3 d.NomeDoenca, ISNULL(h.NomePopular,'Cultura não identificada') AS Cultura, d.GravidadeNivel
+            FROM Diagnosticos d
+            LEFT JOIN Hortalicas h ON h.HortalicaId = d.HortalicaId
+            WHERE d.UsuarioId=@uid AND d.Gravidade='alta'
+            ORDER BY d.DataDiagnostico DESC";
+                using (var cmd = new SqlCommand(sqlAlertas, conn))
+                {
+                    cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+                    using var r = cmd.ExecuteReader();
+                    while (r.Read())
+                        alertasCriticos.Add(new
+                        {
+                            titulo = r["NomeDoenca"] == DBNull.Value ? "Alerta" : r["NomeDoenca"].ToString(),
+                            subtitulo = r["Cultura"].ToString(),
+                            nivel = r["GravidadeNivel"] == DBNull.Value ? 0 : (int)r["GravidadeNivel"]
+                        });
+                }
+
+                // Distribuição por severidade (gráfico de barras inferior)
+                var severidade = new List<object>();
+                const string sqlSeveridade = @"
+            SELECT ISNULL(Gravidade,'não definida') AS Gravidade, COUNT(*) AS Total
+            FROM Diagnosticos
+            WHERE UsuarioId=@uid
+            GROUP BY Gravidade";
+                using (var cmd = new SqlCommand(sqlSeveridade, conn))
+                {
+                    cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+                    using var r = cmd.ExecuteReader();
+                    while (r.Read())
+                        severidade.Add(new
+                        {
+                            nivel = r["Gravidade"].ToString(),
+                            total = (int)r["Total"]
+                        });
+                }
+
+                return Ok(new { kpis, semanal, distribuicao, recentes, alertasCriticos, severidade });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao montar dashboard.");
+                return StatusCode(500, new { erro = "Erro ao montar dashboard.", detalhe = ex.Message });
+            }
+        }
+
         // ── Estatísticas ──────────────────────────────────────────
 
         [HttpGet("estatisticas")]
@@ -390,7 +577,7 @@ namespace AgroScan.Controllers
             return (Convert.ToBase64String(ms.ToArray()), mime, null);
         }
 
-    
+
         private async Task<IActionResult> ChamarGemini(
     string systemPrompt,
     string userText,
@@ -435,19 +622,54 @@ namespace AgroScan.Controllers
 
                 var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
 
-                using var httpReq = new HttpRequestMessage(HttpMethod.Post, url);
-                httpReq.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                // ── Retry com backoff exponencial para erros transitórios ──
+                // 503 (UNAVAILABLE / alta demanda) e 429 (RESOURCE_EXHAUSTED)
+                // costumam se resolver sozinhos em poucos segundos.
+                const int maxTentativas = 3;
+                var delays = new[] { 1000, 2000, 4000 }; // ms
 
-                var resp = await _http.SendAsync(httpReq);
-                var raw = await resp.Content.ReadAsStringAsync();
+                HttpResponseMessage resp = null!;
+                string raw = "";
+
+                for (int tentativa = 1; tentativa <= maxTentativas; tentativa++)
+                {
+                    using var httpReq = new HttpRequestMessage(HttpMethod.Post, url);
+                    httpReq.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+
+                    resp = await _http.SendAsync(httpReq);
+                    raw = await resp.Content.ReadAsStringAsync();
+
+                    bool transitorio = resp.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
+                        || resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests
+                        || (int)resp.StatusCode >= 500;
+
+                    if (resp.IsSuccessStatusCode || !transitorio)
+                        break;
+
+                    _logger.LogWarning(
+                        "Gemini indisponivel (tentativa {Tentativa}/{Max}, HTTP {Status}). Tentando novamente em {Delay}ms.",
+                        tentativa, maxTentativas, (int)resp.StatusCode, delays[tentativa - 1]);
+
+                    if (tentativa < maxTentativas)
+                        await Task.Delay(delays[tentativa - 1]);
+                }
 
                 if (!resp.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Gemini {Status}: {Body}", (int)resp.StatusCode, raw);
+                    _logger.LogError("Gemini {Status} apos {Tentativas} tentativas: {Body}", (int)resp.StatusCode, maxTentativas, raw);
+
+                    bool eraTransitorio = resp.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
+                        || resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests;
+
+                    var msgAmigavel = eraTransitorio
+                        ? "O serviço de IA está sobrecarregado no momento. Já tentamos algumas vezes automaticamente, mas ainda assim não conseguimos. Aguarde alguns instantes e tente novamente."
+                        : $"Erro na API Gemini (HTTP {(int)resp.StatusCode}).";
+
                     return StatusCode((int)resp.StatusCode, new
                     {
-                        erro = $"Erro na API Gemini (HTTP {(int)resp.StatusCode}).",
-                        detalhe = raw
+                        erro = msgAmigavel,
+                        detalhe = raw,
+                        transitorio = eraTransitorio
                     });
                 }
 
@@ -491,7 +713,7 @@ namespace AgroScan.Controllers
                 using var doc = JsonDocument.Parse(raw);
                 if (doc.RootElement.TryGetProperty("usageMetadata", out var usage) &&
                 usage.TryGetProperty("totalTokenCount", out var t))
-                tokens = t.GetInt32();
+                    tokens = t.GetInt32();
 
                 using var conn = new SqlConnection(connStr);
                 const string sql = @"

@@ -175,15 +175,12 @@
             <div class="kpi-icon">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
             </div>
-            <span class="kpi-badge up">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7v10"/></svg>
-              +12.4%
-            </span>
+            <span class="kpi-badge" id="kpiDiagnosticosBadge"></span>
           </div>
           <div class="kpi-body">
-            <p class="kpi-label">Diagnósticos hoje</p>
-            <p class="kpi-value">1.284</p>
-            <p class="kpi-hint">vs. semana anterior</p>
+              <p class="kpi-label">Diagnósticos hoje</p>
+              <p class="kpi-value" id="kpiDiagnosticosHoje">—</p>
+              <p class="kpi-hint">vs. ontem</p>
           </div>
         </div>
       </div>
@@ -200,9 +197,9 @@
             </span>
           </div>
           <div class="kpi-body">
-            <p class="kpi-label">Talhões saudáveis</p>
-            <p class="kpi-value">87%</p>
-            <p class="kpi-hint">156 de 179 talhões</p>
+              <p class="kpi-label">Diagnósticos de baixa gravidade</p>
+              <p class="kpi-value" id="kpiSaudavel">—</p>
+              <p class="kpi-hint" id="kpiSaudavelHint">últimos 30 dias</p>
           </div>
         </div>
       </div>
@@ -219,9 +216,9 @@
             </span>
           </div>
           <div class="kpi-body">
-            <p class="kpi-label">Alertas ativos</p>
-            <p class="kpi-value">24</p>
-            <p class="kpi-hint">6 críticos</p>
+              <p class="kpi-label">Alertas ativos</p>
+              <p class="kpi-value" id="kpiAlertas">—</p>
+              <p class="kpi-hint" id="kpiAlertasCriticos">— críticos</p>
           </div>
         </div>
       </div>
@@ -238,9 +235,9 @@
             </span>
           </div>
           <div class="kpi-body">
-            <p class="kpi-label">Produtividade est.</p>
-            <p class="kpi-value">94 sc/ha</p>
-            <p class="kpi-hint">acima da meta</p>
+              <p class="kpi-label">Confiança média da IA</p>
+              <p class="kpi-value" id="kpiConfianca">—</p>
+              <p class="kpi-hint">últimos 30 dias</p>
           </div>
         </div>
       </div>
@@ -307,7 +304,7 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Talhão</th>
+                <th>Data</th>
                 <th>Cultura</th>
                 <th>Diagnóstico</th>
                 <th>Severidade</th>
@@ -374,34 +371,8 @@
             <p class="card-title">Alertas críticos</p>
             <p class="card-sub">Requerem ação imediata</p>
           </div>
-          <div class="card-content">
-            <div class="alert-item">
-              <div class="alert-icon red">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9l6 6m-6 0l6-6M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3z"/></svg>
-              </div>
-              <div>
-                <p class="alert-text-title">Ferrugem asiática</p>
-                <p class="alert-text-sub">Talhão 12-A • Soja</p>
-              </div>
-            </div>
-            <div class="alert-item">
-              <div class="alert-icon amber">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-              </div>
-              <div>
-                <p class="alert-text-title">Estresse hídrico</p>
-                <p class="alert-text-sub">Talhão 05-C • Milho</p>
-              </div>
-            </div>
-            <div class="alert-item">
-              <div class="alert-icon yellow">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </div>
-              <div>
-                <p class="alert-text-title">pH abaixo do ideal</p>
-                <p class="alert-text-sub">Talhão 18-B • Café</p>
-              </div>
-            </div>
+          <div class="card-content" id="alertasCriticosPanel"> <!-- alertas -->
+          </div>
           </div>
         </div>
 
@@ -413,11 +384,10 @@
       <div class="card">
         <div class="card-header">
           <div class="card-header-row">
-            <div>
-              <p class="card-title">Produtividade estimada</p>
-              <p class="card-sub">Sacas por hectare — projeção IA</p>
-            </div>
-            <span class="badge-primary">+18% vs. safra anterior</span>
+              <div>
+                  <p class="card-title">Distribuição por severidade</p>
+                  <p class="card-sub">Baixa, média e alta — todos os diagnósticos</p>
+              </div>
           </div>
         </div>
         <div class="card-content">
