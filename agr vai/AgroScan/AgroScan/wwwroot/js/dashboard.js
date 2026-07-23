@@ -6,6 +6,8 @@ function getToken() {
     return localStorage.getItem(TOKEN_KEY);
 }
 
+function getNome() { return localStorage.getItem(KEY_NOME) || 'Produtor'; }
+
 async function fetchDashboardData() {
     const resp = await fetch(`${API_BASE_URL}/api/Diagnostico/dashboard`, {
         headers: { Authorization: `Bearer ${getToken()}` },
@@ -364,4 +366,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     populatePieLegend();
     populateAlertasCriticos();
     buildCharts();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const nome = Auth.getNome();
+    document.getElementById('nomeUsuario').textContent = nome;
+    document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
 });

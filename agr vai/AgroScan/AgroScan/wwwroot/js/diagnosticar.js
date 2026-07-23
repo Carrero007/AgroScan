@@ -15,6 +15,103 @@ const Auth = (() => {
 })();
 Auth.exigirLogin();
 
+// ══════════════════════════════════════════════════════════════
+// TEMA (claro/escuro) — mesmo padrão visual do dashboard.js
+// ══════════════════════════════════════════════════════════════
+
+// Cria o botão de tema e o overlay/menu mobile automaticamente,
+// caso o HTML ainda não tenha esses elementos.
+function ensureThemeControls() {
+    const topbar = document.querySelector('.topbar');
+
+    if (topbar && !document.getElementById('themeBtn')) {
+        let actions = topbar.querySelector('.topbar-actions');
+        if (!actions) {
+            actions = document.createElement('div');
+            actions.className = 'topbar-actions';
+            topbar.appendChild(actions);
+        }
+        const btn = document.createElement('button');
+        btn.id = 'themeBtn';
+        btn.className = 'icon-btn';
+        btn.type = 'button';
+        btn.title = 'Alternar tema';
+        btn.innerHTML = `
+            <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16" style="display:none">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>`;
+        actions.appendChild(btn);
+    }
+
+    if (!document.getElementById('overlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'overlay';
+        overlay.className = 'sidebar-overlay';
+        document.body.prepend(overlay);
+    }
+
+    if (topbar && !document.getElementById('menuBtn')) {
+        const btn = document.createElement('button');
+        btn.id = 'menuBtn';
+        btn.className = 'icon-btn topbar-menu-btn';
+        btn.type = 'button';
+        btn.title = 'Menu';
+        btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>`;
+        topbar.prepend(btn);
+    }
+}
+
+function initTheme() {
+    const themeBtn = document.getElementById('themeBtn');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+    if (!themeBtn || !sunIcon || !moonIcon) {
+        console.warn('AgroScan: controles de tema não encontrados no DOM.');
+        return;
+    }
+
+    // A página já começa no modo escuro (classe "dark" no <html>)
+    const jaEscuro = document.documentElement.classList.contains('dark');
+    sunIcon.style.display = jaEscuro ? 'block' : 'none';
+    moonIcon.style.display = jaEscuro ? 'none' : 'block';
+
+    themeBtn.addEventListener('click', () => {
+        const nowDark = document.documentElement.classList.toggle('dark');
+        sunIcon.style.display = nowDark ? 'block' : 'none';
+        moonIcon.style.display = nowDark ? 'none' : 'block';
+    });
+}
+
+// Menu mobile da sidebar — mesmo padrão do dashboard.js
+function initSidebar() {
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    if (!menuBtn || !sidebar || !overlay) {
+        console.warn('AgroScan: controles de menu mobile não encontrados no DOM.');
+        return;
+    }
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+    });
+}
+
 // ── ESTADO ────────────────────────────────────────────────────
 let imagemBase64 = null;
 let mimeType = 'image/jpeg';
@@ -30,6 +127,10 @@ const HORTALICAS = ['Tomate', 'Alface', 'Cenoura', 'Pimentão', 'Pepino', 'Abobr
     'Milho-verde', 'Rúcula', 'Kale'];
 
 document.addEventListener('DOMContentLoaded', () => {
+    ensureThemeControls();
+    initTheme();
+    initSidebar();
+
     const nome = Auth.getNome();
     document.getElementById('nomeUsuario').textContent = nome;
     document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
