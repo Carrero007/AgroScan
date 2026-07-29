@@ -1,17 +1,8 @@
 /* ── CONFIGURAÇÃO ──────────────────────────────────────────── */
 const API_BASE_URL = ""; // ex: "https://localhost:7123" se o front não for servido pelo mesmo host/porta da API
-const TOKEN_KEY = "agroscan_token"; // ajuste para a chave usada no localStorage após o login
-
-function getToken() {
-    return localStorage.getItem(TOKEN_KEY);
-}
-
-function getNome() { return localStorage.getItem(KEY_NOME) || 'Produtor'; }
 
 async function fetchDashboardData() {
-    const resp = await fetch(`${API_BASE_URL}/api/Diagnostico/dashboard`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-    });
+    const resp = await Auth.fetchAuth(`${API_BASE_URL}/api/Diagnostico/dashboard`);
     if (!resp.ok) throw new Error(`Erro ${resp.status} ao buscar dados do dashboard`);
     return resp.json();
 }
@@ -67,7 +58,104 @@ function mapearDadosApi(json) {
     alertasCriticosData = json.alertasCriticos;
 }
 
-/* ── HELPERS DE TEMA ───────────────────────────────────────── */
+/* ── CLIMA REAL (Open-Meteo, sem necessidade de chave de API) ── */
+function setClimaIndisponivel(msg) {
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set("climaAtualizado", msg || "Clima indisponível");
+    set("climaTemp", "—");
+    set("climaUmidade", "—");
+    set("climaChuva", "—");
+    set("climaRiscoLabel", "—");
+}
+
+async function fetchWeatherData(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+        `&current=temperature_2m,relative_humidity_2m` +
+        `&daily=precipitation_sum,temperature_2m_min` +
+        `&past_days=7&forecast_days=3&timezone=auto`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Erro ${resp.status} ao buscar clima`);
+    return resp.json();
+}
+
+function populateClima(json) {
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+    set("climaTemp", `${Math.round(json.current.temperature_2m)}°C`);
+    set("climaUmidade", `${Math.round(json.current.relative_humidity_2m)}%`);
+
+    // Soma de chuva dos últimos 7 dias (past_days)
+    const chuva7d = json.daily.precipitation_sum.slice(0, 7).reduce((a, b) => a + (b || 0), 0);
+    set("climaChuva", `${Math.round(chuva7d)} mm`);
+
+    // Risco de geada com base na menor temperatura prevista para os próximos dias
+    const minPrevista = Math.min(...json.daily.temperature_2m_min.slice(7));
+    let riscoPct, riscoLabel;
+    if (minPrevista <= 0) { riscoPct = 100; riscoLabel = "Alto"; }
+    else if (minPrevista <= 5) { riscoPct = 60; riscoLabel = "Médio"; }
+    else { riscoPct = 15; riscoLabel = "Baixo"; }
+    set("climaRiscoLabel", riscoLabel);
+    const bar = document.getElementById("climaRiscoBar");
+    if (bar) bar.style.width = `${riscoPct}%`;
+
+    set("climaAtualizado", "Atualizado agora");
+}
+
+function initClima() {
+    if (!("geolocation" in navigator)) {
+        setClimaIndisponivel("Geolocalização não suportada");
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(
+        async pos => {
+            try {
+                const json = await fetchWeatherData(pos.coords.latitude, pos.coords.longitude);
+                populateClima(json);
+            } catch (err) {
+                console.error("Erro ao carregar clima:", err);
+                setClimaIndisponivel("Erro ao carregar clima");
+            }
+        },
+        () => setClimaIndisponivel("Permissão de localização negada"),
+        { timeout: 10000 }
+    );
+}
+
+/* ── NOTIFICAÇÕES (baseadas nos alertas críticos reais) ───────── */
+function initNotifications() {
+    const btn = document.getElementById("notifyBtn");
+    const panel = document.getElementById("notifyPanel");
+    if (!btn || !panel) return;
+
+    btn.addEventListener("click", e => {
+        e.stopPropagation();
+        renderNotifyPanel();
+        panel.classList.toggle("open");
+    });
+
+    document.addEventListener("click", e => {
+        if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove("open");
+    });
+}
+
+function renderNotifyPanel() {
+    const panel = document.getElementById("notifyPanel");
+    const dot = document.getElementById("notifyDot");
+    if (!panel) return;
+
+    if (dot) dot.style.display = alertasCriticosData.length > 0 ? "block" : "none";
+
+    if (alertasCriticosData.length === 0) {
+        panel.innerHTML = `<p class="notify-empty">Nenhuma notificação no momento.</p>`;
+        return;
+    }
+
+    panel.innerHTML = alertasCriticosData.map(a => `
+        <div class="notify-item">
+            <p class="notify-item-title">${a.titulo}</p>
+            <p class="notify-item-sub">${a.subtitulo}</p>
+        </div>`).join("");
+}
 function isDark() {
     return document.documentElement.classList.contains("dark");
 }
@@ -112,6 +200,7 @@ function populateKpis() {
     setText("kpiAlertasCriticos", `${kpisData.alertasCriticos7d} críticos (7 dias)`);
 
     setText("kpiConfianca", `${kpisData.confiancaMedia}%`);
+    setBadge("kpiConfiancaBadge", kpisData.confiancaMediaVariacaoPct);
 }
 
 /* ── POPULAR TABELA ────────────────────────────────────────── */
@@ -353,6 +442,8 @@ function initSidebar() {
 document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     initSidebar();
+    initClima();
+    initNotifications();
 
     try {
         const json = await fetchDashboardData();
@@ -366,6 +457,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     populatePieLegend();
     populateAlertasCriticos();
     buildCharts();
+
+    const dot = document.getElementById("notifyDot");
+    if (dot) dot.style.display = alertasCriticosData.length > 0 ? "block" : "none";
 });
 
 document.addEventListener('DOMContentLoaded', () => {

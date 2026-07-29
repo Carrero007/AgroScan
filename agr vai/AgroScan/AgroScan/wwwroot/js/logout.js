@@ -1,9 +1,8 @@
 
-if (localStorage.getItem('authenticated') !== 'true') {
+if (!Auth.estaLogado()) {
     window.location.replace('login.html');
 }
 
 function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
+    Auth.logout(); // revoga o refresh token no servidor e limpa o localStorage
 }
