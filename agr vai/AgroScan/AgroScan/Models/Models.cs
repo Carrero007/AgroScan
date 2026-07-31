@@ -20,32 +20,18 @@
 
     public class Hortalica
     {
-        public int HortalicaId { get; set; }
-        public string NomeCientifico { get; set; } = string.Empty;
-        public string? NomePopular { get; set; }
-        public string? Familia { get; set; }
-        public string? Categoria { get; set; }
-        public string? CicloVida { get; set; }
-        public int? DiasGerminacao { get; set; }
-        public int? DiasColheita { get; set; }
-        public string? Espacamento { get; set; }
-        public string? ProfundidadeSemeio { get; set; }
-        public string? Clima { get; set; }
-        public decimal? TemperaturaMin { get; set; }
-        public decimal? TemperaturaMax { get; set; }
-        public string? Luminosidade { get; set; }
-        public string? Irrigacao { get; set; }
-        public string? NecessidadeAgua { get; set; }
-        public string? TipoSolo { get; set; }
-        public decimal? PHMin { get; set; }
-        public decimal? PHMax { get; set; }
-        public string? Adubacao { get; set; }
-        public string? PragasPrincipais { get; set; }
-        public string? DoencasPrincipais { get; set; }
-        public string? Origem { get; set; }
-        public string? ValorNutricional { get; set; }
-        public string? Observacoes { get; set; }
-        public DateTime? DataCriacao { get; set; }
+        public int Id { get; set; }
+        public int UsuarioId { get; set; }
+        public string Nome { get; set; }
+        public string Categoria { get; set; }
+        public decimal? QuantidadePlantada { get; set; }
+        public string UnidadeMedida { get; set; }
+        public DateTime? DataPlantio { get; set; }
+        public DateTime? PrevisaoColheita { get; set; }
+        public string CaminhoImagem { get; set; }
+        public string Observacoes { get; set; }
+        public bool Ativo { get; set; }
+        public DateTime DataCriacao { get; set; }
         public DateTime? DataAtualizacao { get; set; }
     }
 

@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>Minhas Hortaliças</title>
+    <link rel="icon" href="img/leaf.png" type="image/png">
+    <link rel="stylesheet" href="hortalicas.css">
+</head>
+<body>
+    <div class="topnav" id="myTopnav">
+        <a href="dashboard.html" class="active">Início</a>
+        <a href="logout.html">Sair</a>
+    </div>
+
+    <div class="geral">
+        <div class="hortalicas-header">
+            <h2>Minhas Hortaliças</h2>
+        </div>
+
+        <!-- Botões principais do CRUD -->
+        <div class="crud-actions">
+            <button class="btn-add" onclick="openAddModal()">Adicionar</button>
+            <button class="btn-update" onclick="openUpdateModal()">Atualizar</button>
+            <button class="btn-delete" onclick="openDeleteModal()">Excluir</button>
+        </div>
+
+        <!-- Tabela de hortaliças -->
+        <table id="hortalicasTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Qtd. Plantada</th>
+                    <th>Unidade</th>
+                    <th>Data Plantio</th>
+                    <th>Previsão Colheita</th>
+                    <th>Imagem</th>
+                    <th>Observações</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Os dados serão carregados aqui via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Adicionar -->
+    <dialog id="addModal">
+        <h2>Adicionar Hortaliça</h2>
+        <form id="addHortalicaForm" method="dialog">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" placeholder="Ex: Alface Crespa" required>
+
+            <label for="categoria">Categoria:</label>
+            <input type="text" id="categoria" placeholder="Ex: folhosa, raiz, fruto, tempero">
+
+            <label for="quantidadePlantada">Quantidade Plantada:</label>
+            <input type="number" step="0.01" id="quantidadePlantada" placeholder="Ex: 50">
+
+            <label for="unidadeMedida">Unidade de Medida:</label>
+            <input type="text" id="unidadeMedida" placeholder="Ex: mudas, kg, m2">
+
+            <label for="dataPlantio">Data de Plantio:</label>
+            <input type="date" id="dataPlantio">
+
+            <label for="previsaoColheita">Previsão de Colheita:</label>
+            <input type="date" id="previsaoColheita">
+
+            <label for="caminhoImagem">Caminho da Imagem:</label>
+            <input type="text" id="caminhoImagem" placeholder="Ex: https....">
+
+            <label for="observacoes">Observações:</label>
+            <input type="text" id="observacoes" placeholder="Ex: Irrigação por gotejamento">
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary">Adicionar</button>
+                <button type="button" class="btn btn-close" onclick="closeModal('addModal')">Fechar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Modal Atualizar -->
+    <dialog id="updateModal">
+        <h2>Atualizar Hortaliça</h2>
+        <form id="updateHortalicaForm" method="dialog">
+            <label for="updateId">ID da Hortaliça:</label>
+            <input type="number" id="updateId" placeholder="Digite o ID" required>
+
+            <div id="loadingMessage" style="display: none; text-align: center; margin: 1rem 0;">
+                Carregando dados da hortaliça...
+            </div>
+
+            <div id="updateFields" style="display: none;">
+                <label for="updateNome">Nome:</label>
+                <input type="text" id="updateNome" placeholder="Ex: Alface Crespa" required>
+
+                <label for="updateCategoria">Categoria:</label>
+                <input type="text" id="updateCategoria" placeholder="Ex: folhosa, raiz, fruto, tempero">
+
+                <label for="updateQuantidadePlantada">Quantidade Plantada:</label>
+                <input type="number" step="0.01" id="updateQuantidadePlantada" placeholder="Ex: 50">
+
+                <label for="updateUnidadeMedida">Unidade de Medida:</label>
+                <input type="text" id="updateUnidadeMedida" placeholder="Ex: mudas, kg, m2">
+
+                <label for="updateDataPlantio">Data de Plantio:</label>
+                <input type="date" id="updateDataPlantio">
+
+                <label for="updatePrevisaoColheita">Previsão de Colheita:</label>
+                <input type="date" id="updatePrevisaoColheita">
+
+                <label for="updateCaminhoImagem">Caminho da Imagem:</label>
+                <input type="text" id="updateCaminhoImagem" placeholder="Ex: https....">
+
+                <label for="updateObservacoes">Observações:</label>
+                <input type="text" id="updateObservacoes" placeholder="Ex: Irrigação por gotejamento">
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary" id="updateButton" disabled>Atualizar</button>
+                <button type="button" class="btn btn-close" onclick="closeModal('updateModal')">Fechar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Modal Excluir -->
+    <dialog id="deleteModal">
+        <h2>Excluir Hortaliça</h2>
+        <form id="deleteHortalicaForm" method="dialog">
+            <label for="deleteId">ID da Hortaliça:</label>
+            <input type="number" id="deleteId" placeholder="Digite o ID para excluir" required>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary">Excluir</button>
+                <button type="button" class="btn btn-close" onclick="closeModal('deleteModal')">Cancelar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="js/cadastrarhortalicas.js"></script>
+</body>
+</html>
