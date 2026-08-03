@@ -1,197 +1,203 @@
 ﻿using AgroScan.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
 namespace AgroScan.Controllers
 {
+    // Rota corrigida para "api/hortalicas" (era "Hortalica", sem "api/",
+    // e não batia com o que hortalicas.js / identificar.js chamam).
     [ApiController]
-    [Route("Hortalica")]
-    public class HortalicaController : Controller
+    [Route("api/hortalicas")]
+    [Authorize]
+    public class HortalicaController : ControllerBase
     {
         private readonly ILogger<HortalicaController> _logger;
         private readonly IConfiguration _config;
         private string ConnStr => _config.GetConnectionString("DefaultConnection")!;
-        public HortalicaController(ILogger<HortalicaController> logger)
+
+        public HortalicaController(ILogger<HortalicaController> logger, IConfiguration config)
         {
             _logger = logger;
+            _config = config;
         }
 
-        // GET /Hortalica/{usuarioId}
-        // Lista todas as hortaliças cadastradas por um usuário específico
-        [HttpGet("{usuarioId}", Name = "GetHortalicasByUsuario")]
-        public IEnumerable<Hortalica> Get(int usuarioId)
+        // GET /api/hortalicas
+        // Catálogo é compartilhado entre todos os usuários (não é por dono),
+        // então não há checagem de UsuarioId aqui — é intencional.
+        [HttpGet]
+        public IActionResult Get()
         {
-            List<Hortalica> hortalicas = new List<Hortalica>();
-
-            using (SqlConnection connection = new SqlConnection(ConnStr))
+            var lista = new List<Hortalica>();
+            try
             {
-                string query = "SELECT * FROM Hortalicas WHERE UsuarioId = @UsuarioId ORDER BY HortalicaId DESC";
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@UsuarioId", usuarioId);
-                connection.Open();
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    hortalicas.Add(MapReaderToHortalica(reader));
-                }
-
-                reader.Close();
+                using var conn = new SqlConnection(ConnStr);
+                using var cmd = new SqlCommand("SELECT * FROM Hortalicas ORDER BY NomePopular", conn);
+                conn.Open();
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read()) lista.Add(MapReaderToHortalica(reader));
+                return Ok(lista);
             }
-
-            return hortalicas;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao listar hortalicas.");
+                return StatusCode(500, new { erro = "Erro ao listar hortalicas.", detalhe = ex.Message });
+            }
         }
 
-        // GET /Hortalica/{usuarioId}/{id}
-        // Busca uma hortaliça específica, garantindo que pertence ao usuário
-        [HttpGet("{usuarioId}/{id}", Name = "GetHortalicaById")]
-        public ActionResult GetHortalicaById(int usuarioId, int id)
+        // GET /api/hortalicas/{id}
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
         {
-            using (SqlConnection connection = new SqlConnection(ConnStr))
+            try
             {
-                string query = "SELECT * FROM Hortalicas WHERE Id = @Id AND UsuarioId = @UsuarioId";
-                SqlCommand command = new SqlCommand("SELECT * FROM Hortalicas WHERE HortalicaId = @Id AND UsuarioId = @UsuarioId", connection);
-                command.Parameters.AddWithValue("@Id", id);
-                command.Parameters.AddWithValue("@UsuarioId", usuarioId);
-                connection.Open();
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                if (reader.Read())
-                {
-                    Hortalica hortalica = MapReaderToHortalica(reader);
-                    reader.Close();
-                    return Ok(hortalica);
-                }
-
-                reader.Close();
+                using var conn = new SqlConnection(ConnStr);
+                using var cmd = new SqlCommand("SELECT * FROM Hortalicas WHERE HortalicaId = @Id", conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                conn.Open();
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read()) return Ok(MapReaderToHortalica(reader));
+                return NotFound();
             }
-
-            return NotFound();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar hortalica {Id}.", id);
+                return StatusCode(500, new { erro = "Erro ao buscar hortalica.", detalhe = ex.Message });
+            }
         }
 
-        // POST /Hortalica
-        // Cria uma nova hortaliça. O UsuarioId vem no corpo da requisição
-        // (idealmente deveria vir de um token de autenticação, e não do client)
+        // POST /api/hortalicas
+        // Cria/atualiza item do catálogo (uso administrativo/manual).
+        // Para o fluxo de "identificar com IA -> salvar", use
+        // POST /api/diagnostico/salvar-hortalica (evita duplicata).
         [HttpPost]
-        public ActionResult CreateHortalica(Hortalica hortalica)
+        public IActionResult Create([FromBody] Hortalica h)
         {
-            using (SqlConnection connection = new SqlConnection(ConnStr))
+            if (string.IsNullOrWhiteSpace(h.NomeCientifico))
+                return BadRequest(new { erro = "NomeCientifico e obrigatorio." });
+
+            try
             {
-                string query = @"INSERT INTO Hortalicas
-                                  (UsuarioId, Nome, Categoria, QuantidadePlantada, UnidadeMedida,
-                                   DataPlantio, PrevisaoColheita, CaminhoImagem, Observacoes)
-                                  VALUES
-                                  (@UsuarioId, @Nome, @Categoria, @QuantidadePlantada, @UnidadeMedida,
-                                   @DataPlantio, @PrevisaoColheita, @CaminhoImagem, @Observacoes)";
-
-                SqlCommand command = new SqlCommand(query, connection);
-                AddCommonParameters(command, hortalica);
-
-                connection.Open();
-                int rowsAffected = command.ExecuteNonQuery();
-
-                if (rowsAffected > 0)
-                {
-                    return Ok();
-                }
+                using var conn = new SqlConnection(ConnStr);
+                const string sql = @"
+                    INSERT INTO Hortalicas
+                        (NomeCientifico, NomePopular, Familia, Categoria, CicloVida,
+                         DiasGerminacao, DiasColheita, Espacamento, Clima, Luminosidade,
+                         Irrigacao, TipoSolo, Adubacao, PragasPrincipais, DoencasPrincipais,
+                         Origem, ValorNutricional, Observacoes)
+                    VALUES
+                        (@nc, @np, @fam, @cat, @ciclo, @dg, @dc, @esp, @clima, @lum,
+                         @irr, @solo, @adu, @pragas, @doencas, @origem, @valorNutri, @obs)";
+                using var cmd = new SqlCommand(sql, conn);
+                AddCommonParameters(cmd, h);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                return Ok(new { sucesso = true });
             }
-            return BadRequest();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar hortalica.");
+                return StatusCode(500, new { erro = "Erro ao criar hortalica.", detalhe = ex.Message });
+            }
         }
 
-        // PUT /Hortalica/{id}?usuarioId={usuarioId}
-        // Atualiza uma hortaliça, garantindo que pertence ao usuário informado
+        // PUT /api/hortalicas/{id}
         [HttpPut("{id}")]
-        public ActionResult UpdateHortalica(int id, [FromQuery] int usuarioId, [FromBody] Hortalica hortalica)
+        public IActionResult Update(int id, [FromBody] Hortalica h)
         {
-            using (SqlConnection connection = new SqlConnection(ConnStr))
+            try
             {
-                string query = @"UPDATE Hortalicas SET
-                                  Nome = @Nome,
-                                  Categoria = @Categoria,
-                                  QuantidadePlantada = @QuantidadePlantada,
-                                  UnidadeMedida = @UnidadeMedida,
-                                  DataPlantio = @DataPlantio,
-                                  PrevisaoColheita = @PrevisaoColheita,
-                                  CaminhoImagem = @CaminhoImagem,
-                                  Observacoes = @Observacoes,
-                                  DataAtualizacao = GETDATE()
-                                  WHERE HortalicaId = @Id AND UsuarioId = @UsuarioId";
-
-                SqlCommand command = new SqlCommand(query, connection);
-                AddCommonParameters(command, hortalica);
-                command.Parameters.AddWithValue("@Id", id);
-                command.Parameters["@UsuarioId"].Value = usuarioId; // garante que o UsuarioId usado é o da query, não o do corpo
-
-                connection.Open();
-                int rowsAffected = command.ExecuteNonQuery();
-
-                if (rowsAffected > 0)
-                {
-                    return Ok();
-                }
+                using var conn = new SqlConnection(ConnStr);
+                const string sql = @"
+                    UPDATE Hortalicas SET
+                        NomeCientifico = @nc, NomePopular = @np, Familia = @fam, Categoria = @cat,
+                        CicloVida = @ciclo, DiasGerminacao = @dg, DiasColheita = @dc, Espacamento = @esp,
+                        Clima = @clima, Luminosidade = @lum, Irrigacao = @irr, TipoSolo = @solo,
+                        Adubacao = @adu, PragasPrincipais = @pragas, DoencasPrincipais = @doencas,
+                        Origem = @origem, ValorNutricional = @valorNutri, Observacoes = @obs,
+                        DataAtualizacao = GETDATE()
+                    WHERE HortalicaId = @Id";
+                using var cmd = new SqlCommand(sql, conn);
+                AddCommonParameters(cmd, h);
+                cmd.Parameters.AddWithValue("@Id", id);
+                conn.Open();
+                var rows = cmd.ExecuteNonQuery();
+                return rows > 0 ? Ok(new { sucesso = true }) : NotFound();
             }
-
-            return NotFound();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar hortalica {Id}.", id);
+                return StatusCode(500, new { erro = "Erro ao atualizar hortalica.", detalhe = ex.Message });
+            }
         }
 
-        // DELETE /Hortalica/{id}?usuarioId={usuarioId}
-        // Exclui a hortaliça apenas se ela pertencer ao usuário informado
+        // DELETE /api/hortalicas/{id}
         [HttpDelete("{id}")]
-        public ActionResult DeleteHortalica(int id, [FromQuery] int usuarioId)
+        public IActionResult Delete(int id)
         {
-            using (SqlConnection connection = new SqlConnection(ConnStr))
+            try
             {
-                string query = "DELETE FROM Hortalicas WHERE HortalicaId = @Id AND UsuarioId = @UsuarioId";
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@Id", id);
-                command.Parameters.AddWithValue("@UsuarioId", usuarioId);
-                connection.Open();
-
-                int rowsAffected = command.ExecuteNonQuery();
-
-                if (rowsAffected > 0)
-                {
-                    return Ok();
-                }
+                using var conn = new SqlConnection(ConnStr);
+                using var cmd = new SqlCommand("DELETE FROM Hortalicas WHERE HortalicaId = @Id", conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                conn.Open();
+                var rows = cmd.ExecuteNonQuery();
+                return rows > 0 ? Ok(new { sucesso = true }) : NotFound();
             }
-            return NotFound();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir hortalica {Id}.", id);
+                return StatusCode(500, new { erro = "Erro ao excluir hortalica.", detalhe = ex.Message });
+            }
         }
 
         // -------------------- Helpers --------------------
 
-        private static Hortalica MapReaderToHortalica(SqlDataReader reader)
+        private static Hortalica MapReaderToHortalica(SqlDataReader r) => new()
         {
-            return new Hortalica
-            {
-                Id = Convert.ToInt32(reader["HortalicaId"]),
-                UsuarioId = Convert.ToInt32(reader["UsuarioId"]),
-                Nome = reader["Nome"].ToString(),
-                Categoria = reader["Categoria"] as string,
-                QuantidadePlantada = reader["QuantidadePlantada"] != DBNull.Value ? Convert.ToDecimal(reader["QuantidadePlantada"]) : (decimal?)null,
-                UnidadeMedida = reader["UnidadeMedida"] as string,
-                DataPlantio = reader["DataPlantio"] != DBNull.Value ? Convert.ToDateTime(reader["DataPlantio"]) : (DateTime?)null,
-                PrevisaoColheita = reader["PrevisaoColheita"] != DBNull.Value ? Convert.ToDateTime(reader["PrevisaoColheita"]) : (DateTime?)null,
-                CaminhoImagem = reader["CaminhoImagem"] as string,
-                Observacoes = reader["Observacoes"] as string,
-                Ativo = Convert.ToBoolean(reader["Ativo"]),
-                DataCriacao = Convert.ToDateTime(reader["DataCriacao"]),
-                DataAtualizacao = reader["DataAtualizacao"] != DBNull.Value ? Convert.ToDateTime(reader["DataAtualizacao"]) : (DateTime?)null
-            };
-        }
+            HortalicaId = Convert.ToInt32(r["HortalicaId"]),
+            NomeCientifico = r["NomeCientifico"].ToString() ?? "",
+            NomePopular = r["NomePopular"] as string,
+            Familia = r["Familia"] as string,
+            Categoria = r["Categoria"] as string,
+            CicloVida = r["CicloVida"] as string,
+            DiasGerminacao = r["DiasGerminacao"] == DBNull.Value ? null : Convert.ToInt32(r["DiasGerminacao"]),
+            DiasColheita = r["DiasColheita"] == DBNull.Value ? null : Convert.ToInt32(r["DiasColheita"]),
+            Espacamento = r["Espacamento"] as string,
+            Clima = r["Clima"] as string,
+            Luminosidade = r["Luminosidade"] as string,
+            Irrigacao = r["Irrigacao"] as string,
+            TipoSolo = r["TipoSolo"] as string,
+            Adubacao = r["Adubacao"] as string,
+            PragasPrincipais = r["PragasPrincipais"] as string,
+            DoencasPrincipais = r["DoencasPrincipais"] as string,
+            Origem = r["Origem"] as string,
+            ValorNutricional = r["ValorNutricional"] as string,
+            Observacoes = r["Observacoes"] as string,
+            DataCriacao = r["DataCriacao"] == DBNull.Value ? null : Convert.ToDateTime(r["DataCriacao"]),
+            DataAtualizacao = r["DataAtualizacao"] == DBNull.Value ? null : Convert.ToDateTime(r["DataAtualizacao"]),
+        };
 
-        private static void AddCommonParameters(SqlCommand command, Hortalica hortalica)
+        private static void AddCommonParameters(SqlCommand cmd, Hortalica h)
         {
-            command.Parameters.AddWithValue("@UsuarioId", hortalica.UsuarioId);
-            command.Parameters.AddWithValue("@Nome", hortalica.Nome ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@Categoria", (object)hortalica.Categoria ?? DBNull.Value);
-            command.Parameters.AddWithValue("@QuantidadePlantada", (object)hortalica.QuantidadePlantada ?? DBNull.Value);
-            command.Parameters.AddWithValue("@UnidadeMedida", (object)hortalica.UnidadeMedida ?? DBNull.Value);
-            command.Parameters.AddWithValue("@DataPlantio", (object)hortalica.DataPlantio ?? DBNull.Value);
-            command.Parameters.AddWithValue("@PrevisaoColheita", (object)hortalica.PrevisaoColheita ?? DBNull.Value);
-            command.Parameters.AddWithValue("@CaminhoImagem", (object)hortalica.CaminhoImagem ?? DBNull.Value);
-            command.Parameters.AddWithValue("@Observacoes", (object)hortalica.Observacoes ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@nc", h.NomeCientifico);
+            cmd.Parameters.AddWithValue("@np", (object?)h.NomePopular ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@fam", (object?)h.Familia ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@cat", (object?)h.Categoria ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ciclo", (object?)h.CicloVida ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@dg", (object?)h.DiasGerminacao ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@dc", (object?)h.DiasColheita ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@esp", (object?)h.Espacamento ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@clima", (object?)h.Clima ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@lum", (object?)h.Luminosidade ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@irr", (object?)h.Irrigacao ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@solo", (object?)h.TipoSolo ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@adu", (object?)h.Adubacao ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@pragas", (object?)h.PragasPrincipais ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@doencas", (object?)h.DoencasPrincipais ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@origem", (object?)h.Origem ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@valorNutri", (object?)h.ValorNutricional ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@obs", (object?)h.Observacoes ?? DBNull.Value);
         }
     }
 }

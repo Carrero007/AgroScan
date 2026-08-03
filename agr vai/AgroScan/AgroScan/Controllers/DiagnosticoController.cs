@@ -240,6 +240,69 @@ namespace AgroScan.Controllers
                 return StatusCode(500, new { erro = "Erro ao salvar.", detalhe = ex.Message });
             }
         }
+
+        // ── Salvar hortaliça identificada pela IA no catálogo ─────
+        // Endpoint que faltava: identificar.js chamava isto e recebia 404
+        // porque só existia um HortalicaController de plantio, sem esta rota.
+        // Evita duplicata verificando NomeCientifico (case-insensitive).
+        [HttpPost("salvar-hortalica")]
+        public IActionResult SalvarHortalica([FromBody] SalvarHortalicaRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.NomeCientifico))
+                return BadRequest(new { erro = "NomeCientifico e obrigatorio." });
+
+            try
+            {
+                using var conn = new SqlConnection(ConnStr);
+                conn.Open();
+
+                using (var check = new SqlCommand(
+                    "SELECT COUNT(1) FROM Hortalicas WHERE LOWER(NomeCientifico) = LOWER(@nc)", conn))
+                {
+                    check.Parameters.AddWithValue("@nc", req.NomeCientifico);
+                    var existe = (int)check.ExecuteScalar() > 0;
+                    if (existe) return Ok(new { sucesso = true, jaExistia = true });
+                }
+
+                const string sql = @"
+                    INSERT INTO Hortalicas
+                        (NomeCientifico, NomePopular, Familia, Categoria, CicloVida,
+                         DiasGerminacao, DiasColheita, Espacamento, Clima, Luminosidade,
+                         Irrigacao, TipoSolo, Adubacao, PragasPrincipais, DoencasPrincipais,
+                         Origem, ValorNutricional, Observacoes)
+                    VALUES
+                        (@nc, @np, @fam, @cat, @ciclo, @dg, @dc, @esp, @clima, @lum,
+                         @irr, @solo, @adu, @pragas, @doencas, @origem, @valorNutri, @obs)";
+                using var cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@nc", req.NomeCientifico);
+                cmd.Parameters.AddWithValue("@np", (object?)req.NomePopular ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@fam", (object?)req.Familia ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@cat", (object?)req.Categoria ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@ciclo", (object?)req.CicloVida ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@dg", (object?)req.DiasGerminacao ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@dc", (object?)req.DiasColheita ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@esp", (object?)req.Espacamento ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@clima", (object?)req.Clima ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@lum", (object?)req.Luminosidade ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@irr", (object?)req.Irrigacao ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@solo", (object?)req.TipoSolo ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@adu", (object?)req.Adubacao ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@pragas", (object?)req.PragasPrincipais ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@doencas", (object?)req.DoencasPrincipais ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@origem", (object?)req.Origem ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@valorNutri", (object?)req.ValorNutricional ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@obs", (object?)req.Observacoes ?? DBNull.Value);
+                cmd.ExecuteNonQuery();
+
+                return Ok(new { sucesso = true, jaExistia = false });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar hortalica identificada.");
+                return StatusCode(500, new { erro = "Erro ao salvar.", detalhe = ex.Message });
+            }
+        }
+
         // ── Histórico paginado do usuário ─────────────────────────
 
         [HttpGet("historico")]
@@ -334,7 +397,6 @@ namespace AgroScan.Controllers
                     confiancaMediaVariacaoPct = VarPct(confiancaMedia30d, confiancaMediaAnterior30d)
                 };
 
-                // Série semanal (últimos 7 dias)
                 var semanal = new List<object>();
                 const string sqlSemana = @"
             SELECT CAST(DataDiagnostico AS DATE) AS Dia,
@@ -357,7 +419,6 @@ namespace AgroScan.Controllers
                         });
                 }
 
-                // Distribuição por cultura
                 var distribuicao = new List<object>();
                 const string sqlCultura = @"
             SELECT ISNULL(h.NomePopular, 'Não identificado') AS Cultura, COUNT(*) AS Total
@@ -388,7 +449,6 @@ namespace AgroScan.Controllers
                         });
                 }
 
-                // Diagnósticos recentes (tabela)
                 var recentes = new List<object>();
                 const string sqlRecentes = @"
             SELECT TOP 8 d.DiagnosticoId, ISNULL(h.NomePopular,'—') AS Cultura,
@@ -413,7 +473,6 @@ namespace AgroScan.Controllers
                         });
                 }
 
-                // Alertas críticos (top 3, gravidade alta)
                 var alertasCriticos = new List<object>();
                 const string sqlAlertas = @"
             SELECT TOP 3 d.NomeDoenca, ISNULL(h.NomePopular,'Cultura não identificada') AS Cultura, d.GravidadeNivel
@@ -434,7 +493,6 @@ namespace AgroScan.Controllers
                         });
                 }
 
-                // Distribuição por severidade (gráfico de barras inferior)
                 var severidade = new List<object>();
                 const string sqlSeveridade = @"
             SELECT ISNULL(Gravidade,'não definida') AS Gravidade, COUNT(*) AS Total
@@ -557,9 +615,6 @@ namespace AgroScan.Controllers
 
                 var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
 
-                // ── Retry com backoff exponencial para erros transitórios ──
-                // 503 (UNAVAILABLE / alta demanda) e 429 (RESOURCE_EXHAUSTED)
-                // costumam se resolver sozinhos em poucos segundos.
                 const int maxTentativas = 3;
                 var delays = new[] { 1000, 2000, 4000 }; // ms
 

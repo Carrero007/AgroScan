@@ -1,41 +1,31 @@
-// 
-// AgroScan Gerenciador de Autentica��o JWT
-// Respons�vel por: armazenar tokens, injetar Bearer em requests,
-// renovar AccessToken automaticamente quando expirado.
-// 
-
+﻿// ══════════════════════════════════════════════════════════════
+// AgroScan — Gerenciador de Autenticação JWT (ÚNICA FONTE)
+// Antes duplicado em historico.js, diagnosticar.js, identificar.js,
+// hortalicas.js. Inclua este arquivo ANTES dos scripts de página.
+// ══════════════════════════════════════════════════════════════
 const Auth = (() => {
-    const KEY_TOKEN = 'as_token';
-    const KEY_REFRESH = 'as_refresh';
-    const KEY_NOME = 'as_nome';
-    const KEY_UID = 'as_uid';
-    const KEY_EXP = 'as_exp';
+    const K = { t: 'as_token', r: 'as_refresh', n: 'as_nome', u: 'as_uid', e: 'as_exp' };
 
-    function salvar(data) {
-        localStorage.setItem(KEY_TOKEN, data.token);
-        localStorage.setItem(KEY_REFRESH, data.refreshToken);
-        localStorage.setItem(KEY_NOME, data.nome);
-        localStorage.setItem(KEY_UID, data.usuarioId);
-        localStorage.setItem(KEY_EXP, data.expiracao);
-    }
+    const salvar = d => {
+        localStorage.setItem(K.t, d.token);
+        localStorage.setItem(K.r, d.refreshToken);
+        localStorage.setItem(K.n, d.nome);
+        localStorage.setItem(K.u, d.usuarioId);
+        localStorage.setItem(K.e, d.expiracao);
+    };
+    const limpar = () => Object.values(K).forEach(k => localStorage.removeItem(k));
+    const getToken = () => localStorage.getItem(K.t);
+    const getUsuarioId = () => localStorage.getItem(K.u);
+    const getNome = () => localStorage.getItem(K.n) || 'Produtor';
+    const estaLogado = () => !!getToken();
 
-    function limpar() {
-        [KEY_TOKEN, KEY_REFRESH, KEY_NOME, KEY_UID, KEY_EXP].forEach(k => localStorage.removeItem(k));
-    }
+    const tokenExpirado = () => {
+        const exp = localStorage.getItem(K.e);
+        return !exp || new Date(exp) < new Date(Date.now() + 60000);
+    };
 
-    function getToken() { return localStorage.getItem(KEY_TOKEN); }
-    function getNome() { return localStorage.getItem(KEY_NOME) || 'Produtor'; }
-    function estaLogado() { return !!getToken(); }
-
-    function tokenExpirado() {
-        const exp = localStorage.getItem(KEY_EXP);
-        if (!exp) return true;
-        // Considera expirado 60s antes para evitar requests com token vencendo
-        return new Date(exp) < new Date(Date.now() + 60000);
-    }
-
-    async function renovarToken() {
-        const refresh = localStorage.getItem(KEY_REFRESH);
+    const renovarToken = async () => {
+        const refresh = localStorage.getItem(K.r);
         if (!refresh) return false;
         try {
             const resp = await fetch('/api/auth/refresh', {
@@ -44,40 +34,23 @@ const Auth = (() => {
                 body: JSON.stringify({ refreshToken: refresh })
             });
             if (!resp.ok) { limpar(); return false; }
-            const data = await resp.json();
-            salvar(data);
+            salvar(await resp.json());
             return true;
-        } catch {
-            return false;
-        }
-    }
+        } catch { return false; }
+    };
 
-    /** Retorna headers com Bearer v�lido, renovando se necess�rio. */
-    async function getHeaders(extra = {}) {
+    const fetchAuth = async (url, opts = {}) => {
         if (tokenExpirado()) {
             const ok = await renovarToken();
-            if (!ok) {
-                window.location.replace('login.html');
-                return {};
-            }
+            if (!ok) { window.location.replace('login.html'); return new Response(null, { status: 401 }); }
         }
-        return {
-            'Authorization': `Bearer ${getToken()}`,
-            'Content-Type': 'application/json',
-            ...extra
-        };
-    }
+        const headers = { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json', ...(opts.headers || {}) };
+        if (opts.isMultipart) delete headers['Content-Type'];
+        return fetch(url, { ...opts, headers });
+    };
 
-    /** Wrapper de fetch que injeta JWT automaticamente. */
-    async function fetchAuth(url, options = {}) {
-        const headers = await getHeaders(options.headers || {});
-        // Remove Content-Type para multipart (o browser define o boundary)
-        if (options.isMultipart) delete headers['Content-Type'];
-        return fetch(url, { ...options, headers });
-    }
-
-    async function logout() {
-        const refresh = localStorage.getItem(KEY_REFRESH);
+    const logout = async () => {
+        const refresh = localStorage.getItem(K.r);
         if (refresh) {
             await fetch('/api/auth/logout', {
                 method: 'POST',
@@ -87,20 +60,16 @@ const Auth = (() => {
         }
         limpar();
         window.location.replace('login.html');
-    }
+    };
 
-    /** Prote��o de rota � chame no topo de p�ginas protegidas. */
-    function exigirLogin() {
-        const pagina = window.location.pathname.split('/').pop() || '';
-        const publicas = ['login.html', 'cadastro.html', 'index.html', ''];
-        if (publicas.includes(pagina)) return;
-        if (!estaLogado()) {
+    const exigirLogin = () => {
+        const p = window.location.pathname.split('/').pop() || '';
+        if (!['login.html', 'cadastro.html', 'index.html', ''].includes(p) && !estaLogado()) {
             window.location.replace('login.html');
         }
-    }
+    };
 
-    return { salvar, limpar, getToken, getNome, estaLogado, fetchAuth, logout, exigirLogin };
+    return { salvar, limpar, getToken, getUsuarioId, getNome, estaLogado, fetchAuth, logout, exigirLogin };
 })();
 
-// Prote��o autom�tica ao carregar qualquer p�gina
 Auth.exigirLogin();

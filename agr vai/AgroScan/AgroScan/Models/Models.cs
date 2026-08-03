@@ -8,11 +8,9 @@
         public string CPF { get; set; } = string.Empty;
         public string Nome { get; set; } = string.Empty;
         public string SenhaHash { get; set; } = string.Empty;
-        public string? Whatsapp { get; set; }
-        public double? Latitude { get; set; }
-        public double? Longitude { get; set; }
-        public string? TipoProdutor { get; set; }
-        public decimal? AreaHectares { get; set; }
+        public string Cep { get; set; } = string.Empty;
+        public string Cidade { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
         public bool Ativo { get; set; } = true;
         public DateTime DataCriacao { get; set; }
         public DateTime? UltimoLogin { get; set; }
@@ -20,18 +18,32 @@
 
     public class Hortalica
     {
-        public int Id { get; set; }
-        public int UsuarioId { get; set; }
-        public string Nome { get; set; }
-        public string Categoria { get; set; }
-        public decimal? QuantidadePlantada { get; set; }
-        public string UnidadeMedida { get; set; }
-        public DateTime? DataPlantio { get; set; }
-        public DateTime? PrevisaoColheita { get; set; }
-        public string CaminhoImagem { get; set; }
-        public string Observacoes { get; set; }
-        public bool Ativo { get; set; }
-        public DateTime DataCriacao { get; set; }
+        public int HortalicaId { get; set; }
+        public string NomeCientifico { get; set; } = string.Empty;
+        public string? NomePopular { get; set; }
+        public string? Familia { get; set; }
+        public string? Categoria { get; set; }
+        public string? CicloVida { get; set; }
+        public int? DiasGerminacao { get; set; }
+        public int? DiasColheita { get; set; }
+        public string? Espacamento { get; set; }
+        public string? ProfundidadeSemeio { get; set; }
+        public string? Clima { get; set; }
+        public decimal? TemperaturaMin { get; set; }
+        public decimal? TemperaturaMax { get; set; }
+        public string? Luminosidade { get; set; }
+        public string? Irrigacao { get; set; }
+        public string? NecessidadeAgua { get; set; }
+        public string? TipoSolo { get; set; }
+        public decimal? PHMin { get; set; }
+        public decimal? PHMax { get; set; }
+        public string? Adubacao { get; set; }
+        public string? PragasPrincipais { get; set; }
+        public string? DoencasPrincipais { get; set; }
+        public string? Origem { get; set; }
+        public string? ValorNutricional { get; set; }
+        public string? Observacoes { get; set; }
+        public DateTime? DataCriacao { get; set; }
         public DateTime? DataAtualizacao { get; set; }
     }
 
@@ -60,7 +72,6 @@
         public double? Longitude { get; set; }
         public DateTime DataDiagnostico { get; set; }
     }
-
     // ── DTOs de autenticação ─────────────────────────────────────
 
     public class LoginRequest
@@ -74,11 +85,10 @@
         public string Nome { get; set; } = string.Empty;
         public string CPF { get; set; } = string.Empty;
         public string Senha { get; set; } = string.Empty;
-        public string? Whatsapp { get; set; }
-        public double? Latitude { get; set; }
-        public double? Longitude { get; set; }
-        public string? TipoProdutor { get; set; }
-        public decimal? AreaHectares { get; set; }
+        public string Cep { get; set; } = string.Empty;
+        // Preenchidos no cliente a partir do ViaCEP; o servidor revalida antes de gravar.
+        public string? Cidade { get; set; }
+        public string? Estado { get; set; }
     }
 
     public class AuthResponse
@@ -110,5 +120,37 @@
         public string? CondicoesClimaticas { get; set; }
         public string? TratamentosAnteriores { get; set; }
         public string? NomeArquivo { get; set; }
+    }
+
+    public class SalvarHortalicaRequest
+    {
+        public string NomeCientifico { get; set; } = string.Empty;
+        public string? NomePopular { get; set; }
+        public string? Familia { get; set; }
+        public string? Categoria { get; set; }
+        public string? CicloVida { get; set; }
+        public int? DiasGerminacao { get; set; }
+        public int? DiasColheita { get; set; }
+        public string? Espacamento { get; set; }
+        public string? Clima { get; set; }
+        public string? Luminosidade { get; set; }
+        public string? Irrigacao { get; set; }
+        public string? TipoSolo { get; set; }
+        public string? Adubacao { get; set; }
+        public string? PragasPrincipais { get; set; }
+        public string? DoencasPrincipais { get; set; }
+        public string? Origem { get; set; }
+        public string? ValorNutricional { get; set; }
+        public string? Observacoes { get; set; }
+    }
+
+    // ── DTO auxiliar de resposta do ViaCEP (validação server-side) ──
+
+    public class ViaCepResponse
+    {
+        public string? Cep { get; set; }
+        public string? Localidade { get; set; }
+        public string? Uf { get; set; }
+        public bool Erro { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using AgroScan.Models;
+﻿using System.Text.Json;
+using AgroScan.Models;
 using AgroScan.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -12,13 +13,15 @@ namespace AgroScan.Controllers
         private readonly IConfiguration _config;
         private readonly JwtService _jwt;
         private readonly ILogger<AuthController> _logger;
+        private readonly IHttpClientFactory _httpFactory;
         private string ConnStr => _config.GetConnectionString("DefaultConnection")!;
 
-        public AuthController(IConfiguration config, JwtService jwt, ILogger<AuthController> logger)
+        public AuthController(IConfiguration config, JwtService jwt, ILogger<AuthController> logger, IHttpClientFactory httpFactory)
         {
             _config = config;
             _jwt = jwt;
             _logger = logger;
+            _httpFactory = httpFactory;
         }
 
         // POST api/auth/login
@@ -98,7 +101,7 @@ namespace AgroScan.Controllers
 
         // POST api/auth/cadastrar
         [HttpPost("cadastrar")]
-        public ActionResult Cadastrar([FromBody] CadastroRequest req)
+        public async Task<ActionResult> Cadastrar([FromBody] CadastroRequest req)
         {
             if (string.IsNullOrWhiteSpace(req.Nome) || req.Nome.Trim().Length < 3)
                 return BadRequest(new { erro = "Nome invalido (minimo 3 caracteres)." });
@@ -110,23 +113,50 @@ namespace AgroScan.Controllers
             if (string.IsNullOrWhiteSpace(req.Senha) || req.Senha.Length < 6)
                 return BadRequest(new { erro = "Senha muito curta (minimo 6 caracteres)." });
 
+            var cep = req.Cep?.Replace("-", "").Trim() ?? "";
+            if (cep.Length != 8 || !cep.All(char.IsDigit))
+                return BadRequest(new { erro = "CEP invalido (deve conter 8 digitos)." });
+
+            // Nunca confiar em Cidade/Estado vindos do cliente: revalida via ViaCEP no servidor.
+            string cidade, estado;
+            try
+            {
+                var client = _httpFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(5);
+                var resp = await client.GetAsync($"https://viacep.com.br/ws/{cep}/json/");
+                if (!resp.IsSuccessStatusCode)
+                    return StatusCode(502, new { erro = "Nao foi possivel validar o CEP no momento." });
+
+                var json = await resp.Content.ReadAsStringAsync();
+                var via = JsonSerializer.Deserialize<ViaCepResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (via == null || via.Erro || string.IsNullOrWhiteSpace(via.Localidade) || string.IsNullOrWhiteSpace(via.Uf))
+                    return BadRequest(new { erro = "CEP nao encontrado." });
+
+                cidade = via.Localidade!;
+                estado = via.Uf!;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao validar CEP={Cep}", cep);
+                return StatusCode(502, new { erro = "Nao foi possivel validar o CEP no momento." });
+            }
+
             var senhaHash = BCrypt.Net.BCrypt.HashPassword(req.Senha, workFactor: 12);
 
             try
             {
                 using var conn = new SqlConnection(ConnStr);
                 const string sql = @"
-                    INSERT INTO Usuarios (CPF, SenhaHash, Nome, Whatsapp, Latitude, Longitude, TipoProdutor, AreaHectares)
-                    VALUES (@cpf, @hash, @nome, @whats, @lat, @lng, @tipo, @area)";
+                    INSERT INTO Usuarios (CPF, SenhaHash, Nome, Cep, Cidade, Estado)
+                    VALUES (@cpf, @hash, @nome, @cep, @cidade, @estado)";
                 using var cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@cpf", cpf);
                 cmd.Parameters.AddWithValue("@hash", senhaHash);
                 cmd.Parameters.AddWithValue("@nome", req.Nome.Trim());
-                cmd.Parameters.AddWithValue("@whats", (object?)req.Whatsapp ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@lat", (object?)req.Latitude ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@lng", (object?)req.Longitude ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@tipo", (object?)req.TipoProdutor ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@area", (object?)req.AreaHectares ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@cep", cep);
+                cmd.Parameters.AddWithValue("@cidade", cidade);
+                cmd.Parameters.AddWithValue("@estado", estado);
                 conn.Open();
                 cmd.ExecuteNonQuery();
                 return Ok(new { sucesso = true, mensagem = "Cadastro realizado com sucesso!" });
