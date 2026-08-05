@@ -44,52 +44,60 @@ namespace AgroScan.Controllers
             if (string.IsNullOrWhiteSpace(req.NomeArquivo))
                 return null;
 
-            var nomeArquivo = Path
-                .GetFileNameWithoutExtension(req.NomeArquivo)
-                .ToLower()
-                .Trim();
+            try
+            {
+                var nomeArquivo = Path
+                    .GetFileNameWithoutExtension(req.NomeArquivo)
+                    .ToLower()
+                    .Trim();
 
-            using var conn = new SqlConnection(ConnStr);
+                using var conn = new SqlConnection(ConnStr);
 
-            const string sql = @"
+                const string sql = @"
         SELECT TOP 1 d.*
         FROM DiagnosticosDemo dd
         INNER JOIN Diagnosticos d
             ON d.DiagnosticoId = dd.DiagnosticoId
         WHERE LOWER(dd.NomeArquivo) = @nome";
 
-            using var cmd = new SqlCommand(sql, conn);
+                using var cmd = new SqlCommand(sql, conn);
 
-            cmd.Parameters.AddWithValue("@nome", nomeArquivo);
+                cmd.Parameters.AddWithValue("@nome", nomeArquivo);
 
-            conn.Open();
+                conn.Open();
 
-            using var reader = cmd.ExecuteReader();
+                using var reader = cmd.ExecuteReader();
 
-            if (!reader.Read())
-                return null;
+                if (!reader.Read())
+                    return null;
 
-            return new
+                return new
+                {
+                    tipoDiagnostico = reader["TipoDiagnostico"]?.ToString(),
+                    nomeDoenca = reader["NomeDoenca"]?.ToString(),
+                    nomeCientifico = reader["NomeCientifico"]?.ToString(),
+                    agenteCausador = reader["AgenteCausador"]?.ToString(),
+                    confianca = Convert.ToInt32(reader["Confianca"]),
+                    gravidadeNivel = Convert.ToInt32(reader["GravidadeNivel"]),
+                    gravidade = reader["Gravidade"]?.ToString(),
+                    sintomasObservados = reader["SintomasObservados"]?.ToString(),
+                    tratamentoEcologico = reader["TratamentoEcologico"]?.ToString(),
+                    tratamentoQuimico = reader["TratamentoQuimico"]?.ToString(),
+                    prevencao = reader["Prevencao"]?.ToString(),
+                    riscoPropagacao = reader["RiscoPropagacao"]?.ToString(),
+                    riscoPropagacaoNivel = Convert.ToInt32(reader["RiscoPropagacaoNivel"]),
+                    plantasAfetadas = reader["PlantasAfetadas"]?.ToString(),
+                    condicoesFavoraveis = reader["CondicoesFavoraveis"]?.ToString(),
+                    tratamentoPasso1 = reader["Tratamento"]?.ToString(),
+                    recomendacaoUrgencia = "em 48h",
+                    diasParaAcao = 2
+                };
+            }
+            catch (Exception ex)
             {
-                tipoDiagnostico = reader["TipoDiagnostico"]?.ToString(),
-                nomeDoenca = reader["NomeDoenca"]?.ToString(),
-                nomeCientifico = reader["NomeCientifico"]?.ToString(),
-                agenteCausador = reader["AgenteCausador"]?.ToString(),
-                confianca = Convert.ToInt32(reader["Confianca"]),
-                gravidadeNivel = Convert.ToInt32(reader["GravidadeNivel"]),
-                gravidade = reader["Gravidade"]?.ToString(),
-                sintomasObservados = reader["SintomasObservados"]?.ToString(),
-                tratamentoEcologico = reader["TratamentoEcologico"]?.ToString(),
-                tratamentoQuimico = reader["TratamentoQuimico"]?.ToString(),
-                prevencao = reader["Prevencao"]?.ToString(),
-                riscoPropagacao = reader["RiscoPropagacao"]?.ToString(),
-                riscoPropagacaoNivel = Convert.ToInt32(reader["RiscoPropagacaoNivel"]),
-                plantasAfetadas = reader["PlantasAfetadas"]?.ToString(),
-                condicoesFavoraveis = reader["CondicoesFavoraveis"]?.ToString(),
-                tratamentoPasso1 = reader["Tratamento"]?.ToString(),
-                recomendacaoUrgencia = "em 48h",
-                diasParaAcao = 2
-            };
+                _logger.LogWarning(ex, "Modo demo indisponivel (SQL); usando Gemini.");
+                return null;
+            }
         }
         // ── Diagnóstico via multipart (Swagger) ──────────────────
 
@@ -571,63 +579,137 @@ namespace AgroScan.Controllers
         }
 
 
+        private static string NormalizarMimeType(string mime)
+        {
+            mime = (mime ?? "image/jpeg").Trim().ToLowerInvariant();
+            return mime switch
+            {
+                "image/jpg" or "image/pjpeg" => "image/jpeg",
+                "image/x-png" => "image/png",
+                "image/jpeg" or "image/png" or "image/webp" => mime,
+                _ => "image/jpeg"
+            };
+        }
+
+        private static string ExtrairTextoRespostaGemini(JsonElement candidate)
+        {
+            if (!candidate.TryGetProperty("content", out var content)
+                || !content.TryGetProperty("parts", out var parts))
+                return "";
+
+            var sb = new StringBuilder();
+            foreach (var part in parts.EnumerateArray())
+            {
+                if (part.TryGetProperty("text", out var t))
+                    sb.Append(t.GetString());
+            }
+            return sb.ToString();
+        }
+
+        private static string ExtrairJsonDiagnostico(string text)
+        {
+            text = text.Replace("```json", "", StringComparison.OrdinalIgnoreCase)
+                       .Replace("```", "")
+                       .Trim();
+            text = PromptService.ExpandirAliases(text);
+
+            var start = text.IndexOf('{');
+            var end = text.LastIndexOf('}');
+            if (start >= 0 && end > start)
+                text = text[start..(end + 1)];
+
+            return text;
+        }
+
+        private static string MontarPayloadGemini(string textoUsuario, string imagemBase64, string mimeType, bool jsonMode)
+        {
+            var generationConfig = jsonMode
+                ? new { temperature = 0.2, maxOutputTokens = 8192, responseMimeType = "application/json" }
+                : (object)new { temperature = 0.2, maxOutputTokens = 8192 };
+
+            return JsonSerializer.Serialize(new
+            {
+                contents = new[]
+                {
+                    new
+                    {
+                        parts = new object[]
+                        {
+                            new { text = textoUsuario },
+                            new
+                            {
+                                inlineData = new
+                                {
+                                    mimeType,
+                                    data = imagemBase64
+                                }
+                            }
+                        }
+                    }
+                },
+                generationConfig
+            });
+        }
+        private static string NormalizarImagemBase64(string base64)
+        {
+            if (string.IsNullOrWhiteSpace(base64))
+                return base64;
+
+            var s = base64.Trim();
+            var comma = s.IndexOf(',');
+            if (s.StartsWith("data:", StringComparison.OrdinalIgnoreCase) && comma >= 0)
+                s = s[(comma + 1)..];
+
+            return s.Replace("\r", "").Replace("\n", "").Replace(" ", "");
+        }
+
         private async Task<IActionResult> ChamarGemini(
-    string systemPrompt,
-    string userText,
-    string imagemBase64,
-    string mimeType,
-    string acao,
-    int usuarioId,
-    string ip)
+            string systemPrompt,
+            string userText,
+            string imagemBase64,
+            string mimeType,
+            string acao,
+            int usuarioId,
+            string ip)
         {
             var apiKey = _config["Gemini:ApiKey"];
-            var model = _config["Gemini:Model"] ?? "gemini-2.0-flash";
+            var model = _config["Gemini:Model"] ?? "gemini-2.5-flash";
 
             if (string.IsNullOrWhiteSpace(apiKey))
                 return StatusCode(500, new { erro = "Gemini:ApiKey nao configurada no appsettings.json." });
 
             try
             {
-                var parts = new List<object>
-        {
-            new { text = userText },
-            new {
-                inline_data = new {
-                    mime_type = mimeType,
-                    data      = imagemBase64
-                }
-            }
-        };
+                imagemBase64 = NormalizarImagemBase64(imagemBase64);
+                mimeType = NormalizarMimeType(mimeType);
 
-                var payload = JsonSerializer.Serialize(new
-                {
-                    system_instruction = new { parts = new[] { new { text = systemPrompt } } },
-                    contents = new[]
-                    {
-                new { role = "user", parts }
-            },
-                    generationConfig = new
-                    {
-                        temperature = 0.2,
-                        maxOutputTokens = 1500
-                    }
-                });
-
+                // Igual ao HTML de teste: texto + imagem na mesma mensagem (sem systemInstruction).
+                var textoCompleto = $"{systemPrompt}\n\n{userText}";
                 var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
 
                 const int maxTentativas = 3;
-                var delays = new[] { 1000, 2000, 4000 }; // ms
+                var delays = new[] { 1000, 2000, 4000 };
 
                 HttpResponseMessage resp = null!;
                 string raw = "";
+                var jsonMode = true;
 
                 for (int tentativa = 1; tentativa <= maxTentativas; tentativa++)
                 {
+                    var payload = MontarPayloadGemini(textoCompleto, imagemBase64, mimeType, jsonMode);
+
                     using var httpReq = new HttpRequestMessage(HttpMethod.Post, url);
                     httpReq.Content = new StringContent(payload, Encoding.UTF8, "application/json");
 
                     resp = await _http.SendAsync(httpReq);
                     raw = await resp.Content.ReadAsStringAsync();
+
+                    if (resp.StatusCode == System.Net.HttpStatusCode.BadRequest && jsonMode)
+                    {
+                        _logger.LogWarning("Gemini 400 com responseMimeType JSON; tentando modo texto. Body: {Body}", raw);
+                        jsonMode = false;
+                        continue;
+                    }
 
                     bool transitorio = resp.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
                         || resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests
@@ -646,19 +728,29 @@ namespace AgroScan.Controllers
 
                 if (!resp.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Gemini {Status} apos {Tentativas} tentativas: {Body}", (int)resp.StatusCode, maxTentativas, raw);
+                    _logger.LogError("Gemini {Status} apos tentativas: {Body}", (int)resp.StatusCode, raw);
+
+                    var detalheErro = raw;
+                    try
+                    {
+                        using var errDoc = JsonDocument.Parse(raw);
+                        if (errDoc.RootElement.TryGetProperty("error", out var err)
+                            && err.TryGetProperty("message", out var msg))
+                            detalheErro = msg.GetString() ?? raw;
+                    }
+                    catch { /* mantém raw */ }
 
                     bool eraTransitorio = resp.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
                         || resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests;
 
                     var msgAmigavel = eraTransitorio
-                        ? "O serviço de IA está sobrecarregado no momento. Já tentamos algumas vezes automaticamente, mas ainda assim não conseguimos. Aguarde alguns instantes e tente novamente."
+                        ? "O serviço de IA está sobrecarregado no momento. Aguarde alguns instantes e tente novamente."
                         : $"Erro na API Gemini (HTTP {(int)resp.StatusCode}).";
 
                     return StatusCode((int)resp.StatusCode, new
                     {
                         erro = msgAmigavel,
-                        detalhe = raw,
+                        detalhe = detalheErro,
                         transitorio = eraTransitorio
                     });
                 }
@@ -666,22 +758,53 @@ namespace AgroScan.Controllers
                 _ = Task.Run(() => RegistrarAudit(acao, model, raw, usuarioId, ip, ConnStr));
 
                 using var doc = JsonDocument.Parse(raw);
-                var text = doc.RootElement
-                    .GetProperty("candidates")[0]
-                    .GetProperty("content")
-                    .GetProperty("parts")[0]
-                    .GetProperty("text")
-                    .GetString() ?? "{}";
+                if (!doc.RootElement.TryGetProperty("candidates", out var candidates)
+                    || candidates.GetArrayLength() == 0)
+                {
+                    return StatusCode(502, new
+                    {
+                        erro = "A API Gemini nao retornou candidatos para a analise.",
+                        detalhe = raw
+                    });
+                }
 
-                text = text.Replace("```json", "").Replace("```", "").Trim();
-                text = PromptService.ExpandirAliases(text);
-                var start = text.IndexOf('{');
-                var end = text.LastIndexOf('}');
-                if (start >= 0 && end > start)
-                    text = text[start..(end + 1)];
+                var candidate = candidates[0];
+                var text = ExtrairTextoRespostaGemini(candidate);
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    return StatusCode(502, new
+                    {
+                        erro = "A API Gemini nao retornou texto para a analise realizada.",
+                        detalhe = raw
+                    });
+                }
 
-                try { return Ok(JsonDocument.Parse(text).RootElement); }
-                catch { return Ok(new { raw = text, aviso = "Resposta fora do formato JSON esperado." }); }
+                text = ExtrairJsonDiagnostico(text);
+
+                try
+                {
+                    using var parsed = JsonDocument.Parse(text);
+                    var root = parsed.RootElement;
+                    if (!root.TryGetProperty("tipoDiagnostico", out _)
+                        && !root.TryGetProperty("nomeDoenca", out _))
+                    {
+                        return StatusCode(502, new
+                        {
+                            erro = "Resposta da IA incompleta ou fora do formato esperado.",
+                            detalhe = text
+                        });
+                    }
+
+                    return Content(text, "application/json");
+                }
+                catch (JsonException)
+                {
+                    return StatusCode(502, new
+                    {
+                        erro = "Nao foi possivel interpretar o JSON retornado pela IA.",
+                        detalhe = text
+                    });
+                }
             }
             catch (HttpRequestException ex)
             {

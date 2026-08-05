@@ -242,7 +242,8 @@ async function diagnosticar() {
     const btn = document.getElementById('btnAnalisar');
     btn.classList.add('loading');
     btn.disabled = true;
-    document.getElementById('estadoVazio').style.display = 'none';
+    const estadoVazio = document.getElementById('estadoVazio');
+    if (estadoVazio) estadoVazio.style.display = 'none';
     document.getElementById('resultPanel').innerHTML = `
             <div class="estado-vazio">
                 <div class="emoji" style="animation:spin 2s linear infinite;display:inline-block;">🔬</div>
@@ -273,7 +274,12 @@ async function diagnosticar() {
             body: JSON.stringify(body)
         });
 
-        const data = await resp.json();
+        let data;
+        try {
+            data = await resp.json();
+        } catch {
+            data = { erro: `Resposta invalida do servidor (HTTP ${resp.status}).` };
+        }
 
         if (!resp.ok) {
             const transitorio = data.transitorio || resp.status === 503 || resp.status === 429;
@@ -285,7 +291,20 @@ async function diagnosticar() {
                         <button class="btn-analisar" style="margin-top:16px;max-width:220px;" onclick="diagnosticar()">
                             <span class="lbl">🔄 Tentar novamente</span>
                         </button>
-                        ${data.detalhe ? `<pre style="font-size:10px;color:var(--text3);margin-top:14px;white-space:pre-wrap;text-align:left;max-width:400px;">${data.detalhe}</pre>` : ''}
+                        ${data.detalhe ? `<pre style="font-size:10px;color:var(--text3);margin-top:14px;white-space:pre-wrap;text-align:left;max-width:400px;">${escapeHtml(String(data.detalhe))}</pre>` : ''}
+                    </div>`;
+            return;
+        }
+
+        if (!data.tipoDiagnostico && !data.nomeDoenca) {
+            document.getElementById('resultPanel').innerHTML = `
+                    <div class="estado-vazio">
+                        <div class="emoji">⚠️</div>
+                        <h3>Resposta incompleta da IA</h3>
+                        <p>O servidor respondeu, mas sem dados de diagnóstico. Tente novamente.</p>
+                        <button class="btn-analisar" style="margin-top:16px;max-width:220px;" onclick="diagnosticar()">
+                            <span class="lbl">🔄 Tentar novamente</span>
+                        </button>
                     </div>`;
             return;
         }
@@ -298,7 +317,7 @@ async function diagnosticar() {
                 <div class="estado-vazio">
                     <div class="emoji">⚠️</div>
                     <h3>Falha de conexão</h3>
-                    <p>Verifique sua internet e tente novamente.</p>
+                    <p>${e?.message || 'Verifique sua internet e tente novamente.'}</p>
                     <button class="btn-analisar" style="margin-top:16px;max-width:220px;" onclick="diagnosticar()">
                         <span class="lbl">🔄 Tentar novamente</span>
                     </button>
@@ -413,6 +432,10 @@ async function salvarDiagnostico() {
         if (resp.ok) { btn.classList.add('salvo'); btn.textContent = '✓ Salvo no histórico!'; }
         else { btn.disabled = false; btn.textContent = 'Erro ao salvar. Tentar novamente'; }
     } catch { btn.disabled = false; btn.textContent = 'Erro de conexão'; }
+}
+
+function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function tipoClass(tipo) {
