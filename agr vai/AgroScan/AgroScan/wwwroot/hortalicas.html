@@ -1,20 +1,21 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroScan · Catálogo de Hortaliças</title>
+    <title>AgroScan · Hortaliças</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/hortalicas.css" />
     <script src="js/Auth.js" defer></script>
     <script src="js/hortalicas.js" defer></script>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <!-- SIDEBAR (idêntica ao diagnosticar.html) -->
     <aside class="sidebar" id="sidebar">
-        <!-- Logo -->
         <div class="sidebar-logo">
             <div class="sidebar-logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -31,7 +32,6 @@
             </svg>
         </div>
 
-        <!-- Nav -->
         <nav class="sidebar-nav">
             <div class="nav-group">
                 <p class="nav-group-label">Análise</p>
@@ -60,7 +60,7 @@
                 <p class="nav-group-label">Catálogo</p>
                 <ul>
                     <li class="nav-item">
-                        <a href="hortalicas.html">
+                        <a href="hortalicas.html" class="active">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9 0 5-3 9-9 9z" /></svg>
                             Hortaliças
                         </a>
@@ -71,7 +71,7 @@
                 <p class="nav-group-label">Conta</p>
                 <ul>
                     <li class="nav-item">
-                        <a href="dashboard.html" class="active">
+                        <a href="dashboard.html">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
                             Visão geral
                         </a>
@@ -85,25 +85,53 @@
                 </ul>
             </div>
         </nav>
-        <!-- Usuário -->
+
+        <!-- Usuário — IDs corretos (o bug era a falta destes IDs) -->
         <div class="sidebar-user">
             <div class="sidebar-user-inner">
-                <div class="avatar">P</div>
+                <div class="avatar" id="avatarLetra">P</div>
                 <div class="sidebar-user-info">
-                    <strong>Produtor</strong>
+                    <strong id="nomeUsuario">Produtor</strong>
                     <span>Conta básica</span>
                 </div>
             </div>
         </div>
     </aside>
 
+    <!-- MAIN -->
     <main class="main">
         <div class="topbar">
+            <button class="icon-btn topbar-menu-btn" id="menuBtn" title="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
             <div class="topbar-title">📚 Catálogo de Hortaliças</div>
+
+            <div class="topbar-actions">
+                <button class="icon-btn" id="themeBtn" title="Alternar tema">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16" style="display:none">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <div class="page-body">
-            <!-- FILTROS -->
+
+            <!-- FILTROS (botão "+ Adicionar" é injetado aqui via JS) -->
             <div class="filter-row">
                 <div class="search-wrap">
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6.5" cy="6.5" r="4" /><path d="m11 11 3 3" /></svg>
@@ -122,7 +150,6 @@
 
             <!-- GRID -->
             <div class="hortalicas-grid" id="grid">
-                <!-- skeletons -->
                 <div class="h-card" style="pointer-events:none">
                     <div class="h-card-header"><div class="skeleton" style="width:44px;height:44px;border-radius:10px"></div><div><div class="skeleton" style="height:13px;width:100px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:70px"></div></div></div>
                 </div>
@@ -136,8 +163,8 @@
         </div>
     </main>
 
-    <!-- MODAL -->
-    <div class="overlay" id="overlay" onclick="fecharModal(event)">
+    <!-- MODAL DE DETALHE -->
+    <div class="overlay" id="overlay-detalhe" onclick="fecharModal(event)">
         <div class="modal" id="modal">
             <div class="modal-header">
                 <div class="modal-emoji" id="mEmoji">🌱</div>

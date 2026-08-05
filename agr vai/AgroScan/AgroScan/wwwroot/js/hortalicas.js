@@ -143,7 +143,45 @@ let dados = [...HORTALICAS_BASE];
 let dadosAPI = [];
 let modalAtual = null;
 
+// ── TEMA (claro/escuro) — mesmo padrão do diagnosticar.js ──────
+function initTheme() {
+    const themeBtn = document.getElementById('themeBtn');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+    if (!themeBtn || !sunIcon || !moonIcon) return;
+
+    const jaEscuro = document.documentElement.classList.contains('dark');
+    sunIcon.style.display = jaEscuro ? 'block' : 'none';
+    moonIcon.style.display = jaEscuro ? 'none' : 'block';
+
+    themeBtn.addEventListener('click', () => {
+        const nowDark = document.documentElement.classList.toggle('dark');
+        sunIcon.style.display = nowDark ? 'block' : 'none';
+        moonIcon.style.display = nowDark ? 'none' : 'block';
+    });
+}
+
+// ── SIDEBAR MOBILE ──────────────────────────────────────────────
+function initSidebar() {
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    if (!menuBtn || !sidebar || !overlay) return;
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
+    initSidebar();
+
     const nome = Auth.getNome();
     document.getElementById('nomeUsuario').textContent = nome;
     document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
@@ -283,13 +321,12 @@ function abrirModal(idx) {
         </div>
     `;
 
-    document.getElementById('overlay').classList.add('open');
+    document.getElementById('overlay-detalhe').classList.add('open');
 }
 
 function fecharModal(e) {
-    if (!e || e.target === document.getElementById('overlay')) {
-        document.getElementById('overlay').classList.remove('open');
-    }
+    const ov = document.getElementById('overlay-detalhe');
+    if (!e || e.target === ov) ov.classList.remove('open');
 }
 
 document.addEventListener('keydown', e => {
@@ -314,9 +351,8 @@ function getCatLabel(cat) {
 function fazerLogout() { Auth.logout(); }
 
 // ═══════════════════════════════════════════════════════════════
-// NOVO: Adicionar hortaliça manualmente ao catálogo
-// Reaproveita as classes CSS já existentes (overlay, modal, modal-header,
-// modal-body, modal-item, btn-diag-modal) — nenhum CSS novo necessário.
+// Adicionar hortaliça manualmente ao catálogo (injetado via JS,
+// reaproveita as classes de css/hortalicas.css — sem CSS novo).
 // ═══════════════════════════════════════════════════════════════
 
 function injetarBotaoEModalAdicionar() {
@@ -327,7 +363,7 @@ function injetarBotaoEModalAdicionar() {
         btn.className = 'filter-select';
         btn.style.cursor = 'pointer';
         btn.style.fontWeight = '700';
-        btn.style.color = 'var(--leaf)';
+        btn.style.color = 'var(--primary)';
         btn.textContent = '+ Adicionar hortaliça';
         btn.onclick = abrirModalAdicionar;
         filterRow.appendChild(btn);
@@ -352,13 +388,13 @@ function injetarBotaoEModalAdicionar() {
                     <div id="addErro" style="display:none;color:var(--red);font-size:13px;"></div>
                     <div class="modal-grid" style="grid-template-columns:1fr 1fr;">
                         <div class="modal-item"><label>Nome popular *</label>
-                            <input id="addNomePopular" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;" placeholder="Ex: Tomate"></div>
+                            <input id="addNomePopular" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;" placeholder="Ex: Tomate"></div>
                         <div class="modal-item"><label>Nome científico *</label>
-                            <input id="addNomeCientifico" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;" placeholder="Ex: Solanum lycopersicum"></div>
+                            <input id="addNomeCientifico" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;" placeholder="Ex: Solanum lycopersicum"></div>
                         <div class="modal-item"><label>Família</label>
-                            <input id="addFamilia" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;" placeholder="Ex: Solanaceae"></div>
+                            <input id="addFamilia" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;" placeholder="Ex: Solanaceae"></div>
                         <div class="modal-item"><label>Categoria</label>
-                            <select id="addCategoria" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;">
+                            <select id="addCategoria" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;">
                                 <option value="folhosa">Folhosa</option>
                                 <option value="fruto">Fruto</option>
                                 <option value="raiz">Raiz</option>
@@ -367,32 +403,32 @@ function injetarBotaoEModalAdicionar() {
                                 <option value="brassica">Brássica</option>
                             </select></div>
                         <div class="modal-item"><label>Dias germinação</label>
-                            <input id="addDiasGerm" type="number" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;"></div>
+                            <input id="addDiasGerm" type="number" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;"></div>
                         <div class="modal-item"><label>Dias colheita</label>
-                            <input id="addDiasColheita" type="number" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;"></div>
+                            <input id="addDiasColheita" type="number" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;"></div>
                         <div class="modal-item"><label>Espaçamento</label>
-                            <input id="addEspacamento" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;" placeholder="Ex: 50x100 cm"></div>
+                            <input id="addEspacamento" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;" placeholder="Ex: 50x100 cm"></div>
                         <div class="modal-item"><label>Clima</label>
-                            <input id="addClima" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;" placeholder="Ex: Tropical"></div>
+                            <input id="addClima" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;" placeholder="Ex: Tropical"></div>
                         <div class="modal-item"><label>Luminosidade</label>
-                            <input id="addLuminosidade" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;" placeholder="Ex: Sol pleno"></div>
+                            <input id="addLuminosidade" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;" placeholder="Ex: Sol pleno"></div>
                         <div class="modal-item"><label>Irrigação</label>
-                            <input id="addIrrigacao" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;" placeholder="Ex: Gotejamento"></div>
+                            <input id="addIrrigacao" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;" placeholder="Ex: Gotejamento"></div>
                         <div class="modal-item"><label>Tipo de solo</label>
-                            <input id="addTipoSolo" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;"></div>
+                            <input id="addTipoSolo" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;"></div>
                         <div class="modal-item"><label>Origem</label>
-                            <input id="addOrigem" style="width:100%;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;"></div>
+                            <input id="addOrigem" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;"></div>
                     </div>
                     <div class="modal-block"><label>Adubação</label>
-                        <textarea id="addAdubacao" rows="2" style="width:100%;background:transparent;border:none;color:var(--text2);font-size:13px;outline:none;resize:vertical;"></textarea></div>
+                        <textarea id="addAdubacao" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
                     <div class="modal-block"><label>Principais pragas</label>
-                        <textarea id="addPragas" rows="2" style="width:100%;background:transparent;border:none;color:var(--text2);font-size:13px;outline:none;resize:vertical;"></textarea></div>
+                        <textarea id="addPragas" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
                     <div class="modal-block"><label>Principais doenças</label>
-                        <textarea id="addDoencas" rows="2" style="width:100%;background:transparent;border:none;color:var(--text2);font-size:13px;outline:none;resize:vertical;"></textarea></div>
+                        <textarea id="addDoencas" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
                     <div class="modal-block"><label>Valor nutricional</label>
-                        <textarea id="addValorNutri" rows="2" style="width:100%;background:transparent;border:none;color:var(--text2);font-size:13px;outline:none;resize:vertical;"></textarea></div>
+                        <textarea id="addValorNutri" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
                     <div class="modal-block"><label>Observações / dicas de cultivo</label>
-                        <textarea id="addObservacoes" rows="2" style="width:100%;background:transparent;border:none;color:var(--text2);font-size:13px;outline:none;resize:vertical;"></textarea></div>
+                        <textarea id="addObservacoes" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
                     <button class="btn-diag-modal" id="btnSalvarNovaHt" onclick="salvarNovaHortalica()" style="width:100%;justify-content:center;margin-top:6px;">
                         💾 Salvar hortaliça
                     </button>
