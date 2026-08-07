@@ -6,183 +6,170 @@
     <title>AgroScan · Acesso</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/login.css">
 </head>
-<body class="state-login">
+<body>
 
-    <div id="shell">
+    <a class="brand" href="#">
+        <span class="bmark">🥬</span>
+        <span class="bname">Agro<em>Scan</em></span>
+    </a>
 
-        <!-- ── PAINEL DO FORMULÁRIO ── -->
-        <div id="form-side">
-            <div id="form-wrap">
+    <div class="stage">
+        <div class="main" id="main">
 
-                <a class="brand" href="#">
-                    <span class="bmark">🥬</span>
-                    <span class="bname">Agro<em>Scan</em></span>
-                </a>
+            <!-- ══ CADASTRO (Sign Up) ══ -->
+            <div class="form-container cadastro-container" id="cadastroContainer">
+                <form novalidate id="formCadastro">
+                    <p class="eyebrow">Comece em menos de um minuto</p>
+                    <h1>Criar conta</h1>
+                    <p class="subtitle">Só o essencial — sem formulário longo, sem enrolação.</p>
 
-                <div class="fcard" id="fcard">
+                    <div id="alCad" class="alert" role="alert"></div>
 
-                    <!-- LOGIN -->
-                    <section class="fview" id="view-login">
-                        <p class="eyebrow">Diagnóstico agronômico com IA</p>
-                        <h1 class="title">Entrar na conta</h1>
-                        <p class="subtitle">Acesse seu painel para continuar diagnosticando sua lavoura.</p>
+                    <div class="field">
+                        <label for="cadNome">Nome completo</label>
+                        <input type="text" id="cadNome" placeholder="Seu nome completo" autocomplete="name" />
+                        <span class="ferr" id="errCadNome"></span>
+                    </div>
 
-                        <div id="alLogin" class="alert" role="alert"></div>
-
-                        <form novalidate>
-                            <div class="field">
-                                <label for="loginCpf">CPF</label>
-                                <div class="iw">
-                                    <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6.5h12" /></svg>
-                                    <input type="text" id="loginCpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="username" />
-                                    <div class="fl"></div>
-                                </div>
-                                <span class="ferr" id="errLoginCpf"></span>
+                    <div class="row2">
+                        <div class="field">
+                            <label for="cadCpf">CPF</label>
+                            <input type="text" id="cadCpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" />
+                            <span class="ferr" id="errCadCpf"></span>
+                        </div>
+                        <div class="field">
+                            <label for="cadSenha">Senha</label>
+                            <div class="iw">
+                                <input type="password" id="cadSenha" placeholder="Mín. 6 caracteres" />
+                                <button type="button" class="peek" id="peekCad" aria-label="Mostrar senha"><i class="fa-regular fa-eye"></i></button>
                             </div>
+                            <span class="ferr" id="errCadSenha"></span>
+                        </div>
+                    </div>
 
-                            <div class="field">
-                                <div class="flabel-row">
-                                    <label for="loginSenha">Senha</label>
-                                </div>
-                                <div class="iw">
-                                    <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
-                                    <input type="password" id="loginSenha" placeholder="••••••••" autocomplete="current-password" />
-                                    <button type="button" class="peek" id="peekLogin" aria-label="Mostrar senha">
-                                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z" /><circle cx="8" cy="8" r="2" /></svg>
-                                    </button>
-                                    <div class="fl"></div>
-                                </div>
-                                <span class="ferr" id="errLoginSenha"></span>
+                    <div class="row2">
+                        <div class="field">
+                            <label for="cadCep">CEP</label>
+                            <div class="iw">
+                                <input type="text" id="cadCep" inputmode="numeric" placeholder="00000-000" maxlength="9" />
+                                <span class="cep-spin" id="cepSpin" aria-hidden="true"></span>
                             </div>
+                            <span class="ferr" id="errCadCep"></span>
+                        </div>
+                        <div class="field">
+                            <label>Cidade / UF</label>
+                            <input type="text" id="cadCidadeUf" placeholder="Preenchido pelo CEP" disabled />
+                        </div>
+                    </div>
 
-                            <button class="btn" id="btnLogin" type="submit">
-                                <span class="blbl">Entrar</span>
-                                <svg class="barr" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
-                                <span class="spin" aria-hidden="true"></span>
-                            </button>
-                        </form>
+                    <button class="btn" id="btnCad" type="submit">
+                        <span class="blbl">Criar minha conta</span>
+                        <span class="spin" aria-hidden="true"></span>
+                    </button>
 
-                        <p class="lrow">Ainda não tem conta? <a id="toCadastro">Criar conta grátis</a></p>
-                    </section>
-
-                    <!-- CADASTRO -->
-                    <section class="fview" id="view-cadastro">
-                        <p class="eyebrow">Comece em menos de um minuto</p>
-                        <h1 class="title">Criar conta</h1>
-                        <p class="subtitle">Só o essencial — sem formulário longo, sem enrolação.</p>
-
-                        <div id="alCad" class="alert" role="alert"></div>
-
-                        <form novalidate>
-                            <div class="field">
-                                <label for="cadNome">Nome completo</label>
-                                <div class="iw">
-                                    <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.8" /><path d="M2.5 14c0-3.1 2.5-5.5 5.5-5.5s5.5 2.4 5.5 5.5" /></svg>
-                                    <input type="text" id="cadNome" placeholder="Seu nome completo" autocomplete="name" />
-                                    <div class="fl"></div>
-                                </div>
-                                <span class="ferr" id="errCadNome"></span>
-                            </div>
-
-                            <div class="row2">
-                                <div class="field">
-                                    <label for="cadCpf">CPF</label>
-                                    <div class="iw">
-                                        <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6.5h12" /></svg>
-                                        <input type="text" id="cadCpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" />
-                                        <div class="fl"></div>
-                                    </div>
-                                    <span class="ferr" id="errCadCpf"></span>
-                                </div>
-                                <div class="field">
-                                    <label for="cadSenha">Senha</label>
-                                    <div class="iw">
-                                        <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="7" width="8" height="7" rx="1" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
-                                        <input type="password" id="cadSenha" placeholder="Mín. 6 caracteres" />
-                                        <button type="button" class="peek" id="peekCad" aria-label="Mostrar senha">
-                                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z" /><circle cx="8" cy="8" r="2" /></svg>
-                                        </button>
-                                        <div class="fl"></div>
-                                    </div>
-                                    <span class="ferr" id="errCadSenha"></span>
-                                </div>
-                            </div>
-
-                            <div class="row2 row2-cep">
-                                <div class="field">
-                                    <label for="cadCep">CEP</label>
-                                    <div class="iw">
-                                        <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 14.5S13 9.8 13 6.3a5 5 0 1 0-10 0C3 9.8 8 14.5 8 14.5Z" /><circle cx="8" cy="6.2" r="1.8" /></svg>
-                                        <input type="text" id="cadCep" inputmode="numeric" placeholder="00000-000" maxlength="9" />
-                                        <div class="cep-spin" id="cepSpin" aria-hidden="true"></div>
-                                        <div class="fl"></div>
-                                    </div>
-                                    <span class="ferr" id="errCadCep"></span>
-                                </div>
-                                <div class="field">
-                                    <label>Cidade / UF</label>
-                                    <div class="iw iw-static">
-                                        <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V6l6-3.5L14 6v8" /><path d="M6 14v-4h4v4" /></svg>
-                                        <input type="text" id="cadCidadeUf" placeholder="Preenchido pelo CEP" disabled />
-                                        <div class="fl"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button class="btn" id="btnCad" type="submit">
-                                <span class="blbl">Criar minha conta</span>
-                                <svg class="barr" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
-                                <span class="spin" aria-hidden="true"></span>
-                            </button>
-                        </form>
-
-                        <p class="lrow">Já tem conta? <a id="toLogin">Entrar</a></p>
-                    </section>
-
-                </div>
-
-                <p class="foot-note">AgroScan · Diagnóstico agronômico assistido por IA</p>
+                    <p class="mobile-switch">Já tem conta? <a id="toLoginMobile">Entrar</a></p>
+                </form>
             </div>
+
+            <!-- ══ LOGIN (Sign In) ══ -->
+            <div class="form-container login-container" id="loginContainer">
+                <form novalidate id="formLogin">
+                    <p class="eyebrow">Diagnóstico agronômico com IA</p>
+                    <h1>Entrar na conta</h1>
+                    <p class="subtitle">Acesse seu painel para continuar diagnosticando sua lavoura.</p>
+
+                    <div id="alLogin" class="alert" role="alert"></div>
+
+                    <div class="field">
+                        <label for="loginCpf">CPF</label>
+                        <input type="text" id="loginCpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="username" />
+                        <span class="ferr" id="errLoginCpf"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="loginSenha">Senha</label>
+                        <div class="iw">
+                            <input type="password" id="loginSenha" placeholder="••••••••" autocomplete="current-password" />
+                            <button type="button" class="peek" id="peekLogin" aria-label="Mostrar senha"><i class="fa-regular fa-eye"></i></button>
+                        </div>
+                        <span class="ferr" id="errLoginSenha"></span>
+                    </div>
+
+                    <a class="forgot" href="#">Esqueceu sua senha?</a>
+
+                    <button class="btn" id="btnLogin" type="submit">
+                        <span class="blbl">Entrar</span>
+                        <span class="spin" aria-hidden="true"></span>
+                    </button>
+
+                    <p class="mobile-switch">Ainda não tem conta? <a id="toCadastroMobile">Criar conta grátis</a></p>
+                </form>
+            </div>
+
+            <!-- ══ OVERLAY (painel deslizante + mascote) ══ -->
+            <div class="overlay-container" id="overlayContainer">
+                <div class="overlay">
+                    <div class="vs-grid" aria-hidden="true"></div>
+                    <div class="vs-glow" aria-hidden="true"></div>
+
+                    <div class="overlay-panel overlay-left">
+                        <p class="ov-eyebrow"><span class="vs-dot"></span> Sistema de diagnóstico ativo</p>
+
+                        <div class="mascot-frame">
+                            <img src="imagens/mascote3.png" alt="Mascote AgroScan, um explorador peludo com chapéu de palha e lupa" class="mascot-img" />
+                            <div class="reticle" aria-hidden="true">
+                                <span class="rt-corner tl"></span>
+                                <span class="rt-corner tr"></span>
+                                <span class="rt-corner bl"></span>
+                                <span class="rt-corner br"></span>
+                                <span class="rt-sweep"></span>
+                            </div>
+                            <div class="scan-readout" aria-hidden="true">
+                                <span class="sr-label">Analisando amostra</span>
+                                <span class="sr-value">98.2%</span>
+                            </div>
+                        </div>
+
+                        <h2 class="vs-heading">Sua lavoura,<br><em>sob os olhos certos</em></h2>
+                        <p class="vs-sub">Fotografe uma folha, um caule ou um fruto e receba o diagnóstico da praga ou doença em segundos — com o tratamento recomendado.</p>
+
+                        <button class="btn ghost" id="toLogin" type="button">Entrar</button>
+                    </div>
+
+                    <div class="overlay-panel overlay-right">
+                        <p class="ov-eyebrow"><span class="vs-dot"></span> Bem-vindo ao AgroScan</p>
+
+                        <div class="mascot-frame">
+                            <img src="imagens/mascote2.png" alt="Mascote AgroScan, um explorador peludo com chapéu de palha e lupa" class="mascot-img" />
+                            <div class="reticle" aria-hidden="true">
+                                <span class="rt-corner tl"></span>
+                                <span class="rt-corner tr"></span>
+                                <span class="rt-corner bl"></span>
+                                <span class="rt-corner br"></span>
+                                <span class="rt-sweep"></span>
+                            </div>
+                            <div class="scan-readout" aria-hidden="true">
+                                <span class="sr-label">Analisando amostra</span>
+                                <span class="sr-value">98.2%</span>
+                            </div>
+                        </div>
+
+                        <h2 class="vs-heading">Comece a diagnosticar<br><em>em poucos minutos</em></h2>
+                        <p class="vs-sub">Crie sua conta e tenha um assistente de IA treinado para reconhecer pragas e doenças nas suas hortaliças.</p>
+
+                        <button class="btn ghost" id="toCadastro" type="button">Criar conta</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
-
-        <!-- ── PAINEL VISUAL ── -->
-        <aside id="visual-side" aria-hidden="true">
-            <div class="vs-grid"></div>
-            <div class="vs-glow"></div>
-
-            <div class="vs-content">
-                <p class="vs-kicker"><span class="vs-dot"></span>Sistema de diagnóstico ativo</p>
-
-                <div class="mascot-frame" id="mascotFrame">
-                    <img src="imagens/mascote2.png" alt="Mascote AgroScan, um explorador peludo com chapéu de palha e lupa" class="mascot-img" />
-                    <div class="reticle" id="reticle">
-                        <span class="rt-corner tl"></span>
-                        <span class="rt-corner tr"></span>
-                        <span class="rt-corner bl"></span>
-                        <span class="rt-corner br"></span>
-                        <span class="rt-sweep"></span>
-                    </div>
-                    <div class="scan-readout" id="scanReadout">
-                        <span class="sr-label">Analisando amostra</span>
-                        <span class="sr-value">98.2%</span>
-                    </div>
-                </div>
-
-                <h2 class="vs-heading">Sua lavoura,<br><em>sob os olhos certos</em></h2>
-                <p class="vs-sub">Fotografe uma folha, um caule ou um fruto e receba o diagnóstico da praga ou doença em segundos — com o tratamento recomendado.</p>
-
-                <div class="vs-stats">
-                    <div class="vs-stat"><span class="vsv">94,7%</span><span class="vsl">precisão média</span></div>
-                    <div class="vs-stat"><span class="vsv">148</span><span class="vsl">culturas cobertas</span></div>
-                    <div class="vs-stat"><span class="vsv">12,4k+</span><span class="vsl">diagnósticos feitos</span></div>
-                </div>
-            </div>
-        </aside>
-
     </div>
+
+    <p class="foot-note">AgroScan · Diagnóstico agronômico assistido por IA</p>
 
     <script src="js/login.js" defer></script>
 </body>

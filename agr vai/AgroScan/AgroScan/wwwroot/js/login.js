@@ -2,26 +2,20 @@
     'use strict';
 
     /* ── Referências ── */
-    const viewLogin = document.getElementById('view-login');
-    const viewCad = document.getElementById('view-cadastro');
+    const main = document.getElementById('main');
     const toCad = document.getElementById('toCadastro');
     const toLogin = document.getElementById('toLogin');
-
-    let state = 'login';
-    viewLogin.classList.add('active');
+    const toCadMobile = document.getElementById('toCadastroMobile');
+    const toLoginMobile = document.getElementById('toLoginMobile');
 
     function switchTo(target) {
-        if (target === state) return;
-        const out = target === 'cadastro' ? viewLogin : viewCad;
-        const into = target === 'cadastro' ? viewCad : viewLogin;
-        out.classList.remove('active');
-        into.classList.add('active');
-        document.body.className = target === 'cadastro' ? 'state-cadastro' : 'state-login';
+        main.classList.toggle('right-panel-active', target === 'cadastro');
         document.title = target === 'cadastro' ? 'AgroScan · Criar Conta' : 'AgroScan · Entrar';
-        state = target;
     }
     toCad.addEventListener('click', () => switchTo('cadastro'));
     toLogin.addEventListener('click', () => switchTo('login'));
+    toCadMobile.addEventListener('click', () => switchTo('cadastro'));
+    toLoginMobile.addEventListener('click', () => switchTo('login'));
 
     /* ── Utilitários de campo ── */
     function setError(fieldId, errId, msg) {
@@ -31,10 +25,9 @@
             field.classList.add('invalid');
             field.classList.remove('valid');
             err.textContent = msg;
-            err.classList.add('show');
         } else {
             field.classList.remove('invalid');
-            err.classList.remove('show');
+            err.textContent = '';
         }
     }
     function setValid(fieldId) {
@@ -68,7 +61,11 @@
         const btn = document.getElementById(btnId);
         const input = document.getElementById(inputId);
         btn.addEventListener('click', () => {
-            input.type = input.type === 'password' ? 'text' : 'password';
+            const showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            btn.innerHTML = showing
+                ? '<i class="fa-regular fa-eye"></i>'
+                : '<i class="fa-regular fa-eye-slash"></i>';
         });
     }
     bindPeek('peekLogin', 'loginSenha');
@@ -218,6 +215,6 @@
         }
     }
 
-    document.querySelector('#view-login form').addEventListener('submit', e => { e.preventDefault(); fazerLogin(); });
-    document.querySelector('#view-cadastro form').addEventListener('submit', e => { e.preventDefault(); cadastrar(); });
+    document.getElementById('formLogin').addEventListener('submit', e => { e.preventDefault(); fazerLogin(); });
+    document.getElementById('formCadastro').addEventListener('submit', e => { e.preventDefault(); cadastrar(); });
 })();
