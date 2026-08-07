@@ -23,6 +23,11 @@ builder.Services.AddAuthentication(o =>
 })
 .AddJwtBearer(o =>
 {
+    // CORREÇÃO: desativa o remapeamento real de claims (sub -> URI longa),
+    // que acontecia mesmo com NameClaimType/RoleClaimType configurados abaixo.
+    // Sem isso, User.FindFirst("sub") nos controllers sempre retornava null.
+    o.MapInboundClaims = false;
+
     o.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -33,8 +38,6 @@ builder.Services.AddAuthentication(o =>
         ValidAudience = audience,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.FromSeconds(30),
-        // Desabilita remapeamento automatico de claims (sub -> NameIdentifier URI)
-        // Mantém os nomes dos claims exatamente como no JWT
         NameClaimType = "name",
         RoleClaimType = "role"
     };

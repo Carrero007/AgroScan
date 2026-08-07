@@ -1,21 +1,21 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroScan · Histórico</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <script src="js/theme.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroScan — Histórico</title>
+    <link rel="icon" type="image/png" href="assets/icone2.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/dashboard.css" />
     <link rel="stylesheet" href="css/historico.css" />
-    <script src="js/Auth.js" defer></script>
-    <script src="js/historico.js" defer></script>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <!-- SIDEBAR -->
+    <div class="sidebar-overlay" id="overlay"></div>
+
     <aside class="sidebar" id="sidebar">
-        <!-- Logo -->
         <div class="sidebar-logo">
             <div class="sidebar-logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -23,99 +23,97 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 17c.667-3.333 4-8 9-9-1 5-4.667 8.333-9 9z" />
                 </svg>
             </div>
-            <div class="sidebar-logo-text">
-                <strong>AgroScan</strong>
-                <span>Diagnóstico do Campo</span>
-            </div>
-            <svg class="sidebar-logo-diamond" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="12 2 22 12 12 22 2 12" />
-            </svg>
+            <div class="sidebar-logo-text"><strong>AgroScan</strong><span>Diagnóstico do Campo</span></div>
+            <svg class="sidebar-logo-diamond" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 12 12 22 2 12" /></svg>
         </div>
 
-        <!-- Nav -->
         <nav class="sidebar-nav">
             <div class="nav-group">
                 <p class="nav-group-label">Análise</p>
                 <ul>
-                    <li class="nav-item">
-                        <a href="diagnosticar.html">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path stroke-linecap="round" d="M21 21l-4.35-4.35" /></svg>
-                            Diagnosticar
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="identificar.html">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M3 9h18M9 21V9" /></svg>
-                            Identificar Hortaliça
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="historico.html">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" /></svg>
-                            Histórico
-                        </a>
-                    </li>
+                    <li class="nav-item"><a href="diagnosticar.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path stroke-linecap="round" d="M21 21l-4.35-4.35" /></svg>Diagnosticar</a></li>
+                    <li class="nav-item"><a href="identificar.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M3 9h18M9 21V9" /></svg>Identificar Hortaliça</a></li>
+                    <li class="nav-item"><a href="historico.html" class="active"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" /></svg>Histórico</a></li>
                 </ul>
             </div>
             <div class="nav-group">
                 <p class="nav-group-label">Catálogo</p>
-                <ul>
-                    <li class="nav-item">
-                        <a href="hortalicas.html">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9 0 5-3 9-9 9z" /></svg>
-                            Hortaliças
-                        </a>
-                    </li>
-                </ul>
+                <ul><li class="nav-item"><a href="hortalicas.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9 0 5-3 9-9 9z" /></svg>Hortaliças</a></li></ul>
             </div>
             <div class="nav-group">
                 <p class="nav-group-label">Conta</p>
                 <ul>
-                    <li class="nav-item">
-                        <a href="dashboard.html" class="active">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
-                            Visão geral
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="logout.html">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" /></svg>
-                            Sair
-                        </a>
-                    </li>
+                    <li class="nav-item"><a href="dashboard.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>Visão geral</a></li>
+                    <li class="nav-item"><a href="logout.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" /></svg>Sair</a></li>
                 </ul>
             </div>
         </nav>
-        <!-- Usuário -->
+
         <div class="sidebar-user">
             <div class="sidebar-user-inner">
-                <div class="avatar">P</div>
-                <div class="sidebar-user-info">
-                    <strong>Produtor</strong>
-                    <span>Conta básica</span>
-                </div>
+                <div class="avatar" id="avatarLetra">P</div>
+                <div class="sidebar-user-info"><strong id="nomeUsuario">Produtor</strong><span>Conta básica</span></div>
             </div>
         </div>
     </aside>
 
-    <!-- MAIN -->
-    <main class="main">
-        <div class="topbar">
-            <div class="topbar-title">📋 Histórico de Diagnósticos</div>
+    <div class="main-wrap">
+        <header class="topbar">
+            <button class="icon-btn topbar-menu-btn" id="menuBtn" title="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+
+            <div class="topbar-title" style="font-size:16px;font-weight:600;">📋 Histórico de Diagnósticos</div>
+
             <div class="topbar-actions">
-                <a href="diagnosticar.html" class="btn-primary">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3v10M3 8h10" /></svg>
-                    Novo diagnóstico
+                <a href="diagnosticar.html">
+                    <button class="btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" /></svg>
+                        Novo diagnóstico
+                    </button>
                 </a>
+                <div class="divider"></div>
+                <button class="icon-btn" id="themeBtn" title="Alternar tema">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16" style="display:none">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                </button>
+                <div class="notify-wrap">
+                    <button class="icon-btn notify-btn" id="notifyBtn" title="Notificações">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                        <span class="notify-dot" id="notifyDot" style="display:none"></span>
+                    </button>
+                    <div id="notifyPanel" class="notify-panel"></div>
+                </div>
             </div>
-        </div>
+        </header>
 
-        <div class="page-body">
+        <main>
+            <div class="page-header">
+                <div class="page-header-left">
+                    <p class="eyebrow">Registros</p>
+                    <h1>Histórico de diagnósticos</h1>
+                    <p class="sub">Todos os diagnósticos salvos da sua horta</p>
+                </div>
+            </div>
 
-            <!-- FILTROS -->
             <div class="filter-bar">
                 <label>Tipo:</label>
-                <select id="filtroTipo" onchange="carregarPagina(1)">
+                <select class="filter-select" id="filtroTipo" onchange="carregarPagina(1)">
                     <option value="">Todos</option>
                     <option value="Doença Fúngica">Doença Fúngica</option>
                     <option value="Doença Bacteriana">Doença Bacteriana</option>
@@ -126,7 +124,7 @@
                     <option value="Saudável">Saudável</option>
                 </select>
                 <label>Gravidade:</label>
-                <select id="filtroGrav" onchange="carregarPagina(1)">
+                <select class="filter-select" id="filtroGrav" onchange="carregarPagina(1)">
                     <option value="">Todas</option>
                     <option value="alta">Alta</option>
                     <option value="media">Média</option>
@@ -134,18 +132,10 @@
                 </select>
             </div>
 
-            <!-- TABELA -->
-            <div class="table-card">
+            <div class="card">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Doença / Praga</th>
-                            <th>Tipo</th>
-                            <th>Gravidade</th>
-                            <th>Risco Propagação</th>
-                            <th>Confiança</th>
-                        </tr>
+                        <tr><th>Data</th><th>Doença / Praga</th><th>Tipo</th><th>Gravidade</th><th>Risco Propagação</th><th>Confiança</th></tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>
@@ -158,11 +148,9 @@
                     <div class="pag-btns" id="paginacaoBtns"></div>
                 </div>
             </div>
+        </main>
+    </div>
 
-        </div>
-    </main>
-
-    <!-- MODAL DETALHE -->
     <div class="overlay" id="modalOverlay" onclick="fecharModal(event)">
         <div class="modal" id="modal">
             <div class="modal-header">
@@ -172,5 +160,9 @@
             <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
+
+    <script src="js/Auth.js"></script>
+    <script src="js/notifications.js" defer></script>
+    <script src="js/historico.js"></script>
 </body>
 </html>

@@ -10,7 +10,7 @@ async function fetchDashboardData() {
 /* ── DADOS (preenchidos após o fetch) ─────────────────────── */
 let scansData = [];      // [{ d, saudaveis, alertas }]
 let cultureData = [];    // [{ name, value, hex }]
-let severityData = [];   // [{ label, value }]  (substitui o antigo yieldData)
+let severityData = [];   // [{ label, value }]
 let recentScans = [];    // [{ id, data, cultura, problema, severidade, confianca }]
 let kpisData = null;
 let alertasCriticosData = [];
@@ -84,11 +84,9 @@ function populateClima(json) {
     set("climaTemp", `${Math.round(json.current.temperature_2m)}°C`);
     set("climaUmidade", `${Math.round(json.current.relative_humidity_2m)}%`);
 
-    // Soma de chuva dos últimos 7 dias (past_days)
     const chuva7d = json.daily.precipitation_sum.slice(0, 7).reduce((a, b) => a + (b || 0), 0);
     set("climaChuva", `${Math.round(chuva7d)} mm`);
 
-    // Risco de geada com base na menor temperatura prevista para os próximos dias
     const minPrevista = Math.min(...json.daily.temperature_2m_min.slice(7));
     let riscoPct, riscoLabel;
     if (minPrevista <= 0) { riscoPct = 100; riscoLabel = "Alto"; }
@@ -121,41 +119,12 @@ function initClima() {
     );
 }
 
-/* ── NOTIFICAÇÕES (baseadas nos alertas críticos reais) ───────── */
-function initNotifications() {
-    const btn = document.getElementById("notifyBtn");
-    const panel = document.getElementById("notifyPanel");
-    if (!btn || !panel) return;
+/* ── NOTIFICAÇÕES ──────────────────────────────────────────
+   NOTA: agora tratadas por js/notifications.js (compartilhado
+   entre todas as páginas). As funções abaixo foram removidas
+   daqui para não duplicar/conflitar com o listener do notifyBtn.
+*/
 
-    btn.addEventListener("click", e => {
-        e.stopPropagation();
-        renderNotifyPanel();
-        panel.classList.toggle("open");
-    });
-
-    document.addEventListener("click", e => {
-        if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove("open");
-    });
-}
-
-function renderNotifyPanel() {
-    const panel = document.getElementById("notifyPanel");
-    const dot = document.getElementById("notifyDot");
-    if (!panel) return;
-
-    if (dot) dot.style.display = alertasCriticosData.length > 0 ? "block" : "none";
-
-    if (alertasCriticosData.length === 0) {
-        panel.innerHTML = `<p class="notify-empty">Nenhuma notificação no momento.</p>`;
-        return;
-    }
-
-    panel.innerHTML = alertasCriticosData.map(a => `
-        <div class="notify-item">
-            <p class="notify-item-title">${a.titulo}</p>
-            <p class="notify-item-sub">${a.subtitulo}</p>
-        </div>`).join("");
-}
 function isDark() {
     return document.documentElement.classList.contains("dark");
 }
@@ -295,7 +264,6 @@ function buildCharts() {
         cornerRadius: 10,
     };
 
-    /* Gráfico de Área */
     const aCtx = document.getElementById("areaChart").getContext("2d");
     const gradSaud = aCtx.createLinearGradient(0, 0, 0, 260);
     gradSaud.addColorStop(0, c.primary + "66");
@@ -344,7 +312,6 @@ function buildCharts() {
         },
     });
 
-    /* Gráfico de Pizza */
     const pCtx = document.getElementById("pieChart").getContext("2d");
     pieChart = new Chart(pCtx, {
         type: "doughnut",
@@ -371,7 +338,6 @@ function buildCharts() {
         },
     });
 
-    /* Gráfico de Barras — distribuição por severidade */
     const bCtx = document.getElementById("barChart").getContext("2d");
     const coresSeveridade = { Baixa: "#5a8a6a", Média: "#c4b86a", Alta: "#c4574a" };
     barChart = new Chart(bCtx, {
@@ -381,7 +347,7 @@ function buildCharts() {
             datasets: [{
                 label: "Diagnósticos",
                 data: severityData.map(d => d.value),
-                backgroundColor: severityData.map(d => isDark() ? coresSeveridade[d.label] : coresSeveridade[d.label]),
+                backgroundColor: severityData.map(d => coresSeveridade[d.label]),
                 borderRadius: 6,
                 borderSkipped: false,
             }],
@@ -402,30 +368,12 @@ function destroyCharts() {
     [areaChart, pieChart, barChart].forEach(c => c && c.destroy());
 }
 
-/* ── TOGGLE DE TEMA ────────────────────────────────────────── */
-function initTheme() {
-    const themeBtn = document.getElementById("themeBtn");
-    const sunIcon = document.getElementById("sunIcon");
-    const moonIcon = document.getElementById("moonIcon");
-
-    // Começa no modo escuro
-    sunIcon.style.display = "block";
-    moonIcon.style.display = "none";
-
-    themeBtn.addEventListener("click", () => {
-        const nowDark = document.documentElement.classList.toggle("dark");
-        sunIcon.style.display = nowDark ? "block" : "none";
-        moonIcon.style.display = nowDark ? "none" : "block";
-        destroyCharts();
-        buildCharts();
-    });
-}
-
 /* ── SIDEBAR MOBILE ────────────────────────────────────────── */
 function initSidebar() {
     const menuBtn = document.getElementById("menuBtn");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
+    if (!menuBtn || !sidebar || !overlay) return;
 
     menuBtn.addEventListener("click", () => {
         sidebar.classList.toggle("open");
@@ -438,12 +386,23 @@ function initSidebar() {
     });
 }
 
+/* ── Redesenha os gráficos quando o tema muda em QUALQUER aba
+   (theme.js dispara isso via evento 'storage'; aqui só escutamos) */
+window.addEventListener("storage", e => {
+    if (e.key === "as_theme" && areaChart) {
+        destroyCharts();
+        buildCharts();
+    }
+});
+
 /* ── INIT ──────────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", async () => {
-    initTheme();
     initSidebar();
     initClima();
-    initNotifications();
+
+    const nome = Auth.getNome();
+    document.getElementById("nomeUsuario").textContent = nome;
+    document.getElementById("avatarLetra").textContent = nome.charAt(0).toUpperCase();
 
     try {
         const json = await fetchDashboardData();
@@ -457,13 +416,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     populatePieLegend();
     populateAlertasCriticos();
     buildCharts();
-
-    const dot = document.getElementById("notifyDot");
-    if (dot) dot.style.display = alertasCriticosData.length > 0 ? "block" : "none";
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const nome = Auth.getNome();
-    document.getElementById('nomeUsuario').textContent = nome;
-    document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
 });

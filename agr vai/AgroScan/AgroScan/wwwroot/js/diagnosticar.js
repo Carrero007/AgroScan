@@ -15,84 +15,7 @@ const Auth = (() => {
 })();
 Auth.exigirLogin();
 
-// ══════════════════════════════════════════════════════════════
-// TEMA (claro/escuro) — mesmo padrão visual do dashboard.js
-// ══════════════════════════════════════════════════════════════
-
-// Cria o botão de tema e o overlay/menu mobile automaticamente,
-// caso o HTML ainda não tenha esses elementos.
-function ensureThemeControls() {
-    const topbar = document.querySelector('.topbar');
-
-    if (topbar && !document.getElementById('themeBtn')) {
-        let actions = topbar.querySelector('.topbar-actions');
-        if (!actions) {
-            actions = document.createElement('div');
-            actions.className = 'topbar-actions';
-            topbar.appendChild(actions);
-        }
-        const btn = document.createElement('button');
-        btn.id = 'themeBtn';
-        btn.className = 'icon-btn';
-        btn.type = 'button';
-        btn.title = 'Alternar tema';
-        btn.innerHTML = `
-            <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <circle cx="12" cy="12" r="5"/>
-              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </svg>
-            <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16" style="display:none">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>`;
-        actions.appendChild(btn);
-    }
-
-    if (!document.getElementById('overlay')) {
-        const overlay = document.createElement('div');
-        overlay.id = 'overlay';
-        overlay.className = 'sidebar-overlay';
-        document.body.prepend(overlay);
-    }
-
-    if (topbar && !document.getElementById('menuBtn')) {
-        const btn = document.createElement('button');
-        btn.id = 'menuBtn';
-        btn.className = 'icon-btn topbar-menu-btn';
-        btn.type = 'button';
-        btn.title = 'Menu';
-        btn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>`;
-        topbar.prepend(btn);
-    }
-}
-
-function initTheme() {
-    const themeBtn = document.getElementById('themeBtn');
-    const sunIcon = document.getElementById('sunIcon');
-    const moonIcon = document.getElementById('moonIcon');
-    if (!themeBtn || !sunIcon || !moonIcon) {
-        console.warn('AgroScan: controles de tema não encontrados no DOM.');
-        return;
-    }
-
-    // A página já começa no modo escuro (classe "dark" no <html>)
-    const jaEscuro = document.documentElement.classList.contains('dark');
-    sunIcon.style.display = jaEscuro ? 'block' : 'none';
-    moonIcon.style.display = jaEscuro ? 'none' : 'block';
-
-    themeBtn.addEventListener('click', () => {
-        const nowDark = document.documentElement.classList.toggle('dark');
-        sunIcon.style.display = nowDark ? 'block' : 'none';
-        moonIcon.style.display = nowDark ? 'none' : 'block';
-    });
-}
-
-// Menu mobile da sidebar — mesmo padrão do dashboard.js
+// Menu mobile da sidebar
 function initSidebar() {
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('sidebar');
@@ -127,8 +50,6 @@ const HORTALICAS = ['Tomate', 'Alface', 'Cenoura', 'Pimentão', 'Pepino', 'Abobr
     'Milho-verde', 'Rúcula', 'Kale'];
 
 document.addEventListener('DOMContentLoaded', () => {
-    ensureThemeControls();
-    initTheme();
     initSidebar();
 
     const nome = Auth.getNome();
@@ -153,7 +74,6 @@ function processarArquivo(file) {
         const prev = document.getElementById('previewImg');
         prev.src = ev.target.result;
         prev.style.display = 'block';
-        // Esconde o placeholder da zona de upload
         zona.querySelector('.upload-icon').style.display = 'none';
         zona.querySelector('.upload-label').style.display = 'none';
         zona.querySelector('.upload-hint').style.display = 'none';
@@ -177,7 +97,6 @@ function onAcInput(v) {
 function escolherAC(v) {
     document.getElementById('hortalicaNome').value = v;
     document.getElementById('acList').classList.remove('show');
-    // Marca o chip correspondente se existir
     document.querySelectorAll('#chipsHort .chip').forEach(c => {
         c.classList.toggle('on', c.textContent.replace(/\s/g, '').toLowerCase().includes(v.toLowerCase()));
     });
@@ -207,7 +126,6 @@ function chipEst(el, valor) {
 }
 
 function chipToggle(el, conjunto) {
-    // Extrai texto limpo do chip (remove emoji)
     const txt = el.textContent.replace(/^\S+\s/, '').trim();
     if (el.classList.toggle('on')) conjunto.add(txt);
     else conjunto.delete(txt);
@@ -217,7 +135,7 @@ function chipToggle(el, conjunto) {
 // ── QUALIDADE DO CONTEXTO ─────────────────────────────────────
 function atualizarQualidade() {
     let pts = 0;
-    if (imagemBase64) pts += 20; // imagem é base
+    if (imagemBase64) pts += 20;
     if (document.getElementById('hortalicaNome').value.trim()) pts += 25;
     if (estagioAtual) pts += 15;
     if (sintomasSet.size > 0) pts += 25;
@@ -251,7 +169,6 @@ async function diagnosticar() {
                 <p>Nossa IA especializada em hortaliças está examinando a imagem.</p>
             </div>`;
 
-    // Monta sintomas: chips + texto extra
     const sintomasFinal = [...sintomasSet, document.getElementById('sintomasExtra').value.trim()]
         .filter(Boolean).join('. ');
     const climaFinal = [...climaSet].join(', ');

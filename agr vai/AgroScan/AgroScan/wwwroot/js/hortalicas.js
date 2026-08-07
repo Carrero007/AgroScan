@@ -143,24 +143,6 @@ let dados = [...HORTALICAS_BASE];
 let dadosAPI = [];
 let modalAtual = null;
 
-// ── TEMA (claro/escuro) — mesmo padrão do diagnosticar.js ──────
-function initTheme() {
-    const themeBtn = document.getElementById('themeBtn');
-    const sunIcon = document.getElementById('sunIcon');
-    const moonIcon = document.getElementById('moonIcon');
-    if (!themeBtn || !sunIcon || !moonIcon) return;
-
-    const jaEscuro = document.documentElement.classList.contains('dark');
-    sunIcon.style.display = jaEscuro ? 'block' : 'none';
-    moonIcon.style.display = jaEscuro ? 'none' : 'block';
-
-    themeBtn.addEventListener('click', () => {
-        const nowDark = document.documentElement.classList.toggle('dark');
-        sunIcon.style.display = nowDark ? 'block' : 'none';
-        moonIcon.style.display = nowDark ? 'none' : 'block';
-    });
-}
-
 // ── SIDEBAR MOBILE ──────────────────────────────────────────────
 function initSidebar() {
     const menuBtn = document.getElementById('menuBtn');
@@ -179,7 +161,6 @@ function initSidebar() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    initTheme();
     initSidebar();
 
     const nome = Auth.getNome();

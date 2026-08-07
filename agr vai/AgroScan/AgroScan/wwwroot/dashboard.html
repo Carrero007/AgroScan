@@ -1,403 +1,408 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgroScan — Diagnóstico do Campo</title>
-  <link rel="icon" type="image/png" href="assets/icone2.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/dashboard.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroScan — Diagnóstico do Campo</title>
+    <link rel="icon" type="image/png" href="assets/icone2.png">
+    <script src="js/theme.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/dashboard.css" />
 </head>
 <body>
 
-<div class="sidebar-overlay" id="overlay"></div>
+    <div class="sidebar-overlay" id="overlay"></div>
 
-<!-- ═══ SIDEBAR ══════════════════════════════════════════════ -->
-<aside class="sidebar" id="sidebar">
-    <!-- Logo -->
-    <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17c.667-3.333 4-8 9-9-1 5-4.667 8.333-9 9z" />
+    <!-- ═══ SIDEBAR ══════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Logo -->
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 17c.667-3.333 4-8 9-9-1 5-4.667 8.333-9 9z" />
+                </svg>
+            </div>
+            <div class="sidebar-logo-text">
+                <strong>AgroScan</strong>
+                <span>Diagnóstico do Campo</span>
+            </div>
+            <svg class="sidebar-logo-diamond" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 22 12 12 22 2 12" />
             </svg>
         </div>
-        <div class="sidebar-logo-text">
-            <strong>AgroScan</strong>
-            <span>Diagnóstico do Campo</span>
-        </div>
-        <svg class="sidebar-logo-diamond" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 22 12 12 22 2 12" />
-        </svg>
-    </div>
 
-    <!-- Nav -->
-    <nav class="sidebar-nav">
-        <div class="nav-group">
-            <p class="nav-group-label">Análise</p>
-            <ul>
-                <li class="nav-item">
-                    <a href="diagnosticar.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path stroke-linecap="round" d="M21 21l-4.35-4.35" /></svg>
-                        Diagnosticar
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="identificar.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M3 9h18M9 21V9" /></svg>
-                        Identificar Hortaliça
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="historico.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" /></svg>
-                        Histórico
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="nav-group">
-            <p class="nav-group-label">Catálogo</p>
-            <ul>
-                <li class="nav-item">
-                    <a href="hortalicas.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9 0 5-3 9-9 9z" /></svg>
-                        Hortaliças
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="nav-group">
-            <p class="nav-group-label">Conta</p>
-            <ul>
-                <li class="nav-item">
-                    <a href="dashboard.html" class="active">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
-                        Visão geral
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="logout.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" /></svg>
-                        Sair
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <!-- Usuário -->
-    <div class="sidebar-user">
-        <div class="sidebar-user-inner">
-            <div class="avatar" id="avatarLetra">P</div>
-            <div class="sidebar-user-info">
-                <strong id="nomeUsuario">Produtor</strong>
-                <span>Conta básica</span>
+        <!-- Nav -->
+        <nav class="sidebar-nav">
+            <div class="nav-group">
+                <p class="nav-group-label">Análise</p>
+                <ul>
+                    <li class="nav-item">
+                        <a href="diagnosticar.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path stroke-linecap="round" d="M21 21l-4.35-4.35" /></svg>
+                            Diagnosticar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="identificar.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M3 9h18M9 21V9" /></svg>
+                            Identificar Hortaliça
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="historico.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" /></svg>
+                            Histórico
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="nav-group">
+                <p class="nav-group-label">Catálogo</p>
+                <ul>
+                    <li class="nav-item">
+                        <a href="hortalicas.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9 0 5-3 9-9 9z" /></svg>
+                            Hortaliças
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="nav-group">
+                <p class="nav-group-label">Conta</p>
+                <ul>
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="active">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
+                            Visão geral
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="logout.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" /></svg>
+                            Sair
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!-- Usuário -->
+        <div class="sidebar-user">
+            <div class="sidebar-user-inner">
+                <div class="avatar" id="avatarLetra">P</div>
+                <div class="sidebar-user-info">
+                    <strong id="nomeUsuario">Produtor</strong>
+                    <span>Conta básica</span>
+                </div>
             </div>
         </div>
-    </div>
-</aside>
+    </aside>
 
-<!-- ═══ ÁREA PRINCIPAL ════════════════════════════════════════ -->
-<div class="main-wrap">
+    <!-- ═══ ÁREA PRINCIPAL ════════════════════════════════════════ -->
+    <div class="main-wrap">
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <button class="icon-btn topbar-menu-btn" id="menuBtn" title="Menu">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-    </button>
-
-    <div class="search-wrap">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/>
-        <path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
-      </svg>
-      <input class="search-input" type="text" placeholder="Buscar talhão, cultura, diagnóstico..." />
-    </div>
-
-    <div class="topbar-actions">
-        <a href="diagnosticar.html">
-            <button class="btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <button class="icon-btn topbar-menu-btn" id="menuBtn" title="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-                Novo diagnóstico
             </button>
-        </a>
-      <div class="divider"></div>
-      <button class="icon-btn" id="themeBtn" title="Alternar tema">
-        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
-        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16" style="display:none">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-      </button>
-      <div class="notify-wrap">
-        <button class="icon-btn notify-btn" id="notifyBtn" title="Notificações">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-          <span class="notify-dot" id="notifyDot" style="display:none"></span>
-        </button>
-        <div id="notifyPanel" class="notify-panel"></div>
-      </div>
-    </div>
-  </header>
 
-  <!-- CONTEÚDO DA PÁGINA -->
-  <main>
-
-    <!-- Cabeçalho da página -->
-    <div class="page-header">
-      <div class="page-header-left">
-        <p class="eyebrow">Bem-vindo de volta</p>
-        <h1>Visão geral da fazenda</h1>
-        <p class="sub">Diagnósticos, clima e saúde dos talhões — atualizado há 3 min</p>
-      </div>
-      <div class="page-header-actions">
-        <button class="btn-outline">Últimos 7 dias</button>
-        <button class="btn-outline">Exportar</button>
-      </div>
-    </div>
-
-    <!-- KPIs -->
-    <div class="kpi-grid">
-
-      <div class="card kpi-card">
-        <div class="card-content">
-          <div class="kpi-top">
-            <div class="kpi-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
-            </div>
-            <span class="kpi-badge" id="kpiDiagnosticosBadge"></span>
-          </div>
-          <div class="kpi-body">
-              <p class="kpi-label">Diagnósticos hoje</p>
-              <p class="kpi-value" id="kpiDiagnosticosHoje">—</p>
-              <p class="kpi-hint">vs. ontem</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card kpi-card">
-        <div class="card-content">
-          <div class="kpi-top">
-            <div class="kpi-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9-0 5-3 9-9 9z"/></svg>
-            </div>
-            <span class="kpi-badge" id="kpiSaudavelBadge"></span>
-          </div>
-          <div class="kpi-body">
-              <p class="kpi-label">Diagnósticos de baixa gravidade</p>
-              <p class="kpi-value" id="kpiSaudavel">—</p>
-              <p class="kpi-hint" id="kpiSaudavelHint">últimos 30 dias</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card kpi-card">
-        <div class="card-content">
-          <div class="kpi-top">
-            <div class="kpi-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </div>
-            <span class="kpi-badge" id="kpiAlertasBadge"></span>
-          </div>
-          <div class="kpi-body">
-              <p class="kpi-label">Alertas ativos</p>
-              <p class="kpi-value" id="kpiAlertas">—</p>
-              <p class="kpi-hint" id="kpiAlertasCriticos">— críticos</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card kpi-card">
-        <div class="card-content">
-          <div class="kpi-top">
-            <div class="kpi-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9-0 5-3 9-9 9z"/></svg>
-            </div>
-            <span class="kpi-badge" id="kpiConfiancaBadge"></span>
-          </div>
-          <div class="kpi-body">
-              <p class="kpi-label">Confiança média da IA</p>
-              <p class="kpi-value" id="kpiConfianca">—</p>
-              <p class="kpi-hint">últimos 30 dias</p>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /kpi-grid -->
-
-    <!-- Linha de Gráficos -->
-    <div class="charts-row">
-
-      <div class="card chart-main">
-        <div class="card-header">
-          <div class="card-header-row">
-            <div>
-              <p class="card-title">Diagnósticos da semana</p>
-              <p class="card-sub">Saudáveis vs. alertas detectados pela IA</p>
-            </div>
-            <div class="chart-legend">
-              <span style="display:flex;align-items:center;gap:6px;font-size:12px">
-                <span class="legend-dot" style="background:var(--c-primary-hex)"></span>Saudáveis
-              </span>
-              <span style="display:flex;align-items:center;gap:6px;font-size:12px">
-                <span class="legend-dot" style="background:var(--c-chart4-hex)"></span>Alertas
-              </span>
-            </div>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="chart-canvas-wrap">
-            <canvas id="areaChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <p class="card-title">Distribuição por cultura</p>
-          <p class="card-sub">Área monitorada (%)</p>
-        </div>
-        <div class="card-content">
-          <div style="height:200px;position:relative">
-            <canvas id="pieChart"></canvas>
-          </div>
-          <ul class="pie-legend" id="pieLegend"></ul>
-        </div>
-      </div>
-
-    </div><!-- /charts-row -->
-
-    <!-- Linha Inferior -->
-    <div class="lower-row">
-
-      <div class="card table-card">
-        <div class="card-header">
-          <div class="card-header-row">
-            <div>
-              <p class="card-title">Diagnósticos recentes</p>
-              <p class="card-sub">Últimas leituras do AgroScan IA</p>
-            </div>
-            <button class="btn-ghost">Ver todos</button>
-          </div>
-        </div>
-        <div class="card-content" style="padding-top:12px">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Data</th>
-                <th>Cultura</th>
-                <th>Diagnóstico</th>
-                <th>Severidade</th>
-                <th>Confiança</th>
-              </tr>
-            </thead>
-            <tbody id="scansTable"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="side-panels">
-
-        <!-- Clima -->
-        <div class="card">
-          <div class="card-header">
-            <p class="card-title">Clima — sua localização</p>
-            <p class="card-sub" id="climaAtualizado">Obtendo localização...</p>
-          </div>
-          <div class="card-content" style="display:flex;flex-direction:column;gap:10px">
-            <div class="weather-row">
-              <div class="weather-row-left">
-                <svg class="weather-icon-temp" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+            <div class="search-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
                 </svg>
-                <span>Temperatura</span>
-              </div>
-              <span class="weather-val" id="climaTemp">—</span>
+                <input class="search-input" type="text" placeholder="Buscar talhão, cultura, diagnóstico..." />
             </div>
-            <div class="weather-row">
-              <div class="weather-row-left">
-                <svg class="weather-icon-drop" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-                </svg>
-                <span>Umidade do ar</span>
-              </div>
-              <span class="weather-val" id="climaUmidade">—</span>
+
+            <div class="topbar-actions">
+                <a href="diagnosticar.html">
+                    <button class="btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                        </svg>
+                        Novo diagnóstico
+                    </button>
+                </a>
+                <div class="divider"></div>
+                <button class="icon-btn" id="themeBtn" title="Alternar tema">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16" style="display:none">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                </button>
+                <div class="notify-wrap">
+                    <button class="icon-btn notify-btn" id="notifyBtn" title="Notificações">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                        <span class="notify-dot" id="notifyDot" style="display:none"></span>
+                    </button>
+                    <div id="notifyPanel" class="notify-panel"></div>
+                </div>
             </div>
-            <div class="weather-row">
-              <div class="weather-row-left">
-                <svg class="weather-icon-rain" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <line x1="16" y1="13" x2="16" y2="21"/><line x1="8" y1="13" x2="8" y2="21"/><line x1="12" y1="15" x2="12" y2="23"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
-                </svg>
-                <span>Chuva (7d)</span>
-              </div>
-              <span class="weather-val" id="climaChuva">—</span>
+        </header>
+
+        <!-- CONTEÚDO DA PÁGINA -->
+        <main>
+
+            <!-- Cabeçalho da página -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <p class="eyebrow">Bem-vindo de volta</p>
+                    <h1>Visão geral da fazenda</h1>
+                    <p class="sub">Diagnósticos, clima e saúde dos talhões — atualizado há 3 min</p>
+                </div>
+                <div class="page-header-actions">
+                    <button class="btn-outline">Últimos 7 dias</button>
+                    <button class="btn-outline">Exportar</button>
+                </div>
             </div>
-            <div>
-              <div class="progress-label">
-                <span>Risco de geada</span>
-                <span id="climaRiscoLabel">—</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" id="climaRiscoBar" style="width:0%"></div>
-              </div>
+
+            <!-- KPIs -->
+            <div class="kpi-grid">
+
+                <div class="card kpi-card">
+                    <div class="card-content">
+                        <div class="kpi-top">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                            </div>
+                            <span class="kpi-badge" id="kpiDiagnosticosBadge"></span>
+                        </div>
+                        <div class="kpi-body">
+                            <p class="kpi-label">Diagnósticos hoje</p>
+                            <p class="kpi-value" id="kpiDiagnosticosHoje">—</p>
+                            <p class="kpi-hint">vs. ontem</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card kpi-card">
+                    <div class="card-content">
+                        <div class="kpi-top">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9-0 5-3 9-9 9z" /></svg>
+                            </div>
+                            <span class="kpi-badge" id="kpiSaudavelBadge"></span>
+                        </div>
+                        <div class="kpi-body">
+                            <p class="kpi-label">Diagnósticos de baixa gravidade</p>
+                            <p class="kpi-value" id="kpiSaudavel">—</p>
+                            <p class="kpi-hint" id="kpiSaudavelHint">últimos 30 dias</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card kpi-card">
+                    <div class="card-content">
+                        <div class="kpi-top">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                            </div>
+                            <span class="kpi-badge" id="kpiAlertasBadge"></span>
+                        </div>
+                        <div class="kpi-body">
+                            <p class="kpi-label">Alertas ativos</p>
+                            <p class="kpi-value" id="kpiAlertas">—</p>
+                            <p class="kpi-hint" id="kpiAlertasCriticos">— críticos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card kpi-card">
+                    <div class="card-content">
+                        <div class="kpi-top">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9-0 5-3 9-9 9z" /></svg>
+                            </div>
+                            <span class="kpi-badge" id="kpiConfiancaBadge"></span>
+                        </div>
+                        <div class="kpi-body">
+                            <p class="kpi-label">Confiança média da IA</p>
+                            <p class="kpi-value" id="kpiConfianca">—</p>
+                            <p class="kpi-hint">últimos 30 dias</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /kpi-grid -->
+            <!-- Linha de Gráficos -->
+            <div class="charts-row">
+
+                <div class="card chart-main">
+                    <div class="card-header">
+                        <div class="card-header-row">
+                            <div>
+                                <p class="card-title">Diagnósticos da semana</p>
+                                <p class="card-sub">Saudáveis vs. alertas detectados pela IA</p>
+                            </div>
+                            <div class="chart-legend">
+                                <span style="display:flex;align-items:center;gap:6px;font-size:12px">
+                                    <span class="legend-dot" style="background:var(--c-primary-hex)"></span>Saudáveis
+                                </span>
+                                <span style="display:flex;align-items:center;gap:6px;font-size:12px">
+                                    <span class="legend-dot" style="background:var(--c-chart4-hex)"></span>Alertas
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-canvas-wrap">
+                            <canvas id="areaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <p class="card-title">Distribuição por cultura</p>
+                        <p class="card-sub">Área monitorada (%)</p>
+                    </div>
+                    <div class="card-content">
+                        <div style="height:200px;position:relative">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                        <ul class="pie-legend" id="pieLegend"></ul>
+                    </div>
+                </div>
+
+            </div><!-- /charts-row -->
+            <!-- Linha Inferior -->
+            <div class="lower-row">
+
+                <div class="card table-card">
+                    <div class="card-header">
+                        <div class="card-header-row">
+                            <div>
+                                <p class="card-title">Diagnósticos recentes</p>
+                                <p class="card-sub">Últimas leituras do AgroScan IA</p>
+                            </div>
+                            <button class="btn-ghost">Ver todos</button>
+                        </div>
+                    </div>
+                    <div class="card-content" style="padding-top:12px">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Cultura</th>
+                                    <th>Diagnóstico</th>
+                                    <th>Severidade</th>
+                                    <th>Confiança</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scansTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="side-panels">
+
+                    <!-- Clima -->
+                    <div class="card">
+                        <div class="card-header">
+                            <p class="card-title">Clima — sua localização</p>
+                            <p class="card-sub" id="climaAtualizado">Obtendo localização...</p>
+                        </div>
+                        <div class="card-content" style="display:flex;flex-direction:column;gap:10px">
+                            <div class="weather-row">
+                                <div class="weather-row-left">
+                                    <svg class="weather-icon-temp" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+                                    </svg>
+                                    <span>Temperatura</span>
+                                </div>
+                                <span class="weather-val" id="climaTemp">—</span>
+                            </div>
+                            <div class="weather-row">
+                                <div class="weather-row-left">
+                                    <svg class="weather-icon-drop" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                                    </svg>
+                                    <span>Umidade do ar</span>
+                                </div>
+                                <span class="weather-val" id="climaUmidade">—</span>
+                            </div>
+                            <div class="weather-row">
+                                <div class="weather-row-left">
+                                    <svg class="weather-icon-rain" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <line x1="16" y1="13" x2="16" y2="21" />
+                                        <line x1="8" y1="13" x2="8" y2="21" />
+                                        <line x1="12" y1="15" x2="12" y2="23" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25" />
+                                    </svg>
+                                    <span>Chuva (7d)</span>
+                                </div>
+                                <span class="weather-val" id="climaChuva">—</span>
+                            </div>
+                            <div>
+                                <div class="progress-label">
+                                    <span>Risco de geada</span>
+                                    <span id="climaRiscoLabel">—</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="climaRiscoBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas Críticos -->
+                    <div class="card">
+                        <div class="card-header">
+                            <p class="card-title">Alertas críticos</p>
+                            <p class="card-sub">Requerem ação imediata</p>
+                        </div>
+                        <div class="card-content" id="alertasCriticosPanel">
+                            <!-- alertas -->
+                        </div>
+                    </div>
+
+                </div><!-- /side-panels -->
+            </div><!-- /lower-row -->
+            <!-- Produtividade -->
+            <div class="productivity-section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-row">
+                            <div>
+                                <p class="card-title">Distribuição por severidade</p>
+                                <p class="card-sub">Baixa, média e alta — todos os diagnósticos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="productivity-chart-wrap">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Alertas Críticos -->
-        <div class="card">
-          <div class="card-header">
-            <p class="card-title">Alertas críticos</p>
-            <p class="card-sub">Requerem ação imediata</p>
-          </div>
-          <div class="card-content" id="alertasCriticosPanel"> <!-- alertas -->
-          </div>
-        </div>
-
-      </div><!-- /side-panels -->
-    </div><!-- /lower-row -->
-
-    <!-- Produtividade -->
-    <div class="productivity-section">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-row">
-              <div>
-                  <p class="card-title">Distribuição por severidade</p>
-                  <p class="card-sub">Baixa, média e alta — todos os diagnósticos</p>
-              </div>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="productivity-chart-wrap">
-            <canvas id="barChart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-</div><!-- /main-wrap -->
-
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="js/Auth.js"></script>
-<script src="js/dashboard.js"></script>
+        </main>
+    </div><!-- /main-wrap -->
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/Auth.js"></script>
+    <script src="js/notifications.js" defer></script>
+    <script src="js/dashboard.js"></script>
 
 </body>
 </html>
