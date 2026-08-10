@@ -1,0 +1,114 @@
+﻿/* ═══ Modal de confirmação de saída — AgroScan ═══ */
+.aslogout-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    font-family: 'DM Sans', sans-serif;
+}
+
+    .aslogout-overlay[hidden] {
+        display: none;
+    }
+
+    .aslogout-overlay.is-open {
+        opacity: 1;
+    }
+
+.aslogout-modal {
+    background: var(--card, #111111);
+    border: 1px solid var(--border, rgba(255,255,255,0.07));
+    width: min(360px, 90vw);
+    border-radius: 16px;
+    padding: 32px 28px 24px;
+    text-align: center;
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.5);
+    transform: translateY(10px) scale(0.96);
+    transition: transform 220ms cubic-bezier(0.65,0,0.35,1);
+}
+
+.aslogout-overlay.is-open .aslogout-modal {
+    transform: translateY(0) scale(1);
+}
+
+.aslogout-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--destructive, #c05040) 15%, transparent);
+    color: var(--destructive, #c05040);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .aslogout-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+.aslogout-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--foreground, #e8e8e8);
+    margin-bottom: 8px;
+}
+
+.aslogout-desc {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--muted-fg, #888);
+    margin-bottom: 24px;
+}
+
+.aslogout-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.aslogout-btn {
+    flex: 1;
+    height: 42px;
+    border-radius: 10px;
+    border: none;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 160ms ease, transform 120ms ease, opacity 160ms ease;
+}
+
+    .aslogout-btn:active {
+        transform: scale(0.97);
+    }
+
+.aslogout-btn--ghost {
+    background: var(--muted, #1a1a1a);
+    color: var(--foreground, #e8e8e8);
+}
+
+    .aslogout-btn--ghost:hover {
+        background: var(--secondary, #1a1a1a);
+        opacity: .85;
+    }
+
+.aslogout-btn--danger {
+    background: var(--destructive, #c05040);
+    color: #fff;
+}
+
+    .aslogout-btn--danger:hover {
+        opacity: .88;
+    }
+
+    .aslogout-btn--danger:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
