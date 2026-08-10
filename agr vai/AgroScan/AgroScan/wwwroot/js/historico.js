@@ -1,22 +1,35 @@
 // Auth vem de js/Auth.js (incluído antes deste script no HTML).
-// Removida a cópia inline duplicada de Auth (token/refresh/fetchAuth)
-// que existia aqui — agora há uma única fonte de verdade.
 
 let todosDiag = [];
 let paginaAtual = 1;
 const TAM = 15;
+let filtroHortalicaId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const nome = Auth.getNome();
     document.getElementById('nomeUsuario').textContent = nome;
     document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
+
+    // Filtro vindo do catálogo (hortalicas.html?hortalicaId=...&nome=...)
+    const params = new URLSearchParams(window.location.search);
+    const hid = params.get('hortalicaId');
+    const hnome = params.get('nome');
+    if (hid) {
+        filtroHortalicaId = parseInt(hid);
+        const badge = document.getElementById('filtroHortalicaBadge');
+        if (badge) {
+            document.getElementById('filtroHortalicaNome').textContent = hnome || `ID ${hid}`;
+            badge.style.display = 'block';
+        }
+    }
+
     carregarPagina(1);
 });
 
 async function carregarPagina(pag) {
     paginaAtual = pag;
     const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = `<tr><td colspan="6"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>`.repeat(3);
+    tbody.innerHTML = `<tr><td colspan="7"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>`.repeat(3);
 
     try {
         const resp = await Auth.fetchAuth(`/api/diagnostico/historico?pagina=${pag}&tamanhoPagina=${TAM}`);
@@ -27,11 +40,12 @@ async function carregarPagina(pag) {
         const fgrav = document.getElementById('filtroGrav').value;
         const filtrada = lista.filter(d =>
             (!ftipo || d.tipoDiagnostico === ftipo) &&
-            (!fgrav || d.gravidade === fgrav)
+            (!fgrav || d.gravidade === fgrav) &&
+            (!filtroHortalicaId || d.hortalicaId === filtroHortalicaId)
         );
 
         if (filtrada.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
             <span class="emoji">🌱</span>
             Nenhum diagnóstico encontrado. <a href="diagnosticar.html" style="color:var(--green-lt)">Faça o primeiro!</a>
         </div></td></tr>`;
@@ -42,7 +56,7 @@ async function carregarPagina(pag) {
 
         tbody.innerHTML = filtrada.map(d => {
             const data_ = new Date(d.dataDiagnostico).toLocaleDateString('pt-BR');
-            return `<tr onclick="abrirModal(${d.diagnosticoId})" data-id="${d.diagnosticoId}" data-json='${JSON.stringify(d).replace(/'/g, "&#39;")}'>
+            return `<tr data-id="${d.diagnosticoId}" data-json='${JSON.stringify(d).replace(/'/g, "&#39;")}'>
             <td style="color:var(--text3);font-size:12px;">${data_}</td>
             <td style="color:var(--text);font-weight:500;">${d.nomeDoenca || '—'}<br><span style="font-size:11px;color:var(--text3);font-style:italic;">${d.nomeCientifico || ''}</span></td>
             <td>${badgeTipo(d.tipoDiagnostico)}</td>
@@ -53,6 +67,11 @@ async function carregarPagina(pag) {
                     <div class="conf-track"><div class="conf-fill" style="width:${d.confianca || 0}%"></div></div>
                     <span style="font-size:12px;">${d.confianca || 0}%</span>
                 </div>
+            </td>
+            <td>
+                <button class="pag-btn" style="width:auto;padding:0 12px;font-size:12px;font-weight:600;color:var(--primary);border-color:var(--primary);" onclick="abrirModal(${d.diagnosticoId})">
+                    👁️ Ver diagnóstico
+                </button>
             </td>
         </tr>`;
         }).join('');
@@ -67,7 +86,7 @@ async function carregarPagina(pag) {
     `;
 
     } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--red);">Erro ao carregar histórico.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red);">Erro ao carregar histórico.</td></tr>`;
     }
 }
 

@@ -66,7 +66,7 @@ D:N(am velhas),Fe(clorose internv jovens),Ca(podr apical),K(queima marginal velh
         {
             var system = $@"Fitopatologista hortaliças BR. Analise sintomas na imagem. JSON puro sem markdown:
 {Kb}
-{{""tipoDiagnostico"":""DF|DB|VI|PI|PA|DN|DAF|SA|IN"",""nomeDoenca"":""s"",""nomeCientifico"":""s"",""agenteCausador"":""s"",""confianca"":0,""sintomasObservados"":""s"",""condicoesFavoraveis"":""s"",""gravidade"":""bx|md|al"",""gravidadeNivel"":0,""tratamentoPasso1"":""s"",""tratamentoPasso2"":""s"",""tratamentoPasso3"":""s"",""tratamentoEcologico"":""s"",""tratamentoQuimico"":""s"",""prevencao"":""s"",""riscoPropagacao"":""bx|md|al"",""riscoPropagacaoNivel"":0,""plantasAfetadas"":""s"",""recomendacaoUrgencia"":""im|48h|7d|mo|ne"",""diasParaAcao"":0}}
+{{""tipoDiagnostico"":""DF|DB|VI|PI|PA|DN|DAF|SA|IN"",""nomeDoenca"":""s"",""nomeCientifico"":""s"",""agenteCausador"":""s"",""confianca"":0 (int 0-100, ex: 95, NUNCA 0.95),""sintomasObservados"":""s"",""condicoesFavoraveis"":""s"",""gravidade"":""bx|md|al"",""gravidadeNivel"":0,""tratamentoPasso1"":""s"",""tratamentoPasso2"":""s"",""tratamentoPasso3"":""s"",""tratamentoEcologico"":""s"",""tratamentoQuimico"":""s"",""prevencao"":""s"",""riscoPropagacao"":""bx|md|al"",""riscoPropagacaoNivel"":0,""plantasAfetadas"":""s"",""recomendacaoUrgencia"":""im|48h|7d|mo|ne"",""diasParaAcao"":0}}
 LEGENDA: DF=Doença Fúngica,DB=Doença Bacteriana,VI=Virose,PI=Praga de Inseto,PA=Praga de Ácaro,DN=Deficiência Nutricional,DAF=Dano Físico,SA=Saudável,IN=Inconclusivo. bx=baixa/baixo,md=media/medio,al=alta/alto. im=imediata,48h=em 48h,7d=em 7 dias,mo=monitorar,ne=nenhuma. confianca/gravidadeNivel/riscoPropagacaoNivel/diasParaAcao int.";
 
             var contexto = MontarContexto(req);

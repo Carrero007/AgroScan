@@ -1,19 +1,5 @@
-// ── AUTH INLINE ────────────────────────────────────────────────
-const Auth = (() => {
-    const K = { t: 'as_token', r: 'as_refresh', n: 'as_nome', u: 'as_uid', e: 'as_exp' };
-    const salvar = d => { localStorage.setItem(K.t, d.token); localStorage.setItem(K.r, d.refreshToken); localStorage.setItem(K.n, d.nome); localStorage.setItem(K.u, d.usuarioId); localStorage.setItem(K.e, d.expiracao); };
-    const limpar = () => Object.values(K).forEach(k => localStorage.removeItem(k));
-    const getToken = () => localStorage.getItem(K.t);
-    const getNome = () => localStorage.getItem(K.n) || 'Produtor';
-    const estaLogado = () => !!getToken();
-    const tokenExpirado = () => { const e = localStorage.getItem(K.e); return !e || new Date(e) < new Date(Date.now() + 60000); };
-    const renovarToken = async () => { const r = localStorage.getItem(K.r); if (!r) return false; try { const res = await fetch('/api/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: r }) }); if (!res.ok) { limpar(); return false; } salvar(await res.json()); return true; } catch { return false; } };
-    const fetchAuth = async (url, opts = {}) => { if (tokenExpirado()) { const ok = await renovarToken(); if (!ok) { window.location.replace('login.html'); return new Response(); } } const h = { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json', ...(opts.headers || {}) }; if (opts.isMultipart) delete h['Content-Type']; return fetch(url, { ...opts, headers: h }); };
-    const logout = async () => { const r = localStorage.getItem(K.r); if (r) await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: r }) }).catch(() => { }); limpar(); window.location.replace('login.html'); };
-    const exigirLogin = () => { const p = window.location.pathname.split('/').pop() || ''; if (!['login.html', 'cadastro.html', 'index.html', ''].includes(p) && !estaLogado()) window.location.replace('login.html'); };
-    return { salvar, limpar, getToken, getNome, estaLogado, fetchAuth, logout, exigirLogin };
-})();
-Auth.exigirLogin();
+// ── AUTH INLINE (mantido para compatibilidade; Auth.js real já é carregado antes) ──
+// Auth vem de js/Auth.js (incluído antes deste script no HTML).
 
 // Menu mobile da sidebar
 function initSidebar() {
@@ -44,10 +30,10 @@ let estagioAtual = '';
 const sintomasSet = new Set();
 const climaSet = new Set();
 
-const HORTALICAS = ['Tomate', 'Alface', 'Cenoura', 'Pimentão', 'Pepino', 'Abobrinha', 'Cebola',
-    'Alho', 'Repolho', 'Brócolis', 'Couve', 'Beterraba', 'Quiabo', 'Berinjela', 'Espinafre',
-    'Chuchu', 'Batata-doce', 'Jiló', 'Mandioca', 'Rabanete', 'Ervilha', 'Feijão-vagem',
-    'Milho-verde', 'Rúcula', 'Kale'];
+// Hortaliças cadastradas pelo usuário (substituem a lista fixa antiga)
+let hortalicasCadastradas = [];
+let hortalicaIdSelecionada = null;
+window._hortalicaNomeAtual = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
@@ -55,7 +41,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const nome = Auth.getNome();
     document.getElementById('nomeUsuario').textContent = nome;
     document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
+
+    carregarHortalicasUsuario();
 });
+
+// ── HORTALIÇAS DO USUÁRIO (só cadastradas — sem lista fictícia) ──
+async function carregarHortalicasUsuario() {
+    const select = document.getElementById('hortalicaSelect');
+    if (!select) return;
+
+    try {
+        const resp = await Auth.fetchAuth('/api/hortalicas');
+        const lista = resp.ok ? await resp.json() : [];
+        hortalicasCadastradas = lista;
+
+        const msgEl = document.getElementById('semHortalicasMsg');
+
+        if (lista.length === 0) {
+            select.innerHTML = `<option value="">Nenhuma cadastrada</option>`;
+            if (msgEl) msgEl.style.display = 'block';
+            return;
+        }
+
+        if (msgEl) msgEl.style.display = 'none';
+        select.innerHTML = `<option value="">Selecione...</option>` +
+            lista.map(h => `<option value="${h.hortalicaId}">${h.nomePopular || h.nomeCientifico}</option>`).join('');
+
+        // Pré-seleção vinda do catálogo (hortalicas.html -> ?hortalicaId=)
+        const params = new URLSearchParams(window.location.search);
+        const idParam = params.get('hortalicaId');
+        if (idParam) {
+            select.value = idParam;
+            onHortalicaSelecionada();
+        }
+    } catch {
+        select.innerHTML = `<option value="">Erro ao carregar catálogo</option>`;
+    }
+}
+
+function onHortalicaSelecionada() {
+    const select = document.getElementById('hortalicaSelect');
+    const id = select.value;
+    hortalicaIdSelecionada = id || null;
+    const h = hortalicasCadastradas.find(x => String(x.hortalicaId) === String(id));
+    window._hortalicaNomeAtual = h ? (h.nomePopular || h.nomeCientifico) : '';
+    atualizarQualidade();
+}
 
 // ── UPLOAD / DRAG & DROP ─────────────────────────────────────
 const zona = document.getElementById('uploadZone');
@@ -84,39 +115,7 @@ function processarArquivo(file) {
     reader.readAsDataURL(file);
 }
 
-// ── AUTOCOMPLETE HORTALIÇAS ───────────────────────────────────
-function onAcInput(v) {
-    const list = document.getElementById('acList');
-    if (!v || v.length < 2) { list.classList.remove('show'); atualizarQualidade(); return; }
-    const m = HORTALICAS.filter(h => h.toLowerCase().includes(v.toLowerCase())).slice(0, 6);
-    if (!m.length) { list.classList.remove('show'); return; }
-    list.innerHTML = m.map(h => `<div class="ac-item" onmousedown="escolherAC('${h}')">${h}</div>`).join('');
-    list.classList.add('show');
-    atualizarQualidade();
-}
-function escolherAC(v) {
-    document.getElementById('hortalicaNome').value = v;
-    document.getElementById('acList').classList.remove('show');
-    document.querySelectorAll('#chipsHort .chip').forEach(c => {
-        c.classList.toggle('on', c.textContent.replace(/\s/g, '').toLowerCase().includes(v.toLowerCase()));
-    });
-    atualizarQualidade();
-}
-function fecharAc() { setTimeout(() => document.getElementById('acList').classList.remove('show'), 200); }
-
-// ── CHIPS ─────────────────────────────────────────────────────
-function chipHort(el) {
-    const era = el.classList.contains('on');
-    document.querySelectorAll('#chipsHort .chip').forEach(c => c.classList.remove('on'));
-    if (!era) {
-        el.classList.add('on');
-        document.getElementById('hortalicaNome').value = el.textContent.replace(/[^\w\sÀ-ÿ-]/g, '').trim();
-    } else {
-        document.getElementById('hortalicaNome').value = '';
-    }
-    atualizarQualidade();
-}
-
+// ── CHIPS (estágio, sintomas, clima) ───────────────────────────
 function chipEst(el, valor) {
     const era = el.classList.contains('on');
     document.querySelectorAll('#chipsEst .chip').forEach(c => c.classList.remove('on'));
@@ -136,7 +135,7 @@ function chipToggle(el, conjunto) {
 function atualizarQualidade() {
     let pts = 0;
     if (imagemBase64) pts += 20;
-    if (document.getElementById('hortalicaNome').value.trim()) pts += 25;
+    if (hortalicaIdSelecionada) pts += 25;
     if (estagioAtual) pts += 15;
     if (sintomasSet.size > 0) pts += 25;
     if (climaSet.size > 0) pts += 10;
@@ -156,6 +155,11 @@ function atualizarQualidade() {
 // ── DIAGNOSTICAR ─────────────────────────────────────────────
 async function diagnosticar() {
     if (!imagemBase64) return;
+
+    if (!hortalicaIdSelecionada) {
+        alert('Selecione uma hortaliça do seu catálogo antes de diagnosticar.');
+        return;
+    }
 
     const btn = document.getElementById('btnAnalisar');
     btn.classList.add('loading');
@@ -178,7 +182,7 @@ async function diagnosticar() {
             imagemBase64,
             mimeType,
             nomeArquivo,
-            hortalicaNome: document.getElementById('hortalicaNome').value.trim() || null,
+            hortalicaNome: window._hortalicaNomeAtual || null,
             estagioPlanta: estagioAtual || null,
             regiaoClima: document.getElementById('regiaoClima').value.trim() || null,
             condicoesClimaticas: climaFinal || null,
@@ -324,16 +328,30 @@ async function salvarDiagnostico() {
     if (!resultadoAtual) return;
     const btn = document.getElementById('btnSalvar');
     btn.disabled = true; btn.textContent = 'Salvando...';
+
+    // Normaliza confiança/níveis que a IA às vezes retorna como fração (0.95) em vez de inteiro (95)
+    const normalizarInt = (v) => {
+        let n = Number(v) || 0;
+        if (n > 0 && n <= 1) n = n * 100; // 0.95 -> 95
+        return Math.round(Math.max(0, Math.min(100, n)));
+    };
+    const normalizarNivel = (v) => {
+        let n = Number(v) || 0;
+        if (n > 0 && n <= 1) n = n * 10; // 0.5 -> 5
+        return Math.round(Math.max(0, Math.min(10, n)));
+    };
+
     try {
         const resp = await Auth.fetchAuth('/api/diagnostico/salvar', {
             method: 'POST',
             body: JSON.stringify({
+                hortalicaId: hortalicaIdSelecionada ? parseInt(hortalicaIdSelecionada) : null,
                 tipoDiagnostico: resultadoAtual.tipoDiagnostico,
                 nomeDoenca: resultadoAtual.nomeDoenca,
                 nomeCientifico: resultadoAtual.nomeCientifico,
                 agenteCausador: resultadoAtual.agenteCausador,
-                confianca: resultadoAtual.confianca || 0,
-                gravidadeNivel: resultadoAtual.gravidadeNivel || 0,
+                confianca: normalizarInt(resultadoAtual.confianca),
+                gravidadeNivel: normalizarNivel(resultadoAtual.gravidadeNivel),
                 gravidade: resultadoAtual.gravidade,
                 sintomasObservados: resultadoAtual.sintomasObservados,
                 tratamento: resultadoAtual.tratamentoPasso1,
@@ -341,14 +359,24 @@ async function salvarDiagnostico() {
                 tratamentoQuimico: resultadoAtual.tratamentoQuimico,
                 prevencao: resultadoAtual.prevencao,
                 riscoPropagacao: resultadoAtual.riscoPropagacao,
-                riscoPropagacaoNivel: resultadoAtual.riscoPropagacaoNivel || 0,
+                riscoPropagacaoNivel: normalizarNivel(resultadoAtual.riscoPropagacaoNivel),
                 plantasAfetadas: resultadoAtual.plantasAfetadas,
                 condicoesFavoraveis: resultadoAtual.condicoesFavoraveis,
             })
         });
-        if (resp.ok) { btn.classList.add('salvo'); btn.textContent = '✓ Salvo no histórico!'; }
-        else { btn.disabled = false; btn.textContent = 'Erro ao salvar. Tentar novamente'; }
-    } catch { btn.disabled = false; btn.textContent = 'Erro de conexão'; }
+
+        if (resp.ok) {
+            btn.classList.add('salvo');
+            btn.textContent = '✓ Salvo no histórico!';
+        } else {
+            const err = await resp.json().catch(() => ({}));
+            btn.disabled = false;
+            btn.textContent = err.erro ? `Erro: ${err.erro}` : 'Erro ao salvar. Tentar novamente';
+        }
+    } catch {
+        btn.disabled = false;
+        btn.textContent = 'Erro de conexão';
+    }
 }
 
 function escapeHtml(s) {

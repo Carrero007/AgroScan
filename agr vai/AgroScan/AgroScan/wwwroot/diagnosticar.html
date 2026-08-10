@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/diagnosticar.css" />
+    <script src="js/Auth.js"></script>
     <script src="js/notifications.js" defer></script>
     <script src="js/diagnosticar.js" defer></script>
 </head>
@@ -166,24 +167,15 @@
                     <div class="card-header">🌱 Contexto <span style="font-size:11px;font-weight:400;color:var(--text3);margin-left:4px;">melhora muito a precisão</span></div>
                     <div class="card-body">
 
-                        <!-- Hortaliça -->
+                        <!-- Hortaliça (somente cadastradas) -->
                         <div class="field">
-                            <label>Qual hortaliça é?</label>
-                            <div class="ac-wrap">
-                                <input type="text" id="hortalicaNome" placeholder="Ex: tomate, alface, pimentão..."
-                                       autocomplete="off" oninput="onAcInput(this.value)" onblur="fecharAc()">
-                                <div class="ac-list" id="acList"></div>
-                            </div>
-                            <div class="chips-group" id="chipsHort">
-                                <div class="chip" onclick="chipHort(this)">🍅 Tomate</div>
-                                <div class="chip" onclick="chipHort(this)">🥬 Alface</div>
-                                <div class="chip" onclick="chipHort(this)">🫑 Pimentão</div>
-                                <div class="chip" onclick="chipHort(this)">🥒 Pepino</div>
-                                <div class="chip" onclick="chipHort(this)">🥕 Cenoura</div>
-                                <div class="chip" onclick="chipHort(this)">🧅 Cebola</div>
-                                <div class="chip" onclick="chipHort(this)">🥦 Brócolis</div>
-                                <div class="chip" onclick="chipHort(this)">🫘 Feijão-vagem</div>
-                            </div>
+                            <label>Qual hortaliça é? <span style="font-weight:400">(do seu catálogo)</span></label>
+                            <select id="hortalicaSelect" style="width:100%;height:38px;padding:0 12px;border-radius:calc(var(--radius) - 4px);background:color-mix(in oklch, var(--muted) 40%, transparent);border:1px solid var(--input);color:var(--foreground);font-size:13px;" onchange="onHortalicaSelecionada()">
+                                <option value="">Carregando catálogo...</option>
+                            </select>
+                            <p id="semHortalicasMsg" style="display:none;font-size:12px;color:var(--muted-fg);margin-top:6px;">
+                                Você ainda não tem hortaliças cadastradas. <a href="hortalicas.html" style="color:var(--green-lt)">Cadastre uma primeiro</a>.
+                            </p>
                         </div>
 
                         <!-- Estágio -->
