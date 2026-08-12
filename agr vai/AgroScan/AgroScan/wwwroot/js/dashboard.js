@@ -84,6 +84,7 @@ function setClimaEstadoVazio(mostrar) {
 }
 
 function setClimaIndisponivel(msg) {
+    setClimaEstadoVazio(false);  
     setClimaAtualizadoErro(true);
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
     set("climaAtualizado", msg || "Clima indisponível");
