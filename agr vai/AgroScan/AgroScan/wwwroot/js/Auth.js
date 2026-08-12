@@ -4,7 +4,8 @@
 // hortalicas.js. Inclua este arquivo ANTES dos scripts de página.
 // ══════════════════════════════════════════════════════════════
 const Auth = (() => {
-    const K = { t: 'as_token', r: 'as_refresh', n: 'as_nome', u: 'as_uid', e: 'as_exp' };
+    const K = { t: 'as_token', r: 'as_refresh', n: 'as_nome', u: 'as_uid', e: 'as_exp', c: 'as_cep' };
+
 
     const salvar = d => {
         localStorage.setItem(K.t, d.token);
@@ -12,12 +13,14 @@ const Auth = (() => {
         localStorage.setItem(K.n, d.nome);
         localStorage.setItem(K.u, d.usuarioId);
         localStorage.setItem(K.e, d.expiracao);
+        if (d.cep) localStorage.setItem(K.c, d.cep); 
     };
     const limpar = () => Object.values(K).forEach(k => localStorage.removeItem(k));
     const getToken = () => localStorage.getItem(K.t);
     const getUsuarioId = () => localStorage.getItem(K.u);
     const getNome = () => localStorage.getItem(K.n) || 'Produtor';
     const estaLogado = () => !!getToken();
+    const getCep = () => localStorage.getItem(K.c) || '';
 
     const tokenExpirado = () => {
         const exp = localStorage.getItem(K.e);
@@ -69,7 +72,7 @@ const Auth = (() => {
         }
     };
 
-    return { salvar, limpar, getToken, getUsuarioId, getNome, estaLogado, fetchAuth, logout, exigirLogin };
+    return { salvar, limpar, getToken, getUsuarioId, getNome, getCep, estaLogado, fetchAuth, logout, exigirLogin };
 })();
 
 Auth.exigirLogin();

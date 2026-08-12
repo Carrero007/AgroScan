@@ -42,8 +42,7 @@ namespace AgroScan.Controllers
                 // Conexao 1: busca o usuario
                 using (var conn = new SqlConnection(ConnStr))
                 {
-                    const string sql = "SELECT UsuarioId, Nome, CPF, SenhaHash, Ativo FROM Usuarios WHERE CPF = @cpf";
-                    using var cmd = new SqlCommand(sql, conn);
+                    const string sql = "SELECT UsuarioId, Nome, CPF, SenhaHash, Ativo, Cep FROM Usuarios WHERE CPF = @cpf"; using var cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@cpf", cpf);
                     conn.Open();
                     using var reader = cmd.ExecuteReader();
@@ -57,7 +56,8 @@ namespace AgroScan.Controllers
                     {
                         UsuarioId = (int)reader["UsuarioId"],
                         Nome = reader["Nome"].ToString()!,
-                        CPF = reader["CPF"].ToString()!
+                        CPF = reader["CPF"].ToString()!,
+                        Cep = reader["Cep"]?.ToString() ?? ""
                     };
                 } // conn fechada aqui - reader e conn descartados pelo using
 
@@ -89,7 +89,8 @@ namespace AgroScan.Controllers
                     RefreshToken = refreshToken,
                     Expiracao = DateTime.UtcNow.AddMinutes(expMin),
                     Nome = usuario.Nome,
-                    UsuarioId = usuario.UsuarioId
+                    UsuarioId = usuario.UsuarioId,
+                    Cep = usuario.Cep 
                 });
             }
             catch (Exception ex)
@@ -189,7 +190,7 @@ namespace AgroScan.Controllers
 
                 using (var conn = new SqlConnection(ConnStr))
                 {
-                    const string sql = "SELECT UsuarioId, Nome, CPF FROM Usuarios WHERE UsuarioId = @id AND Ativo = 1";
+                    const string sql = "SELECT UsuarioId, Nome, CPF, Cep FROM Usuarios WHERE UsuarioId = @id AND Ativo = 1";
                     using var cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@id", usuarioId.Value);
                     conn.Open();
@@ -201,7 +202,8 @@ namespace AgroScan.Controllers
                     {
                         UsuarioId = (int)reader["UsuarioId"],
                         Nome = reader["Nome"].ToString()!,
-                        CPF = reader["CPF"].ToString()!
+                        CPF = reader["CPF"].ToString()!,
+                        Cep = reader["Cep"]?.ToString() ?? ""
                     };
                 }
 
@@ -218,7 +220,8 @@ namespace AgroScan.Controllers
                     RefreshToken = newRefresh,
                     Expiracao = DateTime.UtcNow.AddMinutes(expMin),
                     Nome = usuario.Nome,
-                    UsuarioId = usuario.UsuarioId
+                    UsuarioId = usuario.UsuarioId,
+                    Cep = usuario.Cep
                 });
             }
             catch (Exception ex)

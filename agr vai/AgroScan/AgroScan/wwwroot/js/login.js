@@ -153,6 +153,7 @@
             localStorage.setItem('as_nome', d.nome);
             localStorage.setItem('as_uid', d.usuarioId);
             localStorage.setItem('as_exp', d.expiracao);
+            localStorage.setItem('as_cep', d.cep || '');
             window.location.replace('dashboard.html');
         } catch {
             al.className = 'alert erro';

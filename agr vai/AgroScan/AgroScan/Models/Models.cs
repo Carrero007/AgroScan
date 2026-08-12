@@ -90,7 +90,6 @@
         public string? Cidade { get; set; }
         public string? Estado { get; set; }
     }
-
     public class AuthResponse
     {
         public string Token { get; set; } = string.Empty;
@@ -98,8 +97,8 @@
         public DateTime Expiracao { get; set; }
         public string Nome { get; set; } = string.Empty;
         public int UsuarioId { get; set; }
+        public string Cep { get; set; } = string.Empty; 
     }
-
     public class RefreshTokenRequest
     {
         public string RefreshToken { get; set; } = string.Empty;
