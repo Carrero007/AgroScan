@@ -2,8 +2,11 @@ ADICIONAR UM CRUD MODAL PARA EDIÇÃO DE DADOS DO USUÁRIO.
 
 DEIXAR A DASHBOARD MAIS INTUITIVA E COM FUNCIONALIDADES MELHORES (usando o cep do usuário para exibir a previsão do tempo). *****
 
-DIMINUIR O GASTO DE TOKENS DO GEMINI.
+DIMINUIR O GASTO DE TOKENS DO GEMINI.*******
 
 CRUD DE SAIR (PAGINAS DIAGNOSTICAR, IDENTIFICAR E HORTALIÇAS)
 
 
+
+
+adicionar na parte de ver diagnóstico a opção de exportar/compartilhar o diagnóstico em pdf.
