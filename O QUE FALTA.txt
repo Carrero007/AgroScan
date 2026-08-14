@@ -1,7 +1,6 @@
-ADICIONAR UM CRUD MODAL PARA EDIÇÃO DE DADOS DO USUÁRIO.
+B.O MÁXIMO EM IDENTIFICAR HORTALIÇAS
 
-DEIXAR A DASHBOARD MAIS INTUITIVA E COM FUNCIONALIDADES MELHORES (usando o cep do usuário para exibir a previsão do tempo). *****
-pegar do login e joga direto na seção de previsão do tempo na dashboard, pois salva no localstorge mas n exibe lá.
+
 
 
 
@@ -11,4 +10,3 @@ DIMINUIR O GASTO DE TOKENS DO GEMINI.*******
 
 
 
-adicionar na parte de ver diagnóstico a opção de exportar/compartilhar o diagnóstico em pdf.
