@@ -1,4 +1,4 @@
-ADICIONAR UM CRUD MODAL PARA EDIÇÃO DE DADOS DO USUÁRIO.
+B.O MÁXIMO EM IDENTIFICAR HORTALIÇAS
 
 
 
@@ -10,4 +10,3 @@ DIMINUIR O GASTO DE TOKENS DO GEMINI.*******
 
 
 
-adicionar na parte de ver diagnóstico a opção de exportar/compartilhar o diagnóstico em pdf.
