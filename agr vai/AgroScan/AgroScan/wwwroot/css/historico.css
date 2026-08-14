@@ -240,6 +240,39 @@
     font-weight: 600;
 }
 
+/* ── Ações do cabeçalho do modal (exportar PDF + fechar) ─────── */
+.modal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.modal-export-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--muted-fg);
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+}
+
+    .modal-export-btn:hover:not(:disabled) {
+        background: var(--muted);
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .modal-export-btn:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
 .modal-close {
     background: none;
     border: none;
@@ -287,3 +320,35 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ── MODAL DE PERFIL — input com mesmo visual do resto do app ── */
+.modal-body .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--foreground);
+}
+
+.modal-body input[type="text"] {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border-radius: calc(var(--radius) - 4px);
+    background: color-mix(in oklch, var(--muted) 40%, transparent);
+    border: 1px solid var(--input);
+    color: var(--foreground);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: background .15s, border-color .15s;
+}
+
+    .modal-body input[type="text"]::placeholder {
+        color: var(--muted-fg);
+    }
+
+    .modal-body input[type="text"]:focus {
+        background: var(--card);
+        border-color: var(--ring);
+    }
