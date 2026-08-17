@@ -785,8 +785,12 @@ namespace AgroScan.Controllers
                 {
                     using var parsed = JsonDocument.Parse(text);
                     var root = parsed.RootElement;
-                    if (!root.TryGetProperty("tipoDiagnostico", out _)
-                        && !root.TryGetProperty("nomeDoenca", out _))
+
+                    bool valido = acao == "identificar"
+                        ? root.TryGetProperty("nomeCientifico", out _) || root.TryGetProperty("nomePopular", out _)
+                        : root.TryGetProperty("tipoDiagnostico", out _) || root.TryGetProperty("nomeDoenca", out _);
+
+                    if (!valido)
                     {
                         return StatusCode(502, new
                         {
