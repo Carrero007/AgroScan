@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Filtro de gravidade vindo do dashboard (dashboard.html -> historico.html?gravidade=alta)
+    const grav = params.get('gravidade');
+    if (grav) document.getElementById('filtroGrav').value = grav;
+
     carregarPagina(1);
 });
 

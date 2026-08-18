@@ -348,10 +348,12 @@ namespace AgroScan.Controllers
 
 
         // ── Dashboard (visão geral) ────────────────────────────────
-
+        // Aceita ?dias=7|30|90 para o seletor de período do dashboard.
         [HttpGet("dashboard")]
-        public IActionResult Dashboard()
+        public IActionResult Dashboard([FromQuery] int dias = 30)
         {
+            if (dias is < 1 or > 365) dias = 30;
+
             try
             {
                 using var conn = new SqlConnection(ConnStr);
@@ -366,16 +368,17 @@ namespace AgroScan.Controllers
             SELECT
               (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND CAST(DataDiagnostico AS DATE) = CAST(GETDATE() AS DATE)) AS Hoje,
               (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND CAST(DataDiagnostico AS DATE) = CAST(DATEADD(DAY,-1,GETDATE()) AS DATE)) AS Ontem,
-              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE())) AS Total30,
-              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE()) AND Gravidade='baixa') AS Baixa30,
-              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE()) AND Gravidade='alta') AS Alertas30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@dias,GETDATE())) AS Total30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@dias,GETDATE()) AND Gravidade='baixa') AS Baixa30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@dias,GETDATE()) AND Gravidade='alta') AS Alertas30,
               (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-7,GETDATE()) AND GravidadeNivel >= 8) AS Criticos7,
-              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE())) AS ConfMedia30,
-              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-60,GETDATE()) AND DataDiagnostico < DATEADD(DAY,-30,GETDATE())) AS ConfMediaAnt";
+              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@dias,GETDATE())) AS ConfMedia30,
+              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-(@dias*2),GETDATE()) AND DataDiagnostico < DATEADD(DAY,-@dias,GETDATE())) AS ConfMediaAnt";
 
                 using (var cmd = new SqlCommand(sqlKpis, conn))
                 {
                     cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+                    cmd.Parameters.AddWithValue("@dias", dias);
                     using var r = cmd.ExecuteReader();
                     if (r.Read())
                     {
@@ -411,12 +414,13 @@ namespace AgroScan.Controllers
                    SUM(CASE WHEN Gravidade = 'baixa' THEN 1 ELSE 0 END) AS Saudaveis,
                    SUM(CASE WHEN Gravidade IN ('media','alta') THEN 1 ELSE 0 END) AS Alertas
             FROM Diagnosticos
-            WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-6,CAST(GETDATE() AS DATE))
+            WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@janela,CAST(GETDATE() AS DATE))
             GROUP BY CAST(DataDiagnostico AS DATE)
             ORDER BY Dia";
                 using (var cmd = new SqlCommand(sqlSemana, conn))
                 {
                     cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+                    cmd.Parameters.AddWithValue("@janela", Math.Min(dias, 60) - 1);
                     using var r = cmd.ExecuteReader();
                     while (r.Read())
                         semanal.Add(new
@@ -786,6 +790,10 @@ namespace AgroScan.Controllers
                     using var parsed = JsonDocument.Parse(text);
                     var root = parsed.RootElement;
 
+                    // Schema de identificação (nomeCientifico/nomePopular) é diferente
+                    // do de diagnóstico (tipoDiagnostico/nomeDoenca) — antes essa
+                    // checagem só aceitava o schema de diagnóstico e derrubava
+                    // toda chamada de "identificar" com 502.
                     bool valido = acao == "identificar"
                         ? root.TryGetProperty("nomeCientifico", out _) || root.TryGetProperty("nomePopular", out _)
                         : root.TryGetProperty("tipoDiagnostico", out _) || root.TryGetProperty("nomeDoenca", out _);

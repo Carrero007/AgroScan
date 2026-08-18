@@ -1,8 +1,8 @@
 /* ── CONFIGURAÇÃO ──────────────────────────────────────────── */
 const API_BASE_URL = ""; // ex: "https://localhost:7123" se o front não for servido pelo mesmo host/porta da API
 
-async function fetchDashboardData() {
-    const resp = await Auth.fetchAuth(`${API_BASE_URL}/api/Diagnostico/dashboard`);
+async function fetchDashboardData(dias = 30) {
+    const resp = await Auth.fetchAuth(`${API_BASE_URL}/api/Diagnostico/dashboard?dias=${dias}`);
     if (!resp.ok) throw new Error(`Erro ${resp.status} ao buscar dados do dashboard`);
     return resp.json();
 }
@@ -58,6 +58,66 @@ function mapearDadosApi(json) {
     alertasCriticosData = json.alertasCriticos;
 }
 
+/* ── PERÍODO ──────────────────────────────────────────────── */
+async function mudarPeriodo(dias) {
+    mostrarSkeletons();
+    const hintSufixo = `últimos ${dias} dias`;
+    const hintEl = document.getElementById("kpiSaudavelHint");
+    try {
+        const json = await fetchDashboardData(Number(dias));
+        mapearDadosApi(json);
+        populateKpis();
+        populateTable();
+        populatePieLegend();
+        renderEmptyStateSeNecessario();
+        populateAlertasCriticos([...alertasCriticosData]);
+        destroyCharts();
+        buildCharts();
+    } catch (err) {
+        console.error("Erro ao mudar período:", err);
+    }
+}
+
+function mostrarSkeletons() {
+    ["kpiDiagnosticosHoje", "kpiSaudavel", "kpiAlertas", "kpiConfianca"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<span class="skeleton" style="display:inline-block;width:40px;height:20px"></span>';
+    });
+}
+
+/* ── EMPTY STATE ──────────────────────────────────────────── */
+function renderEmptyStateSeNecessario() {
+    const existente = document.getElementById("dashEmptyState");
+    if (existente) existente.remove();
+
+    if (kpisData && kpisData.totalUltimos30 === 0) {
+        const header = document.querySelector(".page-header");
+        const div = document.createElement("div");
+        div.id = "dashEmptyState";
+        div.className = "dash-empty";
+        div.innerHTML = `
+            <span class="emoji">🌱</span>
+            Nenhum diagnóstico neste período ainda.
+            <a href="diagnosticar.html">Fazer o primeiro diagnóstico →</a>`;
+        header.insertAdjacentElement("afterend", div);
+    }
+}
+
+/* ── EXPORTAR CSV ─────────────────────────────────────────── */
+function exportarCsv() {
+    if (!recentScans.length) { alert("Nenhum dado para exportar."); return; }
+    const linhas = [["ID", "Data", "Cultura", "Diagnóstico", "Severidade", "Confiança"]];
+    recentScans.forEach(s => linhas.push([s.id, s.data, s.cultura, s.problema, s.severidade, s.confianca + "%"]));
+    const csv = linhas.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `agroscan-dashboard-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 /* ── CLIMA REAL (via CEP do cadastro → ViaCEP → Open-Meteo) ──
    Fluxo: pega o CEP salvo no login (Auth.getCep()) → ViaCEP
    converte em cidade/UF → geocoding do Open-Meteo converte a
@@ -84,7 +144,7 @@ function setClimaEstadoVazio(mostrar) {
 }
 
 function setClimaIndisponivel(msg) {
-    setClimaEstadoVazio(false);  
+    setClimaEstadoVazio(false);
     setClimaAtualizadoErro(true);
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
     set("climaAtualizado", msg || "Clima indisponível");
@@ -186,6 +246,25 @@ function populateClima(json, local) {
 
     const sufixoLocal = local ? ` — ${local.cidade}/${local.uf}` : "";
     set("climaAtualizado", `Atualizado agora${sufixoLocal}`);
+
+    populateForecastMini(json);
+}
+
+/* ── FORECAST MINI NO CARD DE CLIMA ──────────────────────── */
+function populateForecastMini(json) {
+    const row = document.getElementById("climaForecastRow");
+    if (!row || !json?.daily) return;
+    const dias = ["Amanhã", "+2 dias", "+3 dias"];
+    const idx = [7, 8, 9]; // past_days=7 -> índice 7 é o próximo dia
+    row.innerHTML = idx.map((i, k) => {
+        const min = json.daily.temperature_2m_min[i];
+        const max = json.daily.temperature_2m_max[i];
+        if (min === undefined) return "";
+        return `<div class="forecast-day">
+            <div class="fd-label">${dias[k]}</div>
+            <div class="fd-temp">${Math.round(min)}° / ${Math.round(max)}°</div>
+        </div>`;
+    }).join("");
 }
 
 /* Retorna o JSON do clima (ou null em caso de falha) para uso posterior
@@ -369,7 +448,7 @@ function populateKpis() {
     setBadge("kpiDiagnosticosBadge", kpisData.diagnosticosHojeVariacaoPct);
 
     setText("kpiSaudavel", `${kpisData.percentualSaudavel}%`);
-    setText("kpiSaudavelHint", `${kpisData.totalUltimos30} diagnósticos nos últimos 30 dias`);
+    setText("kpiSaudavelHint", `${kpisData.totalUltimos30} diagnósticos no período`);
 
     setText("kpiAlertas", kpisData.alertasAtivos30d);
     setText("kpiAlertasCriticos", `${kpisData.alertasCriticos7d} críticos (7 dias)`);
@@ -449,6 +528,7 @@ function populateAlertasCriticos(lista) {
       <div>
         <p class="alert-text-title">${a.titulo}</p>
         <p class="alert-text-sub">${a.subtitulo}</p>
+        <a class="alert-item-action" href="historico.html?gravidade=alta">Ver no histórico →</a>
       </div>
     </div>`).join("");
 }
@@ -625,6 +705,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateKpis();
     populateTable();
     populatePieLegend();
+    renderEmptyStateSeNecessario();
     populateAlertasCriticos([...alertasClimaticos, ...alertasCriticosData]);
     buildCharts();
 });

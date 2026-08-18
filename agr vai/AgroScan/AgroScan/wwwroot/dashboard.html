@@ -173,18 +173,22 @@
                 <div class="page-header-left">
                     <p class="eyebrow">Bem-vindo de volta</p>
                     <h1>Visão geral da fazenda</h1>
-                    <p class="sub">Diagnósticos, clima e saúde dos talhões — atualizado há 3 min</p>
+                    <p class="sub">Diagnósticos, clima e saúde dos talhões — atualizado agora</p>
                 </div>
                 <div class="page-header-actions">
-                    <button class="btn-outline">Últimos 7 dias</button>
-                    <button class="btn-outline">Exportar</button>
+                    <select class="btn-outline" id="periodoSelect" onchange="mudarPeriodo(this.value)" style="cursor:pointer">
+                        <option value="7">Últimos 7 dias</option>
+                        <option value="30" selected>Últimos 30 dias</option>
+                        <option value="90">Últimos 90 dias</option>
+                    </select>
+                    <button class="btn-outline" onclick="exportarCsv()">📥 Exportar CSV</button>
                 </div>
             </div>
 
             <!-- KPIs -->
             <div class="kpi-grid">
 
-                <div class="card kpi-card">
+                <div class="card kpi-card" style="cursor:pointer" onclick="location.href='diagnosticar.html'" title="Fazer novo diagnóstico">
                     <div class="card-content">
                         <div class="kpi-top">
                             <div class="kpi-icon">
@@ -200,7 +204,7 @@
                     </div>
                 </div>
 
-                <div class="card kpi-card">
+                <div class="card kpi-card" style="cursor:pointer" onclick="location.href='historico.html'" title="Ver histórico completo">
                     <div class="card-content">
                         <div class="kpi-top">
                             <div class="kpi-icon">
@@ -216,7 +220,7 @@
                     </div>
                 </div>
 
-                <div class="card kpi-card">
+                <div class="card kpi-card" style="cursor:pointer" onclick="location.href='historico.html?gravidade=alta'" title="Ver alertas de alta gravidade no histórico">
                     <div class="card-content">
                         <div class="kpi-top">
                             <div class="kpi-icon">
@@ -256,7 +260,7 @@
                     <div class="card-header">
                         <div class="card-header-row">
                             <div>
-                                <p class="card-title">Diagnósticos da semana</p>
+                                <p class="card-title">Diagnósticos no período</p>
                                 <p class="card-sub">Saudáveis vs. alertas detectados pela IA</p>
                             </div>
                             <div class="chart-legend">
@@ -300,7 +304,7 @@
                                 <p class="card-title">Diagnósticos recentes</p>
                                 <p class="card-sub">Últimas leituras do AgroScan IA</p>
                             </div>
-                            <button class="btn-ghost">Ver todos</button>
+                            <a href="historico.html"><button class="btn-ghost">Ver todos →</button></a>
                         </div>
                     </div>
                     <div class="card-content" style="padding-top:12px">
@@ -389,6 +393,7 @@
                                         <div class="progress-fill" id="climaRiscoBar" style="width:0%"></div>
                                     </div>
                                 </div>
+                                <div id="climaForecastRow" style="display:flex;gap:8px;margin-top:4px"></div>
                             </div>
                         </div>
                     </div>
@@ -471,4 +476,3 @@
 
 </body>
 </html>
-    
