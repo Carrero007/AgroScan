@@ -123,7 +123,7 @@
                     <circle cx="11" cy="11" r="8" />
                     <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
                 </svg>
-                <input class="search-input" type="text" placeholder="Buscar talhão, cultura, diagnóstico..." />
+                <input class="search-input" type="text" id="topSearchInput" placeholder="Buscar talhão, cultura, diagnóstico..." oninput="filtrarTabelaRecentes(this.value)" />
             </div>
 
             <div class="topbar-actions">
@@ -182,6 +182,18 @@
                         <option value="90">Últimos 90 dias</option>
                     </select>
                     <button class="btn-outline" onclick="exportarCsv()">📥 Exportar CSV</button>
+                </div>
+            </div>
+
+            <!-- Card: Próxima ação recomendada -->
+            <div class="card action-card" id="actionCard" style="display:none">
+                <div class="card-content action-card-inner">
+                    <div class="action-card-icon" id="actionCardIcon">🌱</div>
+                    <div class="action-card-body">
+                        <p class="action-card-eyebrow">Próxima ação recomendada</p>
+                        <p class="action-card-text" id="actionCardText">Analisando seus dados...</p>
+                    </div>
+                    <a class="action-card-cta" id="actionCardCta" href="diagnosticar.html">Agir →</a>
                 </div>
             </div>
 
@@ -245,7 +257,10 @@
                             <span class="kpi-badge" id="kpiConfiancaBadge"></span>
                         </div>
                         <div class="kpi-body">
-                            <p class="kpi-label">Confiança média da IA</p>
+                            <p class="kpi-label">
+                                Confiança média da IA
+                                <span class="info-icon" title="Percentual médio de certeza que a IA atribuiu aos diagnósticos feitos no período. Quanto mais alto, mais nítida e completa foi a análise da imagem.">ⓘ</span>
+                            </p>
                             <p class="kpi-value" id="kpiConfianca">—</p>
                             <p class="kpi-hint">últimos 30 dias</p>
                         </div>
@@ -275,6 +290,7 @@
                     </div>
                     <div class="card-content">
                         <div class="chart-canvas-wrap">
+                            <div class="chart-skeleton skeleton" id="skeletonArea"></div>
                             <canvas id="areaChart"></canvas>
                         </div>
                     </div>
@@ -287,6 +303,7 @@
                     </div>
                     <div class="card-content">
                         <div style="height:200px;position:relative">
+                            <div class="chart-skeleton skeleton" id="skeletonPie"></div>
                             <canvas id="pieChart"></canvas>
                         </div>
                         <ul class="pie-legend" id="pieLegend"></ul>
@@ -294,6 +311,27 @@
                 </div>
 
             </div><!-- /charts-row -->
+            <!-- Heatmap de atividade -->
+            <div class="card" style="margin-top:16px">
+                <div class="card-header">
+                    <p class="card-title">Atividade de diagnósticos</p>
+                    <p class="card-sub">Frequência de uso e picos de problema no período</p>
+                </div>
+                <div class="card-content">
+                    <div class="heatmap-wrap">
+                        <div class="heatmap-grid" id="heatmapGrid"></div>
+                    </div>
+                    <div class="heatmap-legend">
+                        <span>Menos</span>
+                        <span class="heatmap-cell level-0"></span>
+                        <span class="heatmap-cell level-1"></span>
+                        <span class="heatmap-cell level-2"></span>
+                        <span class="heatmap-cell level-3"></span>
+                        <span>Mais</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Linha Inferior -->
             <div class="lower-row">
 
@@ -311,12 +349,12 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Data</th>
-                                    <th>Cultura</th>
-                                    <th>Diagnóstico</th>
-                                    <th>Severidade</th>
-                                    <th>Confiança</th>
+                                    <th class="th-sortable" onclick="ordenarTabela('id')">ID<span class="sort-arrow" id="arrow-id"></span></th>
+                                    <th class="th-sortable" onclick="ordenarTabela('data')">Data<span class="sort-arrow" id="arrow-data"></span></th>
+                                    <th class="th-sortable" onclick="ordenarTabela('cultura')">Cultura<span class="sort-arrow" id="arrow-cultura"></span></th>
+                                    <th class="th-sortable" onclick="ordenarTabela('problema')">Diagnóstico<span class="sort-arrow" id="arrow-problema"></span></th>
+                                    <th class="th-sortable" onclick="ordenarTabela('severidade')">Severidade<span class="sort-arrow" id="arrow-severidade"></span></th>
+                                    <th class="th-sortable" onclick="ordenarTabela('confianca')">Confiança<span class="sort-arrow" id="arrow-confianca"></span></th>
                                 </tr>
                             </thead>
                             <tbody id="scansTable"></tbody>
@@ -424,6 +462,7 @@
                     </div>
                     <div class="card-content">
                         <div class="productivity-chart-wrap">
+                            <div class="chart-skeleton skeleton" id="skeletonBar"></div>
                             <canvas id="barChart"></canvas>
                         </div>
                     </div>

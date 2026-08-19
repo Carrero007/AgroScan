@@ -9,11 +9,15 @@ async function fetchDashboardData(dias = 30) {
 
 /* ── DADOS (preenchidos após o fetch) ─────────────────────── */
 let scansData = [];      // [{ d, saudaveis, alertas }]
+let rawSemanal = [];     // [{ dia: 'yyyy-MM-dd', saudaveis, alertas }] — cru, usado no heatmap
 let cultureData = [];    // [{ name, value, hex }]
 let severityData = [];   // [{ label, value }]
 let recentScans = [];    // [{ id, data, cultura, problema, severidade, confianca }]
+let recentScansFiltrados = []; // após busca do topbar
 let kpisData = null;
 let alertasCriticosData = [];
+let currentDias = 30;
+let sortState = { key: null, dir: 1 };
 
 const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const PALETA_CULTURAS = ["#5a8a6a", "#7aaa88", "#c4b86a", "#c4844a", "#8c6fd6", "#5b8def", "#d15b5b", "#3ab6c2"];
@@ -27,6 +31,7 @@ function normalizarSeveridade(gravidade) {
 
 function mapearDadosApi(json) {
     kpisData = json.kpis;
+    rawSemanal = json.semanal || [];
 
     scansData = json.semanal.map(item => {
         const data = new Date(item.dia + "T00:00:00");
@@ -54,23 +59,25 @@ function mapearDadosApi(json) {
         severidade: normalizarSeveridade(r.severidade),
         confianca: r.confianca,
     }));
+    recentScansFiltrados = recentScans.slice();
 
     alertasCriticosData = json.alertasCriticos;
 }
 
 /* ── PERÍODO ──────────────────────────────────────────────── */
 async function mudarPeriodo(dias) {
+    currentDias = Number(dias);
     mostrarSkeletons();
-    const hintSufixo = `últimos ${dias} dias`;
-    const hintEl = document.getElementById("kpiSaudavelHint");
     try {
-        const json = await fetchDashboardData(Number(dias));
+        const json = await fetchDashboardData(currentDias);
         mapearDadosApi(json);
         populateKpis();
-        populateTable();
+        aplicarFiltroEOrdenacao();
         populatePieLegend();
         renderEmptyStateSeNecessario();
         populateAlertasCriticos([...alertasCriticosData]);
+        renderHeatmap();
+        atualizarRecomendacao();
         destroyCharts();
         buildCharts();
     } catch (err) {
@@ -82,6 +89,17 @@ function mostrarSkeletons() {
     ["kpiDiagnosticosHoje", "kpiSaudavel", "kpiAlertas", "kpiConfianca"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = '<span class="skeleton" style="display:inline-block;width:40px;height:20px"></span>';
+    });
+    ["skeletonArea", "skeletonPie", "skeletonBar"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "block";
+    });
+}
+
+function esconderSkeletonsGraficos() {
+    ["skeletonArea", "skeletonPie", "skeletonBar"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "none";
     });
 }
 
@@ -116,6 +134,162 @@ function exportarCsv() {
     a.download = `agroscan-dashboard-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+}
+
+/* ── BUSCA NO TOPBAR (filtra a tabela de recentes, client-side) ── */
+function filtrarTabelaRecentes(termo) {
+    const q = (termo || "").toLowerCase().trim();
+    recentScansFiltrados = !q
+        ? recentScans.slice()
+        : recentScans.filter(s =>
+            (s.cultura || "").toLowerCase().includes(q) ||
+            (s.problema || "").toLowerCase().includes(q) ||
+            (s.severidade || "").toLowerCase().includes(q) ||
+            (s.id || "").toLowerCase().includes(q)
+        );
+    aplicarOrdenacao();
+    populateTable(recentScansFiltrados);
+}
+
+/* ── ORDENAÇÃO DA TABELA ──────────────────────────────────── */
+function ordenarTabela(chave) {
+    if (sortState.key === chave) {
+        sortState.dir *= -1;
+    } else {
+        sortState.key = chave;
+        sortState.dir = 1;
+    }
+    aplicarOrdenacao();
+    populateTable(recentScansFiltrados);
+    atualizarSetas();
+}
+
+function aplicarOrdenacao() {
+    if (!sortState.key) return;
+    const { key, dir } = sortState;
+    recentScansFiltrados.sort((a, b) => {
+        let va = a[key], vb = b[key];
+        if (key === "confianca") { va = Number(va) || 0; vb = Number(vb) || 0; }
+        if (typeof va === "string") va = va.toLowerCase();
+        if (typeof vb === "string") vb = vb.toLowerCase();
+        if (va < vb) return -1 * dir;
+        if (va > vb) return 1 * dir;
+        return 0;
+    });
+}
+
+function aplicarFiltroEOrdenacao() {
+    const termoAtual = document.getElementById("topSearchInput")?.value || "";
+    filtrarTabelaRecentes(termoAtual);
+}
+
+function atualizarSetas() {
+    document.querySelectorAll(".sort-arrow").forEach(el => el.classList.remove("asc", "desc"));
+    if (!sortState.key) return;
+    const el = document.getElementById(`arrow-${sortState.key}`);
+    if (el) el.classList.add(sortState.dir === 1 ? "asc" : "desc");
+}
+
+/* ── HEATMAP DE ATIVIDADE (estilo GitHub contributions) ───── */
+function renderHeatmap() {
+    const grid = document.getElementById("heatmapGrid");
+    if (!grid) return;
+
+    const janela = Math.min(currentDias, 60);
+    const mapa = {};
+    rawSemanal.forEach(d => { mapa[d.dia] = (d.saudaveis || 0) + (d.alertas || 0); });
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    const diasArr = [];
+    for (let i = janela - 1; i >= 0; i--) {
+        const dt = new Date(hoje);
+        dt.setDate(dt.getDate() - i);
+        const key = dt.toISOString().slice(0, 10);
+        diasArr.push({ date: key, total: mapa[key] || 0, weekday: dt.getDay() });
+    }
+
+    const nivel = total => total === 0 ? 0 : total <= 2 ? 1 : total <= 4 ? 2 : 3;
+
+    let html = "";
+    // preenche células vazias antes do primeiro dia para alinhar a semana (domingo=0 no topo)
+    if (diasArr.length) {
+        for (let i = 0; i < diasArr[0].weekday; i++) {
+            html += `<span class="heatmap-cell level-0"></span>`;
+        }
+    }
+    diasArr.forEach(d => {
+        const dataFmt = new Date(d.date + "T00:00:00").toLocaleDateString("pt-BR");
+        const titulo = d.total === 0 ? `${dataFmt}: sem diagnósticos` : `${dataFmt}: ${d.total} diagnóstico${d.total > 1 ? "s" : ""}`;
+        html += `<span class="heatmap-cell filled level-${nivel(d.total)}" title="${titulo}"></span>`;
+    });
+
+    grid.innerHTML = html;
+}
+
+/* ── PRÓXIMA AÇÃO RECOMENDADA ─────────────────────────────── */
+// Cruza alertas climáticos (previsão + hortaliças cadastradas), alertas
+// críticos recentes (histórico) e o catálogo de culturas pra sugerir
+// uma única ação concreta no topo do dashboard.
+function gerarRecomendacao(alertasClima, alertasCriticos, culturas) {
+    if (alertasClima && alertasClima.length > 0) {
+        const a = alertasClima[0];
+        let icon = "🌱";
+        if (/geada/i.test(a.titulo)) icon = "❄️";
+        else if (/chuva/i.test(a.titulo)) icon = "🌧️";
+        else if (/calor/i.test(a.titulo)) icon = "🔥";
+        return {
+            icon,
+            texto: `${a.titulo}. ${a.subtitulo}`,
+            ctaTexto: "Diagnosticar agora →",
+            ctaHref: "diagnosticar.html",
+        };
+    }
+
+    if (alertasCriticos && alertasCriticos.length > 0) {
+        const a = alertasCriticos[0];
+        return {
+            icon: "⚠️",
+            texto: `Fique atento à recorrência de "${a.titulo}" em ${a.subtitulo} — diagnósticos de alta gravidade merecem acompanhamento nos próximos dias.`,
+            ctaTexto: "Ver histórico →",
+            ctaHref: "historico.html?gravidade=alta",
+        };
+    }
+
+    if (culturas && culturas.length === 0) {
+        return {
+            icon: "🌿",
+            texto: "Você ainda não tem hortaliças cadastradas no catálogo. Cadastre suas culturas para receber recomendações climáticas mais precisas.",
+            ctaTexto: "Cadastrar hortaliça →",
+            ctaHref: "hortalicas.html",
+        };
+    }
+
+    return {
+        icon: "✅",
+        texto: "Tudo tranquilo por aqui — nenhum alerta climático ou de recorrência identificado no momento. Continue monitorando sua horta regularmente.",
+        ctaTexto: "Novo diagnóstico →",
+        ctaHref: "diagnosticar.html",
+    };
+}
+
+function renderRecomendacao(rec) {
+    const card = document.getElementById("actionCard");
+    if (!card) return;
+    document.getElementById("actionCardIcon").textContent = rec.icon;
+    document.getElementById("actionCardText").textContent = rec.texto;
+    const cta = document.getElementById("actionCardCta");
+    cta.textContent = rec.ctaTexto;
+    cta.href = rec.ctaHref;
+    card.style.display = "block";
+}
+
+// Recalcula com os dados climáticos já resolvidos (chamado após initClima/mudarPeriodo)
+let ultimoAlertasClima = [];
+function atualizarRecomendacao() {
+    const rec = gerarRecomendacao(ultimoAlertasClima, alertasCriticosData, cultureData);
+    renderRecomendacao(rec);
 }
 
 /* ── CLIMA REAL (via CEP do cadastro → ViaCEP → Open-Meteo) ──
@@ -346,8 +520,9 @@ function initCepManualInput() {
 
         try {
             const weatherJson = await initClima(input.value.trim());
-            const alertasClimaticos = computeAlertasClimaticos(weatherJson, cultureData);
-            populateAlertasCriticos([...alertasClimaticos, ...alertasCriticosData]);
+            ultimoAlertasClima = computeAlertasClimaticos(weatherJson, cultureData);
+            populateAlertasCriticos([...ultimoAlertasClima, ...alertasCriticosData]);
+            atualizarRecomendacao();
         } finally {
             btn.disabled = false;
             btn.textContent = textoOriginal;
@@ -465,17 +640,18 @@ const badgeClass = {
     "—": "badge-ok",
 };
 
-function populateTable() {
+function populateTable(lista) {
     const tbody = document.getElementById("scansTable");
     if (!tbody) return;
+    const dados = lista || recentScans;
 
-    if (recentScans.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px">Nenhum diagnóstico ainda.</td></tr>`;
+    if (dados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px">Nenhum diagnóstico encontrado.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = "";
-    recentScans.forEach(s => {
+    dados.forEach(s => {
         tbody.innerHTML += `
       <tr>
         <td class="td-mono">${s.id}</td>
@@ -514,7 +690,7 @@ function populateAlertasCriticos(lista) {
     const alertas = lista || alertasCriticosData;
 
     if (alertas.length === 0) {
-        panel.innerHTML = `<p style="font-size:13px;opacity:.7">Nenhum alerta crítico no momento.</p>`;
+        panel.innerHTML = `<p style="font-size:13px;opacity:.7">Nenhuma notificação crítico no momento.</p>`;
         return;
     }
 
@@ -650,6 +826,8 @@ function buildCharts() {
             },
         },
     });
+
+    esconderSkeletonsGraficos();
 }
 
 function destroyCharts() {
@@ -694,18 +872,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Dados do dashboard e clima podem ser buscados em paralelo.
     const [, weatherJson] = await Promise.all([
-        fetchDashboardData()
+        fetchDashboardData(currentDias)
             .then(json => { mapearDadosApi(json); })
             .catch(err => console.error("Erro ao carregar dados do dashboard:", err)),
         initClima(),
     ]);
 
-    const alertasClimaticos = computeAlertasClimaticos(weatherJson, cultureData);
+    ultimoAlertasClima = computeAlertasClimaticos(weatherJson, cultureData);
 
     populateKpis();
-    populateTable();
+    populateTable(recentScansFiltrados);
     populatePieLegend();
     renderEmptyStateSeNecessario();
-    populateAlertasCriticos([...alertasClimaticos, ...alertasCriticosData]);
+    populateAlertasCriticos([...ultimoAlertasClima, ...alertasCriticosData]);
+    renderHeatmap();
+    atualizarRecomendacao();
     buildCharts();
 });
