@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace AgroScan.Controllers
 {
@@ -20,6 +21,14 @@ namespace AgroScan.Controllers
         private readonly HttpClient _http;
         private readonly ILogger<DiagnosticoController> _logger;
         private string ConnStr => _config.GetConnectionString("DefaultConnection")!;
+
+        // Fonte técnica padrão usada como fallback quando a IA não preenche
+        // fonteNome/fonteUrl (ou preenche vazio/inválido). Mantém sempre a
+        // Embrapa como referência-base do diagnóstico agronômico.
+        private const string FonteNomePadrao = "Embrapa Hortaliças";
+        private const string FonteUrlPadrao = "https://www.embrapa.br/hortalicas";
+        private const string AvisoConsultaPadrao = "Em caso de dúvida, consulte um agrônomo de confiança antes de aplicar qualquer tratamento.";
+        private const int LimiarConfiancaAviso = 95;
 
         private int UsuarioIdAtual
         {
@@ -71,13 +80,19 @@ namespace AgroScan.Controllers
                 if (!reader.Read())
                     return null;
 
+                // Diagnóstico demo (vindo do banco) também recebe fonte e
+                // aviso de consulta profissional, para manter consistência
+                // com o retorno da IA real.
+                var confiancaDemo = Convert.ToInt32(reader["Confianca"]);
+                var recomendacaoDemo = confiancaDemo < LimiarConfiancaAviso ? AvisoConsultaPadrao : "";
+
                 return new
                 {
                     tipoDiagnostico = reader["TipoDiagnostico"]?.ToString(),
                     nomeDoenca = reader["NomeDoenca"]?.ToString(),
                     nomeCientifico = reader["NomeCientifico"]?.ToString(),
                     agenteCausador = reader["AgenteCausador"]?.ToString(),
-                    confianca = Convert.ToInt32(reader["Confianca"]),
+                    confianca = confiancaDemo,
                     gravidadeNivel = Convert.ToInt32(reader["GravidadeNivel"]),
                     gravidade = reader["Gravidade"]?.ToString(),
                     sintomasObservados = reader["SintomasObservados"]?.ToString(),
@@ -90,7 +105,10 @@ namespace AgroScan.Controllers
                     condicoesFavoraveis = reader["CondicoesFavoraveis"]?.ToString(),
                     tratamentoPasso1 = reader["Tratamento"]?.ToString(),
                     recomendacaoUrgencia = "em 48h",
-                    diasParaAcao = 2
+                    diasParaAcao = 2,
+                    fonteNome = FonteNomePadrao,
+                    fonteUrl = FonteUrlPadrao,
+                    recomendacaoProfissional = recomendacaoDemo
                 };
             }
             catch (Exception ex)
@@ -348,12 +366,10 @@ namespace AgroScan.Controllers
 
 
         // ── Dashboard (visão geral) ────────────────────────────────
-        // Aceita ?dias=7|30|90 para o seletor de período do dashboard.
-        [HttpGet("dashboard")]
-        public IActionResult Dashboard([FromQuery] int dias = 30)
-        {
-            if (dias is < 1 or > 365) dias = 30;
 
+        [HttpGet("dashboard")]
+        public IActionResult Dashboard()
+        {
             try
             {
                 using var conn = new SqlConnection(ConnStr);
@@ -368,17 +384,16 @@ namespace AgroScan.Controllers
             SELECT
               (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND CAST(DataDiagnostico AS DATE) = CAST(GETDATE() AS DATE)) AS Hoje,
               (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND CAST(DataDiagnostico AS DATE) = CAST(DATEADD(DAY,-1,GETDATE()) AS DATE)) AS Ontem,
-              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@dias,GETDATE())) AS Total30,
-              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@dias,GETDATE()) AND Gravidade='baixa') AS Baixa30,
-              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@dias,GETDATE()) AND Gravidade='alta') AS Alertas30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE())) AS Total30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE()) AND Gravidade='baixa') AS Baixa30,
+              (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE()) AND Gravidade='alta') AS Alertas30,
               (SELECT COUNT(*) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-7,GETDATE()) AND GravidadeNivel >= 8) AS Criticos7,
-              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@dias,GETDATE())) AS ConfMedia30,
-              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-(@dias*2),GETDATE()) AND DataDiagnostico < DATEADD(DAY,-@dias,GETDATE())) AS ConfMediaAnt";
+              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-30,GETDATE())) AS ConfMedia30,
+              (SELECT AVG(CAST(Confianca AS FLOAT)) FROM Diagnosticos WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-60,GETDATE()) AND DataDiagnostico < DATEADD(DAY,-30,GETDATE())) AS ConfMediaAnt";
 
                 using (var cmd = new SqlCommand(sqlKpis, conn))
                 {
                     cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
-                    cmd.Parameters.AddWithValue("@dias", dias);
                     using var r = cmd.ExecuteReader();
                     if (r.Read())
                     {
@@ -414,13 +429,12 @@ namespace AgroScan.Controllers
                    SUM(CASE WHEN Gravidade = 'baixa' THEN 1 ELSE 0 END) AS Saudaveis,
                    SUM(CASE WHEN Gravidade IN ('media','alta') THEN 1 ELSE 0 END) AS Alertas
             FROM Diagnosticos
-            WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-@janela,CAST(GETDATE() AS DATE))
+            WHERE UsuarioId=@uid AND DataDiagnostico >= DATEADD(DAY,-6,CAST(GETDATE() AS DATE))
             GROUP BY CAST(DataDiagnostico AS DATE)
             ORDER BY Dia";
                 using (var cmd = new SqlCommand(sqlSemana, conn))
                 {
                     cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
-                    cmd.Parameters.AddWithValue("@janela", Math.Min(dias, 60) - 1);
                     using var r = cmd.ExecuteReader();
                     while (r.Read())
                         semanal.Add(new
@@ -625,6 +639,92 @@ namespace AgroScan.Controllers
             return text;
         }
 
+        /// <summary>
+        /// Garante, no servidor (independente do que a IA devolveu), que todo
+        /// diagnóstico traga uma fonte técnica válida, níveis numéricos na
+        /// escala correta (0-10 para gravidade/propagação, 0-100 para
+        /// confiança) e, quando a confiança for menor que
+        /// <see cref="LimiarConfiancaAviso"/>%, um aviso claro recomendando
+        /// consultar um agrônomo antes de aplicar o tratamento.
+        /// Não confia apenas no prompt: mesmo que o Gemini ignore a instrução
+        /// ou mande a escala errada, o usuário final sempre recebe os campos
+        /// corretos.
+        /// </summary>
+        private static string GarantirFonteERecomendacao(string json)
+        {
+            try
+            {
+                var node = JsonNode.Parse(json) as JsonObject;
+                if (node == null) return json;
+
+                // ── Normaliza confiança (0-100). A IA às vezes manda fração 0-1 ──
+                double confianca = LerNumero(node, "confianca");
+                if (confianca > 0 && confianca <= 1) confianca *= 100;
+                confianca = Math.Round(Math.Max(0, Math.Min(100, confianca)));
+                node["confianca"] = (int)confianca;
+
+                // ── Normaliza níveis 0-10 (gravidade / risco de propagação) ──
+                // A IA às vezes manda esses campos na escala 0-100 (como se
+                // fosse porcentagem) ou como fração 0-1. Corrige nos dois casos.
+                node["gravidadeNivel"] = (int)NormalizarNivel10(LerNumero(node, "gravidadeNivel"));
+                node["riscoPropagacaoNivel"] = (int)NormalizarNivel10(LerNumero(node, "riscoPropagacaoNivel"));
+
+                // ── Fonte técnica: garante nome + URL sempre preenchidos ──
+                var fonteNome = node["fonteNome"]?.GetValue<string>();
+                if (string.IsNullOrWhiteSpace(fonteNome))
+                    node["fonteNome"] = FonteNomePadrao;
+
+                var fonteUrl = node["fonteUrl"]?.GetValue<string>();
+                if (string.IsNullOrWhiteSpace(fonteUrl) ||
+                    !(fonteUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                      fonteUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
+                {
+                    node["fonteUrl"] = FonteUrlPadrao;
+                }
+
+                // ── Aviso de consulta profissional condicionado à confiança ──
+                var recomendacao = node["recomendacaoProfissional"]?.GetValue<string>();
+                if (confianca < LimiarConfiancaAviso)
+                {
+                    node["recomendacaoProfissional"] = string.IsNullOrWhiteSpace(recomendacao)
+                        ? AvisoConsultaPadrao
+                        : recomendacao;
+                }
+                else
+                {
+                    node["recomendacaoProfissional"] = "";
+                }
+
+                return node.ToJsonString();
+            }
+            catch (Exception)
+            {
+                // Se algo der errado na normalização, devolve o JSON original
+                // em vez de quebrar a resposta inteira do diagnóstico.
+                return json;
+            }
+        }
+
+        /// <summary>Lê um número de um JsonNode de forma tolerante (number ou string numérica).</summary>
+        private static double LerNumero(JsonObject node, string prop)
+        {
+            if (!node.TryGetPropertyValue(prop, out var valNode) || valNode == null) return 0;
+            if (valNode.GetValueKind() == JsonValueKind.Number) return valNode.GetValue<double>();
+            return double.TryParse(valNode.ToString(), out var parsed) ? parsed : 0;
+        }
+
+        /// <summary>
+        /// Normaliza um valor para a escala 0-10, corrigindo os formatos mais
+        /// comuns que a IA erra: fração 0-1 (ex: 0.8 → 8) e porcentagem 0-100
+        /// (ex: 80 → 8). Valores já dentro de 0-10 permanecem inalterados.
+        /// </summary>
+        private static double NormalizarNivel10(double v)
+        {
+            if (v > 10 && v <= 100) v /= 10.0;      // veio como 0-100 → escala pra 0-10
+            else if (v > 0 && v <= 1) v *= 10.0;    // veio como fração 0-1 → escala pra 0-10
+            return Math.Round(Math.Max(0, Math.Min(10, v)));
+        }
+
         private static string MontarPayloadGemini(string textoUsuario, string imagemBase64, string mimeType, bool jsonMode)
         {
             var generationConfig = jsonMode
@@ -789,16 +889,8 @@ namespace AgroScan.Controllers
                 {
                     using var parsed = JsonDocument.Parse(text);
                     var root = parsed.RootElement;
-
-                    // Schema de identificação (nomeCientifico/nomePopular) é diferente
-                    // do de diagnóstico (tipoDiagnostico/nomeDoenca) — antes essa
-                    // checagem só aceitava o schema de diagnóstico e derrubava
-                    // toda chamada de "identificar" com 502.
-                    bool valido = acao == "identificar"
-                        ? root.TryGetProperty("nomeCientifico", out _) || root.TryGetProperty("nomePopular", out _)
-                        : root.TryGetProperty("tipoDiagnostico", out _) || root.TryGetProperty("nomeDoenca", out _);
-
-                    if (!valido)
+                    if (!root.TryGetProperty("tipoDiagnostico", out _)
+                        && !root.TryGetProperty("nomeDoenca", out _))
                     {
                         return StatusCode(502, new
                         {
@@ -806,6 +898,12 @@ namespace AgroScan.Controllers
                             detalhe = text
                         });
                     }
+
+                    // Só o fluxo de diagnóstico (não o de identificação) tem
+                    // os campos de fonte/recomendação no schema — aplica o
+                    // reforço apenas aqui.
+                    if (acao == "diagnosticar")
+                        text = GarantirFonteERecomendacao(text);
 
                     return Content(text, "application/json");
                 }

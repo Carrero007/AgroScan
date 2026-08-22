@@ -1,0 +1,94 @@
+﻿/* ═══════════════════════════════════════════════════════════
+   AgroScan — tokens.css
+   Camada de acessibilidade: contraste e tamanho de fonte.
+   Carregar SEMPRE por último, depois do CSS específico da página
+   (dashboard.css / diagnosticar.css / historico.css / hortalicas.css
+   / identificar.css), pois sobrescreve variáveis compartilhadas.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ──────────────── CONTRASTE — CLARO ──────────────── */
+:root {
+    --muted-fg: #5e5648; /* era #7a7060 — texto secundário mais escuro/legível */
+    --border: #cfc9ba; /* era #ddd8ce — bordas mais visíveis */
+}
+
+/* ──────────────── CONTRASTE — ESCURO ──────────────── */
+.dark {
+    --muted-fg: #9a9a9a; /* era #666666 — falha WCAG AA em fundo #0a0a0a; agora passa */
+    --border: rgba(255,255,255,0.14); /* era 0.07 — bordas de card muito apagadas antes */
+}
+
+/* ──────────────── TAMANHO DE FONTE — TEXTOS SECUNDÁRIOS ────────────────
+   Os nomes de classe abaixo se repetem em várias páginas do sistema
+   (dashboard.css, diagnosticar.css, historico.css, hortalicas.css,
+   identificar.css) sempre com os mesmos valores pequenos originais.
+   Aqui só listamos as classes que precisavam crescer. */
+
+.kpi-label,
+.card-sub,
+.nav-group-label,
+.sidebar-logo-text span,
+.stat-src,
+.feat-source,
+.mono-label,
+.notify-item-sub,
+.alert-text-sub,
+.info-item label,
+.modal-item label,
+.modal-block label,
+.footer-col-title,
+.impacto-tag,
+.step-num {
+    font-size: 12px !important;
+    letter-spacing: .08em;
+}
+
+.det-body,
+.card-content,
+.info-block p,
+.modal-block p,
+.modal-item span,
+.detail-card-body,
+td,
+th,
+.notify-item-title,
+.sidebar-user-info span,
+.upload-hint,
+.tag,
+.badge,
+.section-desc,
+.footer-brand p,
+footer ul a {
+    font-size: 14px;
+}
+
+.text-xs,
+.text-sm {
+    font-size: 13px !important;
+}
+
+/* Ícones muito pequenos em botões/cards ficam difíceis de reconhecer à
+   distância (ex: em telas de feira/exposição) — aumenta levemente. */
+.icon-btn svg,
+.notify-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ──────────────── LINKS DE FONTE (stats da landing page) ────────────────
+   Aplica também fora do sistema logado, caso este arquivo seja incluído
+   no index.html — dá contraste e affordance de link (sublinhado só no
+   hover, cor de destaque) sem quebrar o layout compacto do card de stat. */
+a.stat-src-link,
+a.feat-source-link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted currentColor;
+    transition: color .15s, border-color .15s;
+}
+
+    a.stat-src-link:hover,
+    a.feat-source-link:hover {
+        color: var(--primary);
+        border-bottom-style: solid;
+    }

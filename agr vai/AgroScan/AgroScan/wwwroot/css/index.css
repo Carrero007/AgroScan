@@ -560,13 +560,35 @@ h1 em { color: var(--primary); }
 .stat-label { font-size: .75rem; color: var(--muted-foreground); line-height: 1.6; margin-bottom: .5rem; }
 @media (min-width: 640px) { .stat-label { font-size: .875rem; } }
 .stat-src {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .5625rem;
-  text-transform: uppercase;
-  letter-spacing: .15em;
-  color: hsl(140 8% 38% / 0.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .6875rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: hsl(140 8% 30% / 0.85);
 }
-@media (min-width: 640px) { .stat-src { font-size: .625rem; } }
+
+    .stat-src a {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px dotted currentColor;
+        transition: color .15s, border-color .15s;
+    }
+
+        .stat-src a:hover {
+            color: var(--primary);
+            border-bottom-style: solid;
+        }
+
+.dark .stat-src {
+    color: hsl(60 15% 85% / 0.75);
+}
+
+@media (min-width: 640px) {
+    .stat-src {
+        font-size: .75rem;
+    }
+}
+}
 
 /* ──────────────── DISPOSITIVOS ──────────────── */
 .dispositivos-section { padding: 5rem 1.25rem; }
@@ -720,14 +742,18 @@ h1 em { color: var(--primary); }
 .feat-card h3 { font-family: 'Fraunces', serif; font-size: 1.5rem; margin-bottom: .75rem; }
 .feat-card p { color: var(--muted-foreground); font-size: .9375rem; line-height: 1.7; }
 .feat-source {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--border);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .625rem;
-  text-transform: uppercase;
-  letter-spacing: .15em;
-  color: hsl(140 8% 38% / 0.6);
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .6875rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: hsl(140 8% 30% / 0.85);
+}
+
+.dark .feat-source {
+    color: hsl(60 15% 85% / 0.75);
 }
 .feat-card .icon-box { margin-bottom: 1.75rem; }
 

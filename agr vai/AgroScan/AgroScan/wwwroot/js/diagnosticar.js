@@ -251,6 +251,14 @@ async function diagnosticar() {
 
 // ── RENDERIZAR RESULTADO ──────────────────────────────────────
 function renderizarResultado(d) {
+    const normalizarNivel10 = (v) => {
+        let n = Number(v) || 0;
+        if (n > 10 && n <= 100) n = n / 10;
+        else if (n > 0 && n <= 1) n = n * 10;
+        return Math.round(Math.max(0, Math.min(10, n)));
+    };
+    d.gravidadeNivel = normalizarNivel10(d.gravidadeNivel);
+    d.riscoPropagacaoNivel = normalizarNivel10(d.riscoPropagacaoNivel);
     const tipoCls = tipoClass(d.tipoDiagnostico);
     const confCor = d.confianca >= 75 ? 'mv-green' : d.confianca >= 50 ? 'mv-amber' : 'mv-red';
     const gravCor = d.gravidadeNivel >= 7 ? 'mv-red' : d.gravidadeNivel >= 4 ? 'mv-amber' : 'mv-green';
@@ -258,6 +266,25 @@ function renderizarResultado(d) {
     const urgHtml = urgBanner(d.recomendacaoUrgencia, d.diasParaAcao);
 
     const passos = [d.tratamentoPasso1, d.tratamentoPasso2, d.tratamentoPasso3].filter(Boolean);
+
+    // Fonte técnica + aviso de consulta profissional quando confiança < 95%
+    const confNum = Number(d.confianca) || 0;
+    const precisaAviso = confNum < 95;
+    const avisoTexto = d.recomendacaoProfissional
+        || (precisaAviso ? 'Em caso de dúvida, consulte um agrônomo de confiança antes de aplicar qualquer tratamento.' : '');
+
+    const fonteHtml = (d.fonteNome || d.fonteUrl || avisoTexto) ? `
+            <div class="det-card" style="margin-bottom:16px;">
+                <div class="det-header">📚 Fonte técnica</div>
+                <div class="det-body">
+                    ${d.fonteNome ? `<strong>${d.fonteNome}</strong>` : 'Fonte não informada pela IA'}
+                    ${d.fonteUrl ? ` — <a href="${d.fonteUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--primary);text-decoration:underline;">ver fonte</a>` : ''}
+                    ${avisoTexto ? `
+                    <div style="margin-top:10px;padding:10px 12px;border-radius:calc(var(--radius) - 4px);background:color-mix(in oklch, var(--amber) 12%, transparent);border:1px solid color-mix(in oklch, var(--amber) 30%, transparent);color:var(--amber);font-size:12.5px;line-height:1.5;">
+                        ⚠️ ${avisoTexto}
+                    </div>` : ''}
+                </div>
+            </div>` : '';
 
     document.getElementById('resultPanel').innerHTML = `
             <div class="result-hero">
@@ -311,6 +338,8 @@ function renderizarResultado(d) {
                     <div class="det-body">${d.plantasAfetadas || '—'}<br><br><strong>${d.riscoPropagacaoTexto || ''}</strong></div>
                 </div>
             </div>
+
+            ${fonteHtml}
 
             <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
                 <button class="btn-salvar" id="btnSalvar" onclick="salvarDiagnostico()">
