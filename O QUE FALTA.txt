@@ -1,4 +1,10 @@
+Vamos lá. O MVP se mudar os itens acima no meu entendimento já seriam suficientes, pois realmente o visual/contraste/tamanho dá para melhorar reposicionamento e aumento nos itens no geral. Agora vamos para implementações futuras que são os encantos:
 
+- Estou no campo e quero bater uma foto na hora e analisar. Como faço?
+- Relatório top, quero enviar por e-mail. Como faço?
+- Relatório top, quero enviar por whatsapp. Como faço?
+
+--------------------------------------------------------------------------------------------------------------------------- 
 
 
 DIMINUIR O GASTO DE TOKENS DO GEMINI.*******
