@@ -1,4 +1,10 @@
-recomendação lucas:  NO DIAGNÓSTICO COLOCAR QUE SE A CONFIANÇA FOR ABAIXO DE 95%, SUGERIR QUE EM CASO DE DÚVIDAS CONSULTAR UM AGRÔNOMO DE CONFIANÇA, EXPLICITANDO QUAL É A FONTE (SEMPRE A EMBRAPA E SE NÃO TIVER, COLOCAR A FONTE DA ONDE TIROU, COM UM LINK QUE LEVA PRA ONDE ELE TIROU ESSA INFORMAÇÃO). (ja ta na minha claude do gmail)
+Vamos lá. O MVP se mudar os itens acima no meu entendimento já seriam suficientes, pois realmente o visual/contraste/tamanho dá para melhorar reposicionamento e aumento nos itens no geral. Agora vamos para implementações futuras que são os encantos:
+
+- Estou no campo e quero bater uma foto na hora e analisar. Como faço?
+- Relatório top, quero enviar por e-mail. Como faço?
+- Relatório top, quero enviar por whatsapp. Como faço?
+(já ta na claude, só pegar)
+--------------------------------------------------------------------------------------------------------------------------- 
 
 
 DIMINUIR O GASTO DE TOKENS DO GEMINI.*******
