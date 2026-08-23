@@ -1,16 +1,6 @@
-Vamos lá. O MVP se mudar os itens acima no meu entendimento já seriam suficientes, pois realmente o visual/contraste/tamanho dá para melhorar reposicionamento e aumento nos itens no geral. Agora vamos para implementações futuras que são os encantos:
+1. MELHORAR A PERSISTÊNCIA DE DADOS (PARA QUE NÃO SUMA TUDO SE ATUALIZAR O NAVEGADOR, NA PARTE DE DIAGNÓSTICO DA HORTALIÇA E NA PARTE DA IDENTIFICAÇÃO)
 
-- Estou no campo e quero bater uma foto na hora e analisar. Como faço?
-- Relatório top, quero enviar por e-mail. Como faço?
-- Relatório top, quero enviar por whatsapp. Como faço?
-(já ta na claude, só pegar)
---------------------------------------------------------------------------------------------------------------------------- 
-na parte do histórico, exibir de qual hortaliça é o respectivo histórico.
---------------------------------------------------------------------------------------------------------------------------- 
-
-DIMINUIR O GASTO DE TOKENS DO GEMINI.*******
-
-
+2. MELHORAR O QUE EU MANDEI PRINT NO WHATSAPP.
 
 
 
