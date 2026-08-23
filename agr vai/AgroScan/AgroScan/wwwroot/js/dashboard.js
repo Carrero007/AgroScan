@@ -889,3 +889,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     atualizarRecomendacao();
     buildCharts();
 });
+
+// ── INSTALAÇÃO PWA ────────────────────────────────────────────
+// Captura o evento nativo do navegador e só mostra o botão quando
+// a instalação realmente está disponível (evita botão "morto").
+let eventoInstalacaoPwa = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    eventoInstalacaoPwa = e;
+    const btn = document.getElementById('btnInstalarPwa');
+    if (btn) btn.style.display = 'inline-flex';
+});
+
+window.addEventListener('appinstalled', () => {
+    const btn = document.getElementById('btnInstalarPwa');
+    if (btn) btn.style.display = 'none';
+    eventoInstalacaoPwa = null;
+});
+
+async function instalarPwa() {
+    if (!eventoInstalacaoPwa) return;
+    eventoInstalacaoPwa.prompt();
+    await eventoInstalacaoPwa.userChoice;
+    eventoInstalacaoPwa = null;
+    document.getElementById('btnInstalarPwa').style.display = 'none';
+}

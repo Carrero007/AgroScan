@@ -9,9 +9,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Services\LimpezaRelatoriosService.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
 		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.0.2" />
+		<PackageReference Include="QuestPDF" Version="2024.10.3" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />

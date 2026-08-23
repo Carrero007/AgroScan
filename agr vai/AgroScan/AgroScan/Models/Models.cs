@@ -52,6 +52,7 @@
         public int DiagnosticoId { get; set; }
         public int? UsuarioId { get; set; }
         public int? HortalicaId { get; set; }
+        public string? HortalicaNome { get; set; }
         public string? TipoDiagnostico { get; set; }
         public string? NomeDoenca { get; set; }
         public string? NomeCientifico { get; set; }

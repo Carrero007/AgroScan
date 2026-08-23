@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="css/logout-modal.css" />
     <link rel="stylesheet" href="css/historico.css" />
     <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4a7a58">
 </head>
 <body>
 
@@ -154,12 +156,11 @@
             <div class="card">
                 <table>
                     <thead>
-                        <tr><th>Data</th><th>Doença / Praga</th><th>Tipo</th><th>Gravidade</th><th>Risco Propagação</th><th>Confiança</th><th>Ação</th></tr>
-                    </thead>
+                        <tr><th>Data</th><th>Hortaliça</th><th>Doença / Praga</th><th>Tipo</th><th>Gravidade</th><th>Risco Propagação</th><th>Confiança</th><th>Ação</th></tr>                    </thead>
                     <tbody id="tableBody">
-                        <tr><td colspan="7"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>
-                        <tr><td colspan="7"><div class="skeleton" style="height:13px;margin:14px 16px;width:75%;"></div></td></tr>
-                        <tr><td colspan="7"><div class="skeleton" style="height:13px;margin:14px 16px;width:90%;"></div></td></tr>
+                        <tr><td colspan="8"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>
+                        <tr><td colspan="8"><div class="skeleton" style="height:13px;margin:14px 16px;width:75%;"></div></td></tr>
+                        <tr><td colspan="8"><div class="skeleton" style="height:13px;margin:14px 16px;width:90%;"></div></td></tr>
                     </tbody>
                 </table>
                 <div class="paginacao">
@@ -180,6 +181,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" />
                         </svg>
                     </button>
+                    <button class="modal-export-btn btn-email" id="btnEnviarEmail" onclick="enviarDiagnosticoEmail()" title="Enviar por e-mail">📧</button>
+                    <button class="modal-export-btn btn-whatsapp" id="btnEnviarWhatsapp" onclick="enviarDiagnosticoWhatsapp()" title="Enviar por WhatsApp">💬</button>
                     <button class="modal-close" onclick="fecharModal()">×</button>
                 </div>
             </div>

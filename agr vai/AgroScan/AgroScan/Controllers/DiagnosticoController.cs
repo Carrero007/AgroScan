@@ -331,6 +331,8 @@ namespace AgroScan.Controllers
 
         // ── Histórico paginado do usuário ─────────────────────────
 
+        // ── Histórico paginado do usuário ─────────────────────────
+
         [HttpGet("historico")]
         public IActionResult Historico([FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 20)
         {
@@ -343,8 +345,11 @@ namespace AgroScan.Controllers
                 var lista = new List<Diagnostico>();
                 using var conn = new SqlConnection(ConnStr);
                 const string sql = @"
-                    SELECT * FROM Diagnosticos WHERE UsuarioId = @uid
-                    ORDER BY DataDiagnostico DESC
+                    SELECT d.*, h.NomePopular AS HortalicaNome
+                    FROM Diagnosticos d
+                    LEFT JOIN Hortalicas h ON h.HortalicaId = d.HortalicaId
+                    WHERE d.UsuarioId = @uid
+                    ORDER BY d.DataDiagnostico DESC
                     OFFSET @offset ROWS FETCH NEXT @tam ROWS ONLY";
 
                 using var cmd = new SqlCommand(sql, conn);
@@ -959,6 +964,7 @@ namespace AgroScan.Controllers
             DiagnosticoId = (int)r["DiagnosticoId"],
             UsuarioId = r["UsuarioId"] == DBNull.Value ? null : (int?)r["UsuarioId"],
             HortalicaId = r["HortalicaId"] == DBNull.Value ? null : (int?)r["HortalicaId"],
+            HortalicaNome = HasColumn(r, "HortalicaNome") && r["HortalicaNome"] != DBNull.Value ? r["HortalicaNome"].ToString() : null,
             TipoDiagnostico = r["TipoDiagnostico"] == DBNull.Value ? null : r["TipoDiagnostico"].ToString(),
             NomeDoenca = r["NomeDoenca"] == DBNull.Value ? null : r["NomeDoenca"].ToString(),
             NomeCientifico = r["NomeCientifico"] == DBNull.Value ? null : r["NomeCientifico"].ToString(),
@@ -977,5 +983,15 @@ namespace AgroScan.Controllers
             CondicoesFavoraveis = r["CondicoesFavoraveis"] == DBNull.Value ? null : r["CondicoesFavoraveis"].ToString(),
             DataDiagnostico = (DateTime)r["DataDiagnostico"]
         };
+
+        /// <summary>Verifica se o SqlDataReader tem uma coluna com o nome informado (evita
+        /// exceção quando o método é usado em contextos sem o JOIN de hortaliça).</summary>
+        private static bool HasColumn(SqlDataReader r, string nomeColuna)
+        {
+            for (int i = 0; i < r.FieldCount; i++)
+                if (string.Equals(r.GetName(i), nomeColuna, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            return false;
+        }
     }
 }

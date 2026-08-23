@@ -10,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<JwtService>();
+builder.Services.AddScoped<BrevoService>();
 
 // JWT Bearer - lê config diretamente para não lançar exceção na startup
 var secretKey = builder.Configuration["Jwt:SecretKey"] ?? "CHAVE_PROVISORIA_32_CHARS_TROQUE!!";

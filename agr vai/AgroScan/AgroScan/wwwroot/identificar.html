@@ -15,6 +15,8 @@
     <script src="js/logout-modal.js"></script>
     <script src="js/notifications.js" defer></script>
     <script src="js/identificar.js" defer></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4a7a58">
 </head>
 <body>
 
@@ -159,8 +161,7 @@
                     <div class="card-header">📷 Foto da Hortaliça</div>
                     <div class="card-body">
                         <div class="upload-zone" id="uploadZone">
-                            <input type="file" id="inputImagem" accept="image/jpeg,image/png,image/webp" onchange="onImageSelecionada(event)">
-                            <div class="upload-icon">🌱</div>
+                            <input type="file" id="inputImagem" accept="image/jpeg,image/png,image/webp" capture="environment" onchange="onImageSelecionada(event)">                            <div class="upload-icon">🌱</div>
                             <div class="upload-label">Clique ou arraste a foto aqui</div>
                             <div class="upload-hint">JPG, PNG ou WEBP · máx. 10 MB</div>
                         </div>

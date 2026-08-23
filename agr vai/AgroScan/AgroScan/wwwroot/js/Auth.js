@@ -75,4 +75,11 @@ const Auth = (() => {
     return { salvar, limpar, getToken, getUsuarioId, getNome, getCep, estaLogado, fetchAuth, logout, exigirLogin };
 })();
 
+// Registro do Service Worker (PWA) — silencioso, não bloqueia nada se falhar.
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(() => { });
+    });
+}
+
 Auth.exigirLogin();

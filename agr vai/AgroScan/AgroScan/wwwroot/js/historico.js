@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function carregarPagina(pag) {
     paginaAtual = pag;
     const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = `<tr><td colspan="7"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>`.repeat(3);
+    tbody.innerHTML = `<tr><td colspan="8"><div class="skeleton" style="height:13px;margin:14px 16px;"></div></td></tr>`.repeat(3);
 
     try {
         const resp = await Auth.fetchAuth(`/api/diagnostico/historico?pagina=${pag}&tamanhoPagina=${TAM}`);
@@ -49,7 +49,7 @@ async function carregarPagina(pag) {
         );
 
         if (filtrada.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+            tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
             <span class="emoji">🌱</span>
             Nenhum diagnóstico encontrado. <a href="diagnosticar.html" style="color:var(--green-lt)">Faça o primeiro!</a>
         </div></td></tr>`;
@@ -62,6 +62,7 @@ async function carregarPagina(pag) {
             const data_ = new Date(d.dataDiagnostico).toLocaleDateString('pt-BR');
             return `<tr data-id="${d.diagnosticoId}" data-json='${JSON.stringify(d).replace(/'/g, "&#39;")}'>
             <td style="color:var(--text3);font-size:12px;">${data_}</td>
+            <td style="color:var(--text);font-weight:600;">${d.hortalicaNome || '—'}</td>
             <td style="color:var(--text);font-weight:500;">${d.nomeDoenca || '—'}<br><span style="font-size:11px;color:var(--text3);font-style:italic;">${d.nomeCientifico || ''}</span></td>
             <td>${badgeTipo(d.tipoDiagnostico)}</td>
             <td>${chipGrav(d.gravidade)}</td>
@@ -90,7 +91,7 @@ async function carregarPagina(pag) {
     `;
 
     } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red);">Erro ao carregar histórico.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--red);">Erro ao carregar histórico.</td></tr>`;
     }
 }
 
@@ -104,6 +105,7 @@ function abrirModal(id) {
 
     document.getElementById('modalTitle').textContent = d.nomeDoenca || 'Diagnóstico';
     document.getElementById('modalBody').innerHTML = `
+        ${d.hortalicaNome ? `<div style="font-size:13px;color:var(--muted-fg);margin-bottom:2px;">🌱 <strong style="color:var(--foreground);">${d.hortalicaNome}</strong></div>` : ''}
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
             ${badgeTipo(d.tipoDiagnostico)} ${chipGrav(d.gravidade)} ${chipRisco(d.riscoPropagacao)}
         </div>
@@ -230,6 +232,7 @@ async function exportarHistoricoPDF() {
             .sort((a, b) => new Date(b.dataDiagnostico) - new Date(a.dataDiagnostico))
             .map(d => [
                 new Date(d.dataDiagnostico).toLocaleDateString('pt-BR'),
+                d.hortalicaNome || '—',
                 d.nomeDoenca || '—',
                 d.nomeCientifico || '—',
                 d.tipoDiagnostico || '—',
@@ -240,7 +243,7 @@ async function exportarHistoricoPDF() {
 
         doc.autoTable({
             startY: 28,
-            head: [['Data', 'Doença/Praga', 'Nome científico', 'Tipo', 'Gravidade', 'Risco', 'Confiança']],
+            head: [['Data', 'Hortaliça', 'Doença/Praga', 'Nome científico', 'Tipo', 'Gravidade', 'Risco', 'Confiança']],
             body: linhas,
             styles: { fontSize: 8, cellPadding: 3 },
             headStyles: { fillColor: [90, 138, 106], textColor: 255 },
@@ -390,4 +393,57 @@ function traduzGravidade(g) {
 
 function traduzRisco(r) {
     return { alto: 'Alto', medio: 'Médio', baixo: 'Baixo' }[r] || '—';
+}
+
+// ── ENVIAR POR E-MAIL (Brevo) ─────────────────────────────────
+async function enviarDiagnosticoEmail() {
+    const d = window._diagnosticoModalAtual;
+    if (!d) return;
+
+    const email = prompt('Digite o e-mail para envio do relatório:');
+    if (!email || !email.includes('@')) return;
+
+    const btn = document.getElementById('btnEnviarEmail');
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+
+    try {
+        const resp = await Auth.fetchAuth('/api/relatorio/enviar-email', {
+            method: 'POST',
+            body: JSON.stringify({ diagnosticoId: d.diagnosticoId, email })
+        });
+        const data = await resp.json();
+        alert(resp.ok ? `✓ ${data.mensagem}` : `Erro: ${data.erro || 'Falha ao enviar.'}`);
+    } catch {
+        alert('Erro de conexão ao enviar e-mail.');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '📧 E-mail'; }
+    }
+}
+
+// ── ENVIAR POR WHATSAPP (link automático) ─────────────────────
+async function enviarDiagnosticoWhatsapp() {
+    const d = window._diagnosticoModalAtual;
+    if (!d) return;
+
+    const numero = prompt('Número do WhatsApp (com DDD e código do país, só números — ex: 5511999998888). Deixe em branco para escolher o contato na hora:');
+
+    const btn = document.getElementById('btnEnviarWhatsapp');
+    if (btn) { btn.disabled = true; btn.textContent = 'Gerando...'; }
+
+    try {
+        const resp = await Auth.fetchAuth('/api/relatorio/link-whatsapp', {
+            method: 'POST',
+            body: JSON.stringify({ diagnosticoId: d.diagnosticoId, numeroWhatsapp: numero || null })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.linkWhatsapp) {
+            window.open(data.linkWhatsapp, '_blank');
+        } else {
+            alert(`Erro: ${data.erro || 'Falha ao gerar link.'}`);
+        }
+    } catch {
+        alert('Erro de conexão ao gerar link do WhatsApp.');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '💬 WhatsApp'; }
+    }
 }
