@@ -71,6 +71,7 @@ CREATE TABLE [dbo].[Diagnosticos] (
     [DiagnosticoId]          INT            IDENTITY(1,1) NOT NULL,
     [UsuarioId]              INT            NULL,
     [HortalicaId]            INT            NULL,
+    [HortalicaNome]          NVARCHAR (255) NULL,
     [TipoDiagnostico]        NVARCHAR(80)   NULL,   -- 'Doença Fúngica', 'Praga de Inseto', etc.
     [NomeDoenca]             NVARCHAR(200)  NULL,
     [NomeCientifico]         NVARCHAR(200)  NULL,
