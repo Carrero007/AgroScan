@@ -108,18 +108,27 @@ CREATE TABLE [dbo].[AuditLog] (
     CONSTRAINT PK_AuditLog PRIMARY KEY ([LogId])
 );
 
-CREATE TABLE DiagnosticosDemo
-(
-    DemoId INT PRIMARY KEY IDENTITY,
+-- Novas colunas em Diagnosticos: status do tratamento e datas
+ALTER TABLE Diagnosticos ADD
+    StatusTratamento       NVARCHAR(20)  NOT NULL DEFAULT 'nao_iniciado', -- nao_iniciado | em_andamento | curada | abandonado
+    DataInicioTratamento   DATETIME      NULL,
+    DataConclusaoTratamento DATETIME     NULL,
+    TratamentoPassosJson   NVARCHAR(MAX) NULL; -- JSON array com os passos do tratamento (vindos da IA)
 
-    NomeArquivo NVARCHAR(255) NOT NULL,
-
-    DiagnosticoId INT NOT NULL,
-
-    CONSTRAINT FK_DemoDiagnostico
-        FOREIGN KEY (DiagnosticoId)
-        REFERENCES Diagnosticos(DiagnosticoId)
+-- Etapas do tratamento — checklist visual por diagnóstico
+CREATE TABLE TratamentoEtapas (
+    EtapaId        INT           IDENTITY(1,1) NOT NULL,
+    DiagnosticoId  INT           NOT NULL,
+    Descricao      NVARCHAR(500) NOT NULL,
+    Ordem          INT           NOT NULL,
+    Concluida      BIT           NOT NULL DEFAULT 0,
+    DataConclusao  DATETIME      NULL,
+    CONSTRAINT PK_TratamentoEtapas PRIMARY KEY (EtapaId),
+    CONSTRAINT FK_TratamentoEtapas_Diagnostico FOREIGN KEY (DiagnosticoId)
+        REFERENCES Diagnosticos(DiagnosticoId) ON DELETE CASCADE
 );
+
+CREATE INDEX IX_TratamentoEtapas_DiagnosticoId ON TratamentoEtapas(DiagnosticoId);
 
 -- ÍNDICES de performance
 CREATE INDEX IX_Diagnosticos_UsuarioId    ON [dbo].[Diagnosticos]([UsuarioId]);
