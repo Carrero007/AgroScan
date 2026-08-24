@@ -1,6 +1,1 @@
-1. MELHORAR A PERSISTÊNCIA DE DADOS (PARA QUE NÃO SUMA TUDO SE ATUALIZAR O NAVEGADOR, NA PARTE DE DIAGNÓSTICO DA HORTALIÇA E NA PARTE DA IDENTIFICAÇÃO)
-
-2. MELHORAR O QUE EU MANDEI PRINT NO WHATSAPP.
-
-3. Permitir que o usuário acompanhe o processo de tratamento da planta de uma forma que ele entenda os progressos e o que falta para que a planta seja curada.
-
+coisa pra kct pra pegar na conta secundária do gmail na claude
