@@ -429,7 +429,7 @@ nav.sidebar-nav {
 
 /* ── CAMPOS DE CONTEXTO ───────────────────────────────────── */
 .field {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
     .field:last-child {
@@ -438,9 +438,9 @@ nav.sidebar-nav {
 
     .field label {
         display: block;
-        font-size: 12px;
+        font-size: 12.5px;
         font-weight: 600;
-        margin-bottom: 8px;
+        margin-bottom: 9px;
     }
 
         .field label span {
@@ -450,15 +450,15 @@ nav.sidebar-nav {
 
     .field input[type="text"] {
         width: 100%;
-        height: 38px;
-        padding: 0 12px;
+        height: 40px;
+        padding: 0 13px;
         border-radius: calc(var(--radius) - 4px);
         background: color-mix(in oklch, var(--muted) 40%, transparent);
         border: 1px solid var(--input);
         color: var(--foreground);
-        font-size: 13px;
+        font-size: 13.5px;
         outline: none;
-        transition: background .15s, border-color .15s;
+        transition: background .15s, border-color .15s, box-shadow .15s;
     }
 
         .field input[type="text"]::placeholder {
@@ -468,6 +468,7 @@ nav.sidebar-nav {
         .field input[type="text"]:focus {
             background: var(--card);
             border-color: var(--ring);
+            box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
         }
 
 /* ── AUTOCOMPLETE ─────────────────────────────────────────── */
@@ -511,53 +512,77 @@ nav.sidebar-nav {
     color: var(--muted-fg);
 }
 
-/* ── CHIPS ────────────────────────────────────────────────── */
+/* ── CHIPS ────────────────────────────────────────────────────
+   Grupos de seleção (estágio da planta, sintomas, clima). Cada
+   grupo agora respira mais (gap maior) e o chip fica mais alto
+   e legível, com feedback visual claro de hover/seleção — antes
+   ficavam apertados uns nos outros e difíceis de escanear. ────── */
 .chips-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
+    gap: 9px;
+    margin-top: 12px;
 }
 
 .chip {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
+    gap: 5px;
+    padding: 8px 15px;
     border-radius: 99px;
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border);
     background: color-mix(in oklch, var(--muted) 40%, transparent);
     color: var(--foreground);
     font-size: 12.5px;
     font-weight: 500;
+    line-height: 1.2;
     cursor: pointer;
     user-select: none;
-    transition: background .15s, border-color .15s, color .15s;
+    transition: background .15s, border-color .15s, color .15s, transform .1s, box-shadow .15s;
 }
 
     .chip:hover {
         border-color: var(--ring);
+        transform: translateY(-1px);
+    }
+
+    .chip:active {
+        transform: translateY(0) scale(0.96);
     }
 
     .chip.on {
-        background: color-mix(in oklch, var(--primary) 15%, transparent);
+        background: color-mix(in oklch, var(--primary) 18%, transparent);
         border-color: var(--primary);
         color: var(--primary);
+        font-weight: 700;
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 12%, transparent);
     }
+
+@media (max-width: 480px) {
+    .chips-group {
+        gap: 7px;
+    }
+
+    .chip {
+        padding: 7px 12px;
+        font-size: 11.5px;
+    }
+}
 
 /* ── BARRA DE QUALIDADE DO CONTEXTO ───────────────────────── */
 .ctx-bar-wrap {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-top: 20px;
-    font-size: 11px;
+    margin-top: 22px;
+    font-size: 11.5px;
     font-weight: 600;
     color: var(--muted-fg);
 }
 
 .ctx-track {
     flex: 1;
-    height: 6px;
+    height: 7px;
     background: var(--muted);
     border-radius: 99px;
     overflow: hidden;

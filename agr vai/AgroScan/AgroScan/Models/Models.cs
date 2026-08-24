@@ -72,6 +72,10 @@
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
         public DateTime DataDiagnostico { get; set; }
+        public string StatusTratamento { get; set; } = "nao_iniciado";
+        public DateTime? DataInicioTratamento { get; set; }
+        public DateTime? DataConclusaoTratamento { get; set; }
+        public string? TratamentoPassosJson { get; set; }
     }
     // ── DTOs de autenticação ─────────────────────────────────────
 

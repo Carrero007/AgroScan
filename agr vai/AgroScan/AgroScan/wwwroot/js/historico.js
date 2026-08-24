@@ -124,6 +124,9 @@ function abrirModal(id) {
             <div class="info-block"><label>Confiança da IA</label><p style="font-size:20px;font-family:'Fraunces',serif;color:var(--green-lt)">${d.confianca || 0}%</p></div>
             <div class="info-block"><label>Data</label><p>${new Date(d.dataDiagnostico).toLocaleString('pt-BR')}</p></div>
         </div>
+        <a href="tratamento.html?diagnosticoId=${d.diagnosticoId}" class="pag-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:var(--primary);border-color:var(--primary);font-weight:600;width:100%;height:38px;margin-top:6px;">
+    🌱 Acompanhar tratamento
+</a>
     `;
 
     document.getElementById('modalOverlay').classList.add('open');

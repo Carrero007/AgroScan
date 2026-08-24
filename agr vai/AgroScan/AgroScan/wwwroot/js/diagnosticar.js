@@ -35,6 +35,110 @@ let hortalicasCadastradas = [];
 let hortalicaIdSelecionada = null;
 window._hortalicaNomeAtual = '';
 
+// ── PERSISTÊNCIA LOCAL (sobrevive a F5 / fechar aba) ────────────
+// Guarda tudo que o usuário já preencheu (foto, contexto, resultado
+// da IA) no localStorage, para não perder o trabalho ao atualizar
+// a página. Cada usuário tem sua própria chave (por UsuarioId).
+const LS_DIAG_KEY = 'as_diag_estado_' + (typeof Auth !== 'undefined' && Auth.getUsuarioId ? Auth.getUsuarioId() : 'anon');
+
+function salvarEstadoLocal() {
+    try {
+        localStorage.setItem(LS_DIAG_KEY, JSON.stringify({
+            imagemBase64,
+            mimeType,
+            nomeArquivo,
+            hortalicaIdSelecionada,
+            nomeHortalica: window._hortalicaNomeAtual,
+            estagioAtual,
+            sintomas: [...sintomasSet],
+            clima: [...climaSet],
+            regiaoClima: document.getElementById('regiaoClima')?.value || '',
+            tratamentosAnteriores: document.getElementById('tratamentosAnteriores')?.value || '',
+            sintomasExtra: document.getElementById('sintomasExtra')?.value || '',
+            resultadoAtual,
+            salvoEm: Date.now()
+        }));
+    } catch (e) {
+        // localStorage cheio ou indisponível — não é crítico, apenas não persiste
+        console.warn('AgroScan: não foi possível salvar estado local.', e);
+    }
+}
+
+function restaurarEstadoLocal() {
+    let salvo;
+    try {
+        salvo = JSON.parse(localStorage.getItem(LS_DIAG_KEY));
+    } catch {
+        return;
+    }
+    if (!salvo || !salvo.imagemBase64) return;
+
+    // Descarta rascunhos muito antigos (mais de 24h) para evitar
+    // reabrir contexto obsoleto sem o usuário perceber.
+    if (salvo.salvoEm && (Date.now() - salvo.salvoEm) > 24 * 60 * 60 * 1000) {
+        limparEstadoLocal();
+        return;
+    }
+
+    imagemBase64 = salvo.imagemBase64;
+    mimeType = salvo.mimeType || 'image/jpeg';
+    nomeArquivo = salvo.nomeArquivo || null;
+    hortalicaIdSelecionada = salvo.hortalicaIdSelecionada || null;
+    window._hortalicaNomeAtual = salvo.nomeHortalica || '';
+    estagioAtual = salvo.estagioAtual || '';
+    (salvo.sintomas || []).forEach(s => sintomasSet.add(s));
+    (salvo.clima || []).forEach(c => climaSet.add(c));
+
+    const regiaoEl = document.getElementById('regiaoClima');
+    const tratEl = document.getElementById('tratamentosAnteriores');
+    const sintExtraEl = document.getElementById('sintomasExtra');
+    if (regiaoEl) regiaoEl.value = salvo.regiaoClima || '';
+    if (tratEl) tratEl.value = salvo.tratamentosAnteriores || '';
+    if (sintExtraEl) sintExtraEl.value = salvo.sintomasExtra || '';
+
+    // Restaura visual da foto
+    const prev = document.getElementById('previewImg');
+    if (prev) {
+        prev.src = `data:${mimeType};base64,${imagemBase64}`;
+        prev.style.display = 'block';
+    }
+    if (zona) {
+        const icon = zona.querySelector('.upload-icon');
+        const label = zona.querySelector('.upload-label');
+        const hint = zona.querySelector('.upload-hint');
+        if (icon) icon.style.display = 'none';
+        if (label) label.style.display = 'none';
+        if (hint) hint.style.display = 'none';
+        zona.style.minHeight = '0';
+    }
+    const btnAnalisar = document.getElementById('btnAnalisar');
+    if (btnAnalisar) btnAnalisar.disabled = false;
+
+    // Restaura chips visuais (estágio, sintomas, clima)
+    document.querySelectorAll('#chipsEst .chip').forEach(el => {
+        const valor = el.getAttribute('onclick')?.match(/chipEst\(this,'([^']*)'\)/)?.[1] ?? '';
+        if (valor === estagioAtual && estagioAtual !== '') el.classList.add('on');
+    });
+    document.querySelectorAll('#chipsSint .chip, #chipsClima .chip').forEach(el => {
+        const txt = el.textContent.replace(/^\S+\s/, '').trim();
+        if (sintomasSet.has(txt) || climaSet.has(txt)) el.classList.add('on');
+    });
+
+    // Restaura resultado do diagnóstico, se já existia
+    if (salvo.resultadoAtual) {
+        resultadoAtual = salvo.resultadoAtual;
+        const estadoVazio = document.getElementById('estadoVazio');
+        if (estadoVazio) estadoVazio.style.display = 'none';
+        renderizarResultado(resultadoAtual);
+    }
+
+    atualizarQualidade();
+}
+
+function limparEstadoLocal() {
+    try { localStorage.removeItem(LS_DIAG_KEY); } catch { }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
 
@@ -42,7 +146,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nomeUsuario').textContent = nome;
     document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
 
-    carregarHortalicasUsuario();
+    // Restaura o rascunho salvo somente depois que o catálogo de
+    // hortaliças terminar de carregar (senão o <select> ainda não
+    // tem as opções e a pré-seleção falha).
+    carregarHortalicasUsuario().then(restaurarEstadoLocal);
 });
 
 // ── HORTALIÇAS DO USUÁRIO (só cadastradas — sem lista fictícia) ──
@@ -111,6 +218,7 @@ function processarArquivo(file) {
         zona.style.minHeight = '0';
         document.getElementById('btnAnalisar').disabled = false;
         atualizarQualidade();
+        salvarEstadoLocal();
     };
     reader.readAsDataURL(file);
 }
@@ -122,6 +230,7 @@ function chipEst(el, valor) {
     if (!era) { el.classList.add('on'); estagioAtual = valor; }
     else estagioAtual = '';
     atualizarQualidade();
+    salvarEstadoLocal();
 }
 
 function chipToggle(el, conjunto) {
@@ -129,6 +238,7 @@ function chipToggle(el, conjunto) {
     if (el.classList.toggle('on')) conjunto.add(txt);
     else conjunto.delete(txt);
     atualizarQualidade();
+    salvarEstadoLocal();
 }
 
 // ── QUALIDADE DO CONTEXTO ─────────────────────────────────────
@@ -150,6 +260,8 @@ function atualizarQualidade() {
     else if (pts < 50) { fill.style.background = 'var(--amber)'; label.textContent = 'Básico'; }
     else if (pts < 75) { fill.style.background = 'var(--green-lt)'; label.textContent = 'Bom'; }
     else { fill.style.background = 'var(--leaf)'; label.textContent = '🎯 Excelente!'; }
+
+    salvarEstadoLocal();
 }
 
 // ── DIAGNOSTICAR ─────────────────────────────────────────────
@@ -232,6 +344,7 @@ async function diagnosticar() {
 
         resultadoAtual = data;
         renderizarResultado(data);
+        salvarEstadoLocal();
 
     } catch (e) {
         document.getElementById('resultPanel').innerHTML = `
@@ -391,12 +504,16 @@ async function salvarDiagnostico() {
                 riscoPropagacaoNivel: normalizarNivel(resultadoAtual.riscoPropagacaoNivel),
                 plantasAfetadas: resultadoAtual.plantasAfetadas,
                 condicoesFavoraveis: resultadoAtual.condicoesFavoraveis,
+                tratamentoPassosJson: JSON.stringify(
+                    [resultadoAtual.tratamentoPasso1, resultadoAtual.tratamentoPasso2, resultadoAtual.tratamentoPasso3].filter(Boolean)),
             })
         });
 
         if (resp.ok) {
             btn.classList.add('salvo');
             btn.textContent = '✓ Salvo no histórico!';
+            // Diagnóstico já persistido no banco — o rascunho local não é mais necessário
+            limparEstadoLocal();
         } else {
             const err = await resp.json().catch(() => ({}));
             btn.disabled = false;

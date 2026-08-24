@@ -107,9 +107,11 @@ namespace AgroScan.Controllers
         }
 
         // ── GERAR MENSAGEM PARA WHATSAPP (texto informativo, sem PDF) ──
-        // Não hospeda nenhum arquivo: monta um resumo completo do diagnóstico
-        // em texto, e orienta a pessoa a pedir o PDF por e-mail dentro do
-        // próprio sistema caso queira o relatório completo.
+        // Mensagem enxuta e legível: título curto, uma linha de resumo
+        // (hortaliça · gravidade · confiança) e só as seções que existem
+        // de fato (sem "Risco de propagação: —" nem blocos vazios).
+        // Não hospeda nenhum arquivo: orienta a pedir o PDF completo pelo
+        // sistema caso o produtor queira o relatório detalhado.
         [HttpPost("link-whatsapp")]
         public IActionResult GerarLinkWhatsapp([FromBody] GerarLinkRequest req)
         {
@@ -120,45 +122,33 @@ namespace AgroScan.Controllers
             {
                 var linhas = new List<string>
                 {
-                    "🌱 *AgroScan — Relatório de Diagnóstico*",
+                    "🌱 *AgroScan* — Diagnóstico",
                     "",
-                    $"*Hortaliça:* {d.HortalicaNome ?? "—"}",
-                    $"*Diagnóstico:* {d.NomeDoenca ?? "—"}",
+                    $"*{d.NomeDoenca ?? "Diagnóstico"}*" +
+                        (!string.IsNullOrWhiteSpace(d.NomeCientifico) ? $" _({d.NomeCientifico})_" : ""),
+                    $"{d.HortalicaNome ?? "Hortaliça"} · {TraduzGravidade(d.Gravidade)} · {d.Confianca}% de confiança",
+                    ""
                 };
 
-                if (!string.IsNullOrWhiteSpace(d.NomeCientifico))
-                    linhas.Add($"_{d.NomeCientifico}_");
-
-                linhas.Add($"*Tipo:* {d.TipoDiagnostico ?? "—"}");
-                linhas.Add($"*Gravidade:* {TraduzGravidade(d.Gravidade)}");
-                linhas.Add($"*Risco de propagação:* {TraduzRisco(d.RiscoPropagacao)}");
-                linhas.Add($"*Confiança da IA:* {d.Confianca}%");
-                linhas.Add("");
-
                 if (!string.IsNullOrWhiteSpace(d.SintomasObservados))
-                {
-                    linhas.Add("🔍 *Sintomas observados:*");
-                    linhas.Add(d.SintomasObservados);
-                    linhas.Add("");
-                }
+                    linhas.Add($"🔍 *Sintomas:* {d.SintomasObservados}");
 
-                if (!string.IsNullOrWhiteSpace(d.TratamentoEcologico))
-                {
-                    linhas.Add("🌿 *Tratamento ecológico:*");
-                    linhas.Add(d.TratamentoEcologico);
-                    linhas.Add("");
-                }
+                // Prioriza o tratamento ecológico (mais aplicável no dia a dia);
+                // só cai pro químico se o ecológico não existir.
+                var tratamento = !string.IsNullOrWhiteSpace(d.TratamentoEcologico)
+                    ? d.TratamentoEcologico
+                    : d.TratamentoQuimico;
+                if (!string.IsNullOrWhiteSpace(tratamento))
+                    linhas.Add($"🌿 *Tratamento:* {tratamento}");
 
                 if (!string.IsNullOrWhiteSpace(d.Prevencao))
-                {
-                    linhas.Add("🛡️ *Prevenção:*");
-                    linhas.Add(d.Prevencao);
-                    linhas.Add("");
-                }
+                    linhas.Add($"🛡️ *Prevenção:* {d.Prevencao}");
 
-                linhas.Add($"📅 Diagnóstico feito em {d.DataDiagnostico:dd/MM/yyyy HH:mm}");
+                if (!string.IsNullOrWhiteSpace(d.RiscoPropagacao))
+                    linhas.Add($"⚠️ *Risco de propagação:* {TraduzRisco(d.RiscoPropagacao)}");
+
                 linhas.Add("");
-                linhas.Add("📄 _Quer o relatório completo em PDF? Peça o envio por e-mail direto no sistema AgroScan._");
+                linhas.Add($"📅 {d.DataDiagnostico:dd/MM/yyyy} · relatório completo em PDF pelo AgroScan");
 
                 var texto = string.Join("\n", linhas);
                 var textoCodificado = Uri.EscapeDataString(texto);

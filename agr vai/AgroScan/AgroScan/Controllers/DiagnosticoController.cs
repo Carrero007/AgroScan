@@ -228,14 +228,15 @@ namespace AgroScan.Controllers
             {
                 using var conn = new SqlConnection(ConnStr);
                 const string sql = @"
-                    INSERT INTO Diagnosticos
-                        (UsuarioId, HortalicaId, TipoDiagnostico, NomeDoenca, NomeCientifico,
-                         AgenteCausador, Confianca, GravidadeNivel, Gravidade, SintomasObservados,
-                         Tratamento, TratamentoEcologico, TratamentoQuimico, Prevencao,
-                         RiscoPropagacao, RiscoPropagacaoNivel, PlantasAfetadas, CondicoesFavoraveis)
-                    VALUES
-                        (@uid,@hid,@tipo,@doenca,@nc,@agente,@conf,@gnivel,@grav,@sint,
-                         @trat,@treco,@trqui,@prev,@risco,@rnivel,@plantas,@cond)";
+    INSERT INTO Diagnosticos
+        (UsuarioId, HortalicaId, TipoDiagnostico, NomeDoenca, NomeCientifico,
+         AgenteCausador, Confianca, GravidadeNivel, Gravidade, SintomasObservados,
+         Tratamento, TratamentoEcologico, TratamentoQuimico, Prevencao,
+         RiscoPropagacao, RiscoPropagacaoNivel, PlantasAfetadas, CondicoesFavoraveis,
+         TratamentoPassosJson)
+    VALUES
+        (@uid,@hid,@tipo,@doenca,@nc,@agente,@conf,@gnivel,@grav,@sint,
+         @trat,@treco,@trqui,@prev,@risco,@rnivel,@plantas,@cond,@passosJson)";
 
                 using var cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@uid", d.UsuarioId);
@@ -256,6 +257,7 @@ namespace AgroScan.Controllers
                 cmd.Parameters.AddWithValue("@rnivel", d.RiscoPropagacaoNivel);
                 cmd.Parameters.AddWithValue("@plantas", d.PlantasAfetadas ?? "");
                 cmd.Parameters.AddWithValue("@cond", d.CondicoesFavoraveis ?? "");
+                cmd.Parameters.AddWithValue("@passosJson", (object?)d.TratamentoPassosJson ?? DBNull.Value);
                 conn.Open();
                 cmd.ExecuteNonQuery();
                 return Ok(new { mensagem = "Diagnostico salvo com sucesso!" });
@@ -328,8 +330,6 @@ namespace AgroScan.Controllers
                 return StatusCode(500, new { erro = "Erro ao salvar.", detalhe = ex.Message });
             }
         }
-
-        // ── Histórico paginado do usuário ─────────────────────────
 
         // ── Histórico paginado do usuário ─────────────────────────
 
@@ -645,6 +645,21 @@ namespace AgroScan.Controllers
         }
 
         /// <summary>
+        /// Verifica se o JSON retornado pela IA tem o formato mínimo esperado,
+        /// de acordo com a ação realizada. Diagnóstico e identificação usam
+        /// schemas diferentes — antes essa checagem só reconhecia o formato
+        /// de diagnóstico (tipoDiagnostico/nomeDoenca), o que fazia toda
+        /// identificação bem-sucedida ser rejeitada como "incompleta".
+        /// </summary>
+        private static bool RespostaTemFormatoEsperado(JsonElement root, string acao)
+        {
+            if (acao == "identificar")
+                return root.TryGetProperty("nomeCientifico", out _) || root.TryGetProperty("nomePopular", out _);
+
+            return root.TryGetProperty("tipoDiagnostico", out _) || root.TryGetProperty("nomeDoenca", out _);
+        }
+
+        /// <summary>
         /// Garante, no servidor (independente do que a IA devolveu), que todo
         /// diagnóstico traga uma fonte técnica válida, níveis numéricos na
         /// escala correta (0-10 para gravidade/propagação, 0-100 para
@@ -894,8 +909,10 @@ namespace AgroScan.Controllers
                 {
                     using var parsed = JsonDocument.Parse(text);
                     var root = parsed.RootElement;
-                    if (!root.TryGetProperty("tipoDiagnostico", out _)
-                        && !root.TryGetProperty("nomeDoenca", out _))
+
+                    // ── Checagem de formato agora é ciente da ação (diagnosticar
+                    // vs identificar) — cada uma tem um schema diferente. ──
+                    if (!RespostaTemFormatoEsperado(root, acao))
                     {
                         return StatusCode(502, new
                         {

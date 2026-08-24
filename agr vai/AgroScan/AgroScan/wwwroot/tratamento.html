@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroScan · Tratamento</title>
+    <script src="js/theme.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/diagnosticar.css" />
+    <link rel="stylesheet" href="css/logout-modal.css" />
+    <link rel="stylesheet" href="css/tratamento.css" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <script src="js/Auth.js"></script>
+    <script src="js/perfil.js" defer></script>
+    <script src="js/logout-modal.js"></script>
+    <script src="js/notifications.js" defer></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4a7a58">
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 17c.667-3.333 4-8 9-9-1 5-4.667 8.333-9 9z" />
+                </svg>
+            </div>
+            <div class="sidebar-logo-text"><strong>AgroScan</strong><span>Diagnóstico do Campo</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-group">
+                <p class="nav-group-label">Análise</p>
+                <ul>
+                    <li class="nav-item"><a href="diagnosticar.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path stroke-linecap="round" d="M21 21l-4.35-4.35" /></svg>Diagnosticar</a></li>
+                    <li class="nav-item"><a href="identificar.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M3 9h18M9 21V9" /></svg>Identificar Hortaliça</a></li>
+                    <li class="nav-item"><a href="historico.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" /></svg>Histórico</a></li>
+                </ul>
+            </div>
+            <div class="nav-group">
+                <p class="nav-group-label">Catálogo</p>
+                <ul><li class="nav-item"><a href="hortalicas.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12M12 12C12 7 7 3 3 3c0 5 3 9 9 9zM12 12c0-5 5-9 9-9 0 5-3 9-9 9z" /></svg>Hortaliças</a></li></ul>
+            </div>
+            <div class="nav-group">
+                <p class="nav-group-label">Conta</p>
+                <ul>
+                    <li class="nav-item"><a href="dashboard.html"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>Visão geral</a></li>
+                    <li class="nav-item"><a href="#" data-logout-trigger><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" /></svg>Sair</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="sidebar-user">
+            <div class="sidebar-user-inner">
+                <div class="avatar" id="avatarLetra">P</div>
+                <div class="sidebar-user-info"><strong id="nomeUsuario">Produtor</strong><span>Conta básica</span></div>
+                <button class="icon-btn" id="editPerfilBtn" title="Editar perfil">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <button class="icon-btn topbar-menu-btn" id="menuBtn" title="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <div class="topbar-title">🌱 Acompanhar Tratamento</div>
+            <div class="topbar-actions">
+                <button class="icon-btn" id="themeBtn" title="Alternar tema">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16" style="display:none">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="page-body" style="display:block;max-width:760px;margin:0 auto;">
+            <div id="conteudo">
+                <div class="estado-vazio" id="estadoCarregando">
+                    <div class="emoji">⏳</div>
+                    <h3>Carregando tratamento...</h3>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="aslogout-overlay" id="aslogoutOverlay" hidden>
+        <div class="aslogout-modal" role="alertdialog" aria-modal="true" aria-labelledby="aslogoutTitle" aria-describedby="aslogoutDesc">
+            <div class="aslogout-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" />
+                </svg>
+            </div>
+            <h2 class="aslogout-title" id="aslogoutTitle">Sair da conta?</h2>
+            <p class="aslogout-desc" id="aslogoutDesc">Você precisará fazer login novamente para acessar o painel.</p>
+            <div class="aslogout-actions">
+                <button type="button" class="aslogout-btn aslogout-btn--ghost" id="aslogoutCancel">Cancelar</button>
+                <button type="button" class="aslogout-btn aslogout-btn--danger" id="aslogoutConfirm">Sair</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/tratamento.js"></script>
+</body>
+</html>

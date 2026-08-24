@@ -5,10 +5,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const nome = Auth.getNome();
     document.getElementById('nomeUsuario').textContent = nome;
     document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
+
+    restaurarEstadoLocal();
 });
 
 let imagemBase64 = null;
 let mimeType = 'image/jpeg';
+
+// ── PERSISTÊNCIA LOCAL (sobrevive a F5 / fechar aba) ────────────
+const LS_IDENT_KEY = 'as_ident_estado_' + (typeof Auth !== 'undefined' && Auth.getUsuarioId ? Auth.getUsuarioId() : 'anon');
+
+function salvarEstadoLocal() {
+    try {
+        localStorage.setItem(LS_IDENT_KEY, JSON.stringify({
+            imagemBase64,
+            mimeType,
+            regiaoClima: document.getElementById('regiaoClima')?.value || '',
+            resultado: window._resultadoAtual || null,
+            salvoEm: Date.now()
+        }));
+    } catch (e) {
+        console.warn('AgroScan: não foi possível salvar estado local.', e);
+    }
+}
+
+function restaurarEstadoLocal() {
+    let salvo;
+    try {
+        salvo = JSON.parse(localStorage.getItem(LS_IDENT_KEY));
+    } catch {
+        return;
+    }
+    if (!salvo || !salvo.imagemBase64) return;
+
+    // Descarta rascunhos com mais de 24h
+    if (salvo.salvoEm && (Date.now() - salvo.salvoEm) > 24 * 60 * 60 * 1000) {
+        limparEstadoLocal();
+        return;
+    }
+
+    imagemBase64 = salvo.imagemBase64;
+    mimeType = salvo.mimeType || 'image/jpeg';
+
+    const regiaoEl = document.getElementById('regiaoClima');
+    if (regiaoEl) regiaoEl.value = salvo.regiaoClima || '';
+
+    const prev = document.getElementById('previewImg');
+    if (prev) {
+        prev.src = `data:${mimeType};base64,${imagemBase64}`;
+        prev.style.display = 'block';
+    }
+    const btn = document.getElementById('btnIdent');
+    if (btn) btn.disabled = false;
+
+    if (salvo.resultado) {
+        renderizarResultado(salvo.resultado);
+    }
+}
+
+function limparEstadoLocal() {
+    try { localStorage.removeItem(LS_IDENT_KEY); } catch { }
+}
 
 // Drag & drop
 const zona = document.getElementById('uploadZone');
@@ -28,6 +85,7 @@ function processarArquivo(file) {
         prev.src = ev.target.result;
         prev.style.display = 'block';
         document.getElementById('btnIdent').disabled = false;
+        salvarEstadoLocal();
     };
     reader.readAsDataURL(file);
 }
@@ -64,6 +122,7 @@ async function identificar() {
         }
 
         renderizarResultado(d);
+        salvarEstadoLocal();
 
     } catch {
         document.getElementById('resultPanel').innerHTML = `
@@ -215,6 +274,8 @@ async function salvarHortalica() {
         if (resp.ok) {
             btn.classList.add('salvo');
             btn.textContent = data.jaExistia ? '✓ Já estava no catálogo' : '✓ Salvo no catálogo!';
+            // Hortaliça já persistida no banco — o rascunho local não é mais necessário
+            limparEstadoLocal();
         } else {
             btn.classList.add('erro');
             btn.textContent = data.erro || 'Erro ao salvar';
