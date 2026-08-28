@@ -828,6 +828,9 @@ function buildCharts() {
     });
 
     esconderSkeletonsGraficos();
+    requestAnimationFrame(() => {
+        [areaChart, pieChart, barChart].forEach(c => c && c.resize());
+    });
 }
 
 function destroyCharts() {
@@ -914,4 +917,13 @@ async function instalarPwa() {
     await eventoInstalacaoPwa.userChoice;
     eventoInstalacaoPwa = null;
     document.getElementById('btnInstalarPwa').style.display = 'none';
+}
+// Força o Chart.js a recalcular o tamanho depois de qualquer troca de
+// visibilidade/layout do container (corrige o gráfico "sumindo").
+const chartWraps = document.querySelectorAll('.chart-canvas-wrap, [style*="height:200px"]');
+if (window.ResizeObserver && chartWraps.length) {
+    const ro = new ResizeObserver(() => {
+        [areaChart, pieChart, barChart].forEach(c => c && c.resize());
+    });
+    chartWraps.forEach(el => ro.observe(el));
 }
