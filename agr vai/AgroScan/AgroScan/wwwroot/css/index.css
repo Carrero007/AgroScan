@@ -60,6 +60,14 @@
     padding: 0;
     border-color: var(--border);
 }
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+* {
+    min-width: 0; /* evita que filhos de grid/flex estourem a largura do pai */
+}
 
 html {
     font-size: 112.5%; /* Base global em 18px */
@@ -163,9 +171,15 @@ button {
 }
 
 .sticky-col {
-    position: sticky;
-    top: 8rem;
     align-self: start;
+    /* position/top removidos daqui */
+}
+
+@media (min-width: 1024px) {
+    .sticky-col {
+        position: sticky;
+        top: 8rem;
+    }
 }
 
 /* ──────────────── TYPOGRAPHY HELPERS ──────────────── */
@@ -1175,6 +1189,12 @@ h1 {
     }
 }
 
+@media (max-width: 420px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ──────────────── PROBLEMA ──────────────── */
 .problema-grid {
     display: grid;
@@ -1199,10 +1219,15 @@ h1 {
 
 .problema-cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1rem;
 }
 
+@media (min-width: 480px) {
+    .problema-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+}
 .stat-card {
     background: var(--card);
     border: 1px solid var(--border);
