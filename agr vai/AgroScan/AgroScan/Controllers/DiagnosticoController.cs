@@ -285,23 +285,25 @@ namespace AgroScan.Controllers
                 conn.Open();
 
                 using (var check = new SqlCommand(
-                    "SELECT COUNT(1) FROM Hortalicas WHERE LOWER(NomeCientifico) = LOWER(@nc)", conn))
+                    "SELECT COUNT(1) FROM Hortalicas WHERE LOWER(NomeCientifico) = LOWER(@nc) AND UsuarioId = @uid", conn))
                 {
                     check.Parameters.AddWithValue("@nc", req.NomeCientifico);
+                    check.Parameters.AddWithValue("@uid", UsuarioIdAtual);
                     var existe = (int)check.ExecuteScalar() > 0;
                     if (existe) return Ok(new { sucesso = true, jaExistia = true });
                 }
 
                 const string sql = @"
                     INSERT INTO Hortalicas
-                        (NomeCientifico, NomePopular, Familia, Categoria, CicloVida,
+                        (UsuarioId, NomeCientifico, NomePopular, Familia, Categoria, CicloVida,
                          DiasGerminacao, DiasColheita, Espacamento, Clima, Luminosidade,
                          Irrigacao, TipoSolo, Adubacao, PragasPrincipais, DoencasPrincipais,
                          Origem, ValorNutricional, Observacoes)
                     VALUES
-                        (@nc, @np, @fam, @cat, @ciclo, @dg, @dc, @esp, @clima, @lum,
+                        (@uid, @nc, @np, @fam, @cat, @ciclo, @dg, @dc, @esp, @clima, @lum,
                          @irr, @solo, @adu, @pragas, @doencas, @origem, @valorNutri, @obs)";
                 using var cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
                 cmd.Parameters.AddWithValue("@nc", req.NomeCientifico);
                 cmd.Parameters.AddWithValue("@np", (object?)req.NomePopular ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@fam", (object?)req.Familia ?? DBNull.Value);

@@ -5,8 +5,8 @@ using Microsoft.Data.SqlClient;
 
 namespace AgroScan.Controllers
 {
-    // Rota corrigida para "api/hortalicas" (era "Hortalica", sem "api/",
-    // e não batia com o que hortalicas.js / identificar.js chamam).
+    // Catálogo agora é POR USUÁRIO — cada produtor só vê/edita as
+    // hortaliças que ele mesmo cadastrou (UsuarioId na tabela).
     [ApiController]
     [Route("api/hortalicas")]
     [Authorize]
@@ -16,6 +16,9 @@ namespace AgroScan.Controllers
         private readonly IConfiguration _config;
         private string ConnStr => _config.GetConnectionString("DefaultConnection")!;
 
+        private int UsuarioIdAtual =>
+            int.TryParse(User.FindFirst("sub")?.Value, out var id) ? id : 0;
+
         public HortalicaController(ILogger<HortalicaController> logger, IConfiguration config)
         {
             _logger = logger;
@@ -23,8 +26,6 @@ namespace AgroScan.Controllers
         }
 
         // GET /api/hortalicas
-        // Catálogo é compartilhado entre todos os usuários (não é por dono),
-        // então não há checagem de UsuarioId aqui — é intencional.
         [HttpGet]
         public IActionResult Get()
         {
@@ -32,7 +33,9 @@ namespace AgroScan.Controllers
             try
             {
                 using var conn = new SqlConnection(ConnStr);
-                using var cmd = new SqlCommand("SELECT * FROM Hortalicas ORDER BY NomePopular", conn);
+                using var cmd = new SqlCommand(
+                    "SELECT * FROM Hortalicas WHERE UsuarioId = @uid ORDER BY NomePopular", conn);
+                cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
                 conn.Open();
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read()) lista.Add(MapReaderToHortalica(reader));
@@ -52,8 +55,10 @@ namespace AgroScan.Controllers
             try
             {
                 using var conn = new SqlConnection(ConnStr);
-                using var cmd = new SqlCommand("SELECT * FROM Hortalicas WHERE HortalicaId = @Id", conn);
+                using var cmd = new SqlCommand(
+                    "SELECT * FROM Hortalicas WHERE HortalicaId = @Id AND UsuarioId = @uid", conn);
                 cmd.Parameters.AddWithValue("@Id", id);
+                cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
                 conn.Open();
                 using var reader = cmd.ExecuteReader();
                 if (reader.Read()) return Ok(MapReaderToHortalica(reader));
@@ -67,9 +72,6 @@ namespace AgroScan.Controllers
         }
 
         // POST /api/hortalicas
-        // Cria/atualiza item do catálogo (uso administrativo/manual).
-        // Para o fluxo de "identificar com IA -> salvar", use
-        // POST /api/diagnostico/salvar-hortalica (evita duplicata).
         [HttpPost]
         public IActionResult Create([FromBody] Hortalica h)
         {
@@ -81,14 +83,15 @@ namespace AgroScan.Controllers
                 using var conn = new SqlConnection(ConnStr);
                 const string sql = @"
                     INSERT INTO Hortalicas
-                        (NomeCientifico, NomePopular, Familia, Categoria, CicloVida,
+                        (UsuarioId, NomeCientifico, NomePopular, Familia, Categoria, CicloVida,
                          DiasGerminacao, DiasColheita, Espacamento, Clima, Luminosidade,
                          Irrigacao, TipoSolo, Adubacao, PragasPrincipais, DoencasPrincipais,
                          Origem, ValorNutricional, Observacoes)
                     VALUES
-                        (@nc, @np, @fam, @cat, @ciclo, @dg, @dc, @esp, @clima, @lum,
+                        (@uid, @nc, @np, @fam, @cat, @ciclo, @dg, @dc, @esp, @clima, @lum,
                          @irr, @solo, @adu, @pragas, @doencas, @origem, @valorNutri, @obs)";
                 using var cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
                 AddCommonParameters(cmd, h);
                 conn.Open();
                 cmd.ExecuteNonQuery();
@@ -116,10 +119,11 @@ namespace AgroScan.Controllers
                         Adubacao = @adu, PragasPrincipais = @pragas, DoencasPrincipais = @doencas,
                         Origem = @origem, ValorNutricional = @valorNutri, Observacoes = @obs,
                         DataAtualizacao = GETDATE()
-                    WHERE HortalicaId = @Id";
+                    WHERE HortalicaId = @Id AND UsuarioId = @uid";
                 using var cmd = new SqlCommand(sql, conn);
                 AddCommonParameters(cmd, h);
                 cmd.Parameters.AddWithValue("@Id", id);
+                cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
                 conn.Open();
                 var rows = cmd.ExecuteNonQuery();
                 return rows > 0 ? Ok(new { sucesso = true }) : NotFound();
@@ -138,8 +142,10 @@ namespace AgroScan.Controllers
             try
             {
                 using var conn = new SqlConnection(ConnStr);
-                using var cmd = new SqlCommand("DELETE FROM Hortalicas WHERE HortalicaId = @Id", conn);
+                using var cmd = new SqlCommand(
+                    "DELETE FROM Hortalicas WHERE HortalicaId = @Id AND UsuarioId = @uid", conn);
                 cmd.Parameters.AddWithValue("@Id", id);
+                cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
                 conn.Open();
                 var rows = cmd.ExecuteNonQuery();
                 return rows > 0 ? Ok(new { sucesso = true }) : NotFound();
@@ -156,6 +162,7 @@ namespace AgroScan.Controllers
         private static Hortalica MapReaderToHortalica(SqlDataReader r) => new()
         {
             HortalicaId = Convert.ToInt32(r["HortalicaId"]),
+            UsuarioId = r["UsuarioId"] == DBNull.Value ? null : Convert.ToInt32(r["UsuarioId"]),
             NomeCientifico = r["NomeCientifico"].ToString() ?? "",
             NomePopular = r["NomePopular"] as string,
             Familia = r["Familia"] as string,

@@ -177,18 +177,33 @@ function getCatLabel(cat) {
 
 function fazerLogout() { Auth.logout(); }
 
-// ═══ ADICIONAR ═══
+// ═══ ADICIONAR & IDENTIFICAR ═══
 function injetarBotaoEModalAdicionar() {
     const filterRow = document.querySelector('.filter-row');
-    if (filterRow && !document.getElementById('btnAbrirAdicionar')) {
-        const btn = document.createElement('button');
-        btn.id = 'btnAbrirAdicionar';
-        btn.className = 'filter-select';
-        btn.style.cssText = 'cursor:pointer;font-weight:700;color:var(--primary);';
-        btn.textContent = '+ Adicionar hortaliça';
-        btn.onclick = abrirModalAdicionar;
-        filterRow.appendChild(btn);
+    if (filterRow) {
+        // Botão de Identificar Hortaliça (via IA/Foto)
+        if (!document.getElementById('btnIrIdentificar')) {
+            const btnIdentificar = document.createElement('a');
+            btnIdentificar.id = 'btnIrIdentificar';
+            btnIdentificar.href = 'identificar.html';
+            btnIdentificar.className = 'filter-select';
+            btnIdentificar.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;font-weight:600;color:var(--foreground);';
+            btnIdentificar.textContent = '🔍 Identificar por foto';
+            filterRow.appendChild(btnIdentificar);
+        }
+
+        // Botão de Adicionar Hortaliça Manualmente
+        if (!document.getElementById('btnAbrirAdicionar')) {
+            const btn = document.createElement('button');
+            btn.id = 'btnAbrirAdicionar';
+            btn.className = 'filter-select';
+            btn.style.cssText = 'cursor:pointer;font-weight:700;color:var(--primary);';
+            btn.textContent = '+ Adicionar hortaliça';
+            btn.onclick = abrirModalAdicionar;
+            filterRow.appendChild(btn);
+        }
     }
+
     if (!document.getElementById('addOverlay')) {
         const overlay = document.createElement('div');
         overlay.className = 'overlay';
@@ -197,6 +212,7 @@ function injetarBotaoEModalAdicionar() {
         overlay.innerHTML = formularioHtml('add', 'Adicionar hortaliça', 'Cadastro manual no catálogo');
         document.body.appendChild(overlay);
     }
+
     if (!document.getElementById('editOverlay')) {
         const overlay = document.createElement('div');
         overlay.className = 'overlay';

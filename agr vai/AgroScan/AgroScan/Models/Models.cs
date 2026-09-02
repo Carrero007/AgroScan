@@ -19,6 +19,7 @@
     public class Hortalica
     {
         public int HortalicaId { get; set; }
+        public int? UsuarioId { get; set; }
         public string NomeCientifico { get; set; } = string.Empty;
         public string? NomePopular { get; set; }
         public string? Familia { get; set; }
