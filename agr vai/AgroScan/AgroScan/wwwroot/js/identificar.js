@@ -208,7 +208,7 @@ function renderizarResultado(d) {
     ${d.dicasCultivo ? `
     <div class="card">
         <div class="card-header">💡 Dicas de cultivo</div>
-        <div class="card-body" style="font-size:13px;color:var(--text2);line-height:1.7;">${d.dicasCultivo}</div>
+        <div class="card-body" style="font-size:15px;color:var(--text2);line-height:1.7;">${d.dicasCultivo}</div>
     </div>` : ''}
 
     <div class="acoes-row">

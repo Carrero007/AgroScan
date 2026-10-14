@@ -81,6 +81,9 @@ namespace AgroScan.Controllers
             try
             {
                 using var conn = new SqlConnection(ConnStr);
+                conn.Open();
+                if (JaExiste(conn, h.NomeCientifico, null))
+                    return Conflict(new { erro = "Já existe uma hortaliça cadastrada com esse nome científico." });
                 const string sql = @"
                     INSERT INTO Hortalicas
                         (UsuarioId, NomeCientifico, NomePopular, Familia, Categoria, CicloVida,
@@ -93,7 +96,6 @@ namespace AgroScan.Controllers
                 using var cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
                 AddCommonParameters(cmd, h);
-                conn.Open();
                 cmd.ExecuteNonQuery();
                 return Ok(new { sucesso = true });
             }
@@ -108,9 +110,15 @@ namespace AgroScan.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Hortalica h)
         {
+            if (string.IsNullOrWhiteSpace(h.NomeCientifico))
+                return BadRequest(new { erro = "NomeCientifico e obrigatorio." });
+
             try
             {
                 using var conn = new SqlConnection(ConnStr);
+                conn.Open();
+                if (JaExiste(conn, h.NomeCientifico, id))
+                    return Conflict(new { erro = "Já existe outra hortaliça cadastrada com esse nome científico." });
                 const string sql = @"
                     UPDATE Hortalicas SET
                         NomeCientifico = @nc, NomePopular = @np, Familia = @fam, Categoria = @cat,
@@ -124,7 +132,6 @@ namespace AgroScan.Controllers
                 AddCommonParameters(cmd, h);
                 cmd.Parameters.AddWithValue("@Id", id);
                 cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
-                conn.Open();
                 var rows = cmd.ExecuteNonQuery();
                 return rows > 0 ? Ok(new { sucesso = true }) : NotFound();
             }
@@ -158,6 +165,20 @@ namespace AgroScan.Controllers
         }
 
         // -------------------- Helpers --------------------
+
+        // Duplicidade por usuário: mesmo nome científico (sem diferenciar maiúsculas/espaços).
+        private bool JaExiste(SqlConnection conn, string nomeCientifico, int? ignorarId)
+        {
+            using var cmd = new SqlCommand(
+                @"SELECT COUNT(1) FROM Hortalicas
+                  WHERE UsuarioId = @uid
+                    AND LOWER(LTRIM(RTRIM(NomeCientifico))) = LOWER(@nc)
+                    AND (@ign IS NULL OR HortalicaId <> @ign)", conn);
+            cmd.Parameters.AddWithValue("@uid", UsuarioIdAtual);
+            cmd.Parameters.AddWithValue("@nc", nomeCientifico.Trim());
+            cmd.Parameters.AddWithValue("@ign", (object?)ignorarId ?? DBNull.Value);
+            return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+        }
 
         private static Hortalica MapReaderToHortalica(SqlDataReader r) => new()
         {

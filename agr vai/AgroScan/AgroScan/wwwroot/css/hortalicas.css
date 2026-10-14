@@ -129,13 +129,13 @@ button, input, select, textarea {
 }
 
     .sidebar-logo-text strong {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 700;
         letter-spacing: -.3px;
     }
 
     .sidebar-logo-text span {
-        font-size: 10px;
+        font-size: 13px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: .12em;
@@ -159,7 +159,7 @@ nav.sidebar-nav {
 
 .nav-group-label {
     padding: 0 8px 6px;
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .12em;
@@ -180,7 +180,7 @@ nav.sidebar-nav {
     gap: 10px;
     padding: 8px 10px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     color: var(--sidebar-fg);
     opacity: 0.75;
@@ -226,7 +226,7 @@ nav.sidebar-nav {
     border-radius: 50%;
     background: var(--sidebar-primary);
     color: var(--sidebar-primary-fg);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -241,12 +241,12 @@ nav.sidebar-nav {
 }
 
     .sidebar-user-info strong {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 500;
     }
 
     .sidebar-user-info span {
-        font-size: 11px;
+        font-size: 13px;
         color: var(--muted-fg);
     }
 
@@ -356,7 +356,7 @@ nav.sidebar-nav {
         background: color-mix(in oklch, var(--muted) 40%, transparent);
         border: 1px solid var(--input);
         color: var(--foreground);
-        font-size: 13px;
+        font-size: 15px;
         outline: none;
         transition: background .15s, border-color .15s;
     }
@@ -377,7 +377,7 @@ nav.sidebar-nav {
     background: color-mix(in oklch, var(--muted) 40%, transparent);
     border: 1px solid var(--input);
     color: var(--foreground);
-    font-size: 13px;
+    font-size: 15px;
     outline: none;
     cursor: pointer;
     transition: background .15s, border-color .15s;
@@ -430,12 +430,12 @@ nav.sidebar-nav {
 
 .h-card-nome {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 16px;
     color: var(--foreground);
 }
 
 .h-card-cientifico {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--muted-fg);
     font-style: italic;
     margin-top: 2px;
@@ -454,7 +454,7 @@ nav.sidebar-nav {
     gap: 5px;
     padding: 3px 10px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     background: color-mix(in oklch, var(--primary) 15%, transparent);
     color: var(--primary);
@@ -505,7 +505,7 @@ nav.sidebar-nav {
 
 .info-item label {
     display: block;
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .05em;
@@ -514,7 +514,7 @@ nav.sidebar-nav {
 }
 
 .info-item span {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--foreground);
     opacity: .85;
 }
@@ -527,7 +527,7 @@ nav.sidebar-nav {
 }
 
 .tag {
-    font-size: 10px;
+    font-size: 13px;
     padding: 2px 7px;
     border-radius: 4px;
     background: var(--muted);
@@ -633,7 +633,7 @@ nav.sidebar-nav {
 }
 
 .modal-cientifico {
-    font-size: 12px;
+    font-size: 14px;
     font-style: italic;
     color: var(--muted-fg);
 }
@@ -661,7 +661,7 @@ nav.sidebar-nav {
 }
 
 .modal-section-title {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .07em;
@@ -683,7 +683,7 @@ nav.sidebar-nav {
 }
 
     .modal-item label {
-        font-size: 10px;
+        font-size: 13px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: .05em;
@@ -693,7 +693,7 @@ nav.sidebar-nav {
     }
 
     .modal-item span {
-        font-size: 13px;
+        font-size: 15px;
         color: var(--foreground);
     }
 
@@ -705,7 +705,7 @@ nav.sidebar-nav {
 }
 
     .modal-block label {
-        font-size: 10px;
+        font-size: 13px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: .05em;
@@ -715,7 +715,7 @@ nav.sidebar-nav {
     }
 
     .modal-block p {
-        font-size: 13px;
+        font-size: 15px;
         color: var(--foreground);
         opacity: .85;
         line-height: 1.6;
@@ -730,7 +730,7 @@ nav.sidebar-nav {
     color: var(--primary-fg);
     border-radius: calc(var(--radius) - 4px);
     text-decoration: none;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     border: none;
     cursor: pointer;
@@ -835,20 +835,20 @@ nav.sidebar-nav {
     }
 
 .notify-item-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     margin: 0;
     color: var(--card-foreground);
 }
 
 .notify-item-sub {
-    font-size: 12px;
+    font-size: 14px;
     margin: 0;
     color: var(--muted-fg);
 }
 
 .notify-empty {
-    font-size: 13px;
+    font-size: 15px;
     padding: 10px 8px;
     color: var(--muted-fg);
 }
@@ -936,7 +936,7 @@ nav.sidebar-nav {
 
 .field label {
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 6px;
     color: var(--foreground);
@@ -1010,7 +1010,7 @@ nav.sidebar-nav {
 
     .modal-body .field label {
         display: block;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
         margin-bottom: 6px;
         color: var(--foreground);
@@ -1029,7 +1029,7 @@ nav.sidebar-nav {
     border: none;
     border-radius: var(--radius);
     font-family: inherit;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: opacity .15s;
@@ -1048,7 +1048,7 @@ nav.sidebar-nav {
     background: color-mix(in oklch, var(--muted) 40%, transparent);
     border: 1px solid var(--input);
     color: var(--foreground);
-    font-size: 13px;
+    font-size: 15px;
     font-family: inherit;
     outline: none;
     transition: background .15s, border-color .15s;

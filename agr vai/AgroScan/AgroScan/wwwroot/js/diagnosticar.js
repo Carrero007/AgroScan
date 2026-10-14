@@ -324,7 +324,7 @@ async function diagnosticar() {
                         <button class="btn-analisar" style="margin-top:16px;max-width:220px;" onclick="diagnosticar()">
                             <span class="lbl">🔄 Tentar novamente</span>
                         </button>
-                        ${data.detalhe ? `<pre style="font-size:10px;color:var(--text3);margin-top:14px;white-space:pre-wrap;text-align:left;max-width:400px;">${escapeHtml(String(data.detalhe))}</pre>` : ''}
+                        ${data.detalhe ? `<pre style="font-size:13px;color:var(--text3);margin-top:14px;white-space:pre-wrap;text-align:left;max-width:400px;">${escapeHtml(String(data.detalhe))}</pre>` : ''}
                     </div>`;
             return;
         }
@@ -393,7 +393,7 @@ function renderizarResultado(d) {
                     ${d.fonteNome ? `<strong>${d.fonteNome}</strong>` : 'Fonte não informada pela IA'}
                     ${d.fonteUrl ? ` — <a href="${d.fonteUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--primary);text-decoration:underline;">ver fonte</a>` : ''}
                     ${avisoTexto ? `
-                    <div style="margin-top:10px;padding:10px 12px;border-radius:calc(var(--radius) - 4px);background:color-mix(in oklch, var(--amber) 12%, transparent);border:1px solid color-mix(in oklch, var(--amber) 30%, transparent);color:var(--amber);font-size:12.5px;line-height:1.5;">
+                    <div style="margin-top:10px;padding:10px 12px;border-radius:calc(var(--radius) - 4px);background:color-mix(in oklch, var(--amber) 12%, transparent);border:1px solid color-mix(in oklch, var(--amber) 30%, transparent);color:var(--amber);font-size:14.5px;line-height:1.5;">
                         ⚠️ ${avisoTexto}
                     </div>` : ''}
                 </div>
@@ -459,11 +459,91 @@ function renderizarResultado(d) {
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M13 11v2H3v-2M8 3v7M5 7l3 3 3-3"/></svg>
                     Salvar no histórico
                 </button>
-                <button class="btn-salvar" onclick="window.print()" style="border-color:var(--text3);color:var(--text3);">
-                    🖨️ Imprimir
+                <button class="btn-salvar" id="btnBaixarPdf" onclick="baixarPdfDiagnostico()" style="border-color:var(--text3);color:var(--text3);">
+                    📄 Baixar PDF
                 </button>
             </div>
         `;
+}
+
+// ── BAIXAR PDF (gerado com jsPDF, sem imprimir a página) ──────
+function baixarPdfDiagnostico() {
+    const d = resultadoAtual;
+    if (!d) return;
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão e tente novamente.');
+        return;
+    }
+    const btn = document.getElementById('btnBaixarPdf');
+    const htmlOriginal = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Gerando PDF...'; }
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait' });
+        const mx = 14, largura = 182;
+        let y = 18;
+        const novaPaginaSe = (h) => { if (y + h > 280) { doc.addPage(); y = 20; } };
+
+        doc.setFontSize(16); doc.setTextColor(40);
+        doc.text('AgroScan — Relatório de Diagnóstico', mx, y);
+        y += 4;
+        doc.setDrawColor(90, 138, 106); doc.setLineWidth(0.6);
+        doc.line(mx, y, mx + largura, y);
+        y += 12;
+
+        doc.setFontSize(20); doc.setTextColor(20); doc.setFont(undefined, 'bold');
+        const titulo = doc.splitTextToSize(String(d.nomeDoenca || 'Diagnóstico'), largura);
+        doc.text(titulo, mx, y); y += titulo.length * 8;
+        doc.setFont(undefined, 'normal');
+
+        doc.setFontSize(11); doc.setTextColor(110); doc.setFont(undefined, 'italic');
+        const sub = doc.splitTextToSize([d.nomeCientifico, d.agenteCausador].filter(Boolean).join(' · ') || '—', largura);
+        doc.text(sub, mx, y); y += sub.length * 5 + 3;
+        doc.setFont(undefined, 'normal');
+
+        doc.setFontSize(10); doc.setTextColor(90, 138, 106);
+        doc.text(`${d.tipoDiagnostico || '—'}   ·   Confiança: ${d.confianca || 0}%   ·   Gravidade: ${d.gravidadeNivel || 0}/10   ·   Propagação: ${d.riscoPropagacaoNivel || 0}/10`, mx, y);
+        y += 10;
+
+        const limpa = (s) => String(s == null || s === '' ? '—' : s).replace(/<[^>]+>/g, '');
+        const secao = (titulo, texto) => {
+            const linhas = doc.splitTextToSize(limpa(texto), largura);
+            novaPaginaSe(14);
+            doc.setFontSize(9.5); doc.setTextColor(90, 138, 106); doc.setFont(undefined, 'bold');
+            doc.text(titulo.toUpperCase(), mx, y); y += 6;
+            doc.setFont(undefined, 'normal'); doc.setFontSize(10.5); doc.setTextColor(50);
+            linhas.forEach(l => { novaPaginaSe(6); doc.text(l, mx, y); y += 5; });
+            y += 6;
+        };
+
+        secao('Sintomas observados', d.sintomasObservados);
+        secao('Condições favoráveis', d.condicoesFavoraveis);
+        const passos = [d.tratamentoPasso1, d.tratamentoPasso2, d.tratamentoPasso3].filter(Boolean);
+        if (passos.length) secao('Protocolo de tratamento', passos.map((p, i) => `${i + 1}. ${limpa(p)}`).join('\n'));
+        secao('Tratamento ecológico', d.tratamentoEcologico);
+        secao('Tratamento químico', d.tratamentoQuimico);
+        secao('Prevenção', d.prevencao);
+        secao('Risco / plantas afetadas', [d.plantasAfetadas, d.riscoPropagacaoTexto].filter(Boolean).join('\n') || '—');
+        if (d.fonteNome || d.fonteUrl) secao('Fonte técnica', [d.fonteNome, d.fonteUrl].filter(Boolean).join(' — '));
+        const aviso = d.recomendacaoProfissional || ((Number(d.confianca) || 0) < 95
+            ? 'Em caso de dúvida, consulte um agrônomo de confiança antes de aplicar qualquer tratamento.' : '');
+        if (aviso) secao('Aviso', aviso);
+
+        const total = doc.getNumberOfPages();
+        let nome = '';
+        try { nome = Auth.getNome() || ''; } catch (e) { /* sem nome */ }
+        for (let p = 1; p <= total; p++) {
+            doc.setPage(p);
+            doc.setFontSize(8); doc.setTextColor(150);
+            doc.text(`Gerado por AgroScan em ${new Date().toLocaleString('pt-BR')}${nome ? ' · Produtor: ' + nome : ''}  ·  Página ${p}/${total}`, mx, 290);
+        }
+        doc.save(`agroscan-diagnostico-${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (e) {
+        console.error('Erro ao gerar PDF:', e);
+        alert('Erro ao gerar o PDF. Tente novamente.');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = htmlOriginal; }
+    }
 }
 
 async function salvarDiagnostico() {

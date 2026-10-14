@@ -137,7 +137,7 @@ input[type="password"]::-ms-clear {
     }
 
 .eyebrow {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -154,7 +154,7 @@ input[type="password"]::-ms-clear {
 }
 
 .subtitle {
-    font-size: 14.5px;
+    font-size: 16.5px;
     color: var(--ink-soft);
     line-height: 1.55;
     margin-bottom: 32px;
@@ -163,7 +163,7 @@ input[type="password"]::-ms-clear {
 
 .field label {
     display: block;
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-weight: 600;
     color: var(--ink);
     margin-bottom: 6px;
@@ -248,7 +248,7 @@ input[type="text"], input[type="password"] {
     background: #fff;
     color: var(--ink);
     font-family: inherit;
-    font-size: 14.5px;
+    font-size: 16.5px;
     font-weight: 500;
     transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
 }
@@ -335,7 +335,7 @@ input:disabled {
 .ferr {
     display: block;
     min-height: 16px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--danger);
     margin-top: 5px;
@@ -359,7 +359,7 @@ input:disabled {
 
 .forgot {
     align-self: flex-end;
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-weight: 600;
     color: var(--ink-soft);
     text-decoration: none;
@@ -374,7 +374,7 @@ input:disabled {
 /* ═══════════════ ALERTA ═══════════════ */
 .alert {
     width: 100%;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     border-radius: var(--r-sm);
     max-height: 0;
@@ -411,7 +411,7 @@ input:disabled {
     background: var(--ink);
     color: #fff;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: 0.02em;
     cursor: pointer;
@@ -462,7 +462,7 @@ input:disabled {
         box-shadow: none;
         margin-top: 18px;
         flex-shrink: 0;
-        font-size: 13px;
+        font-size: 15px;
         letter-spacing: 0.03em;
         text-transform: uppercase;
     }
@@ -540,7 +540,7 @@ input:disabled {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -712,7 +712,7 @@ input:disabled {
     border: 1px solid rgba(124,179,122,0.35);
     border-radius: 999px;
     padding: 6px 13px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     white-space: nowrap;
     backdrop-filter: blur(6px);
@@ -763,7 +763,7 @@ input:disabled {
     }
 
 .vs-sub {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.65;
     color: var(--panel-text-dim);
     max-width: 40ch;
@@ -773,7 +773,7 @@ input:disabled {
 /* ═══════════════ RODAPÉ ═══════════════ */
 .foot-note {
     margin: 20px 0 30px;
-    font-size: 12px;
+    font-size: 14px;
     color: var(--panel-text-dim);
     text-align: center;
     letter-spacing: 0.02em;
@@ -867,7 +867,7 @@ input:disabled {
     .mobile-switch {
         display: block;
         margin-top: 20px;
-        font-size: 13px;
+        font-size: 15px;
         color: var(--ink-soft);
     }
 

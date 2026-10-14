@@ -62,7 +62,7 @@
 }
 
 .aslogout-desc {
-    font-size: 13.5px;
+    font-size: 15.5px;
     line-height: 1.5;
     color: var(--muted-fg, #888);
     margin-bottom: 24px;
@@ -79,7 +79,7 @@
     border-radius: 10px;
     border: none;
     font-family: inherit;
-    font-size: 13.5px;
+    font-size: 15.5px;
     font-weight: 700;
     cursor: pointer;
     transition: background 160ms ease, transform 120ms ease, opacity 160ms ease;

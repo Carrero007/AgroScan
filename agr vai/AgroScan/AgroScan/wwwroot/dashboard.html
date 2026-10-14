@@ -188,7 +188,7 @@
                         <option value="30" selected>Últimos 30 dias</option>
                         <option value="90">Últimos 90 dias</option>
                     </select>
-                    <button class="btn-outline" onclick="exportarCsv()">📥 Exportar CSV</button>
+                    <button class="btn-outline" onclick="exportarPdf()">📥 Exportar PDF</button>
                 </div>
             </div>
 
@@ -286,10 +286,10 @@
                                 <p class="card-sub">Saudáveis vs. alertas detectados pela IA</p>
                             </div>
                             <div class="chart-legend">
-                                <span style="display:flex;align-items:center;gap:6px;font-size:12px">
+                                <span style="display:flex;align-items:center;gap:6px;font-size:14px">
                                     <span class="legend-dot" style="background:var(--c-primary-hex)"></span>Saudáveis
                                 </span>
-                                <span style="display:flex;align-items:center;gap:6px;font-size:12px">
+                                <span style="display:flex;align-items:center;gap:6px;font-size:14px">
                                     <span class="legend-dot" style="background:var(--c-chart4-hex)"></span>Alertas
                                 </span>
                             </div>
@@ -391,11 +391,11 @@
                                     <input type="text" id="cepInput" class="search-input" placeholder="00000-000" maxlength="9" inputmode="numeric" style="flex:1;padding-left:12px" />
                                     <button type="button" class="btn-ghost" id="cepBuscarBtn">Buscar</button>
                                 </div>
-                                <span id="cepErro" style="display:none;font-size:12px;color:#d15b5b"></span>
+                                <span id="cepErro" style="display:none;font-size:14px;color:#d15b5b"></span>
                             </div>
                         </div>
                         <div class="card-content" style="display:flex;flex-direction:column;gap:10px">
-                            <p id="climaSemDados" style="display:none;font-size:13px;opacity:.7;text-align:center;padding:12px 0">
+                            <p id="climaSemDados" style="display:none;font-size:15px;opacity:.7;text-align:center;padding:12px 0">
                                 Nenhum CEP cadastrado. Clique no lápis acima pra informar um e ver a previsão.
                             </p>
                             <div id="climaConteudo">
@@ -504,7 +504,7 @@
                 <button class="modal-close" id="perfilClose">×</button>
             </div>
             <div class="modal-body">
-                <div id="perfilErro" style="display:none;color:var(--red);font-size:13px;"></div>
+                <div id="perfilErro" style="display:none;color:var(--red);font-size:15px;"></div>
                 <div class="field"><label>Nome</label><input type="text" id="perfilNome" class="search-input" style="width:100%"></div>
                 <div class="field"><label>CEP</label><input type="text" id="perfilCep" class="search-input" style="width:100%" maxlength="9" placeholder="00000-000"></div>
                 <button class="btn-primary" id="perfilSalvar" style="width:100%;justify-content:center;margin-top:6px;">💾 Salvar alterações</button>
@@ -514,6 +514,8 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="js/Auth.js"></script>
     <script src="js/perfil.js"></script>
     <script src="js/logout-modal.js"></script>

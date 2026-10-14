@@ -133,13 +133,13 @@ button, input {
 }
 
     .sidebar-logo-text strong {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 700;
         letter-spacing: -.3px;
     }
 
     .sidebar-logo-text span {
-        font-size: 10px;
+        font-size: 13px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: .12em;
@@ -163,7 +163,7 @@ nav.sidebar-nav {
 
 .nav-group-label {
     padding: 0 8px 6px;
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .12em;
@@ -184,7 +184,7 @@ nav.sidebar-nav {
     gap: 10px;
     padding: 8px 10px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     color: var(--sidebar-fg);
     opacity: 0.75;
@@ -231,7 +231,7 @@ nav.sidebar-nav {
     border-radius: 50%;
     background: var(--sidebar-primary);
     color: var(--sidebar-primary-fg);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -246,12 +246,12 @@ nav.sidebar-nav {
 }
 
     .sidebar-user-info strong {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 500;
     }
 
     .sidebar-user-info span {
-        font-size: 11px;
+        font-size: 13px;
         color: var(--muted-fg);
     }
 
@@ -345,7 +345,7 @@ nav.sidebar-nav {
     gap: 6px;
     padding: 14px 20px;
     border-bottom: 1px solid var(--border);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
 }
 
@@ -382,13 +382,13 @@ nav.sidebar-nav {
 }
 
 .upload-label {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
 }
 
 .upload-hint {
     margin-top: 4px;
-    font-size: 12px;
+    font-size: 14px;
     color: var(--muted-fg);
 }
 
@@ -412,7 +412,7 @@ nav.sidebar-nav {
 
     .field label {
         display: block;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
         margin-bottom: 8px;
     }
@@ -425,7 +425,7 @@ nav.sidebar-nav {
         background: color-mix(in oklch, var(--muted) 40%, transparent);
         border: 1px solid var(--input);
         color: var(--foreground);
-        font-size: 13px;
+        font-size: 15px;
         outline: none;
         transition: background .15s, border-color .15s;
     }
@@ -450,7 +450,7 @@ nav.sidebar-nav {
     border-radius: var(--radius);
     background: var(--primary);
     color: var(--primary-fg);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: opacity .15s;
@@ -524,7 +524,7 @@ nav.sidebar-nav {
 }
 
 .estado-vazio p {
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.5;
 }
 
@@ -560,14 +560,14 @@ nav.sidebar-nav {
 
 .result-hero-text .cientifico {
     margin-top: 4px;
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-style: italic;
     color: var(--muted-fg);
 }
 
 .result-hero-text .familia {
     margin-top: 6px;
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: var(--muted-fg);
 }
 
@@ -584,7 +584,7 @@ nav.sidebar-nav {
     background: color-mix(in oklch, var(--primary) 12%, transparent);
     border: 1px solid color-mix(in oklch, var(--primary) 30%, transparent);
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--primary);
 }
@@ -604,7 +604,7 @@ nav.sidebar-nav {
 }
 
     .agro-card .label {
-        font-size: 10px;
+        font-size: 13px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: .1em;
@@ -613,7 +613,7 @@ nav.sidebar-nav {
     }
 
     .agro-card .value {
-        font-size: 13.5px;
+        font-size: 15.5px;
         font-weight: 600;
     }
 
@@ -633,14 +633,14 @@ nav.sidebar-nav {
 
 .detail-card-header {
     padding: 10px 14px;
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-weight: 600;
     border-bottom: 1px solid var(--border);
 }
 
 .detail-card-body {
     padding: 12px 14px;
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.55;
     color: var(--muted-fg);
 }
@@ -662,7 +662,7 @@ nav.sidebar-nav {
     background: var(--primary);
     color: var(--primary-fg);
     text-decoration: none;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     transition: opacity .15s;
 }
@@ -681,7 +681,7 @@ nav.sidebar-nav {
     border: 1px solid var(--primary);
     background: color-mix(in oklch, var(--primary) 12%, transparent);
     color: var(--primary);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: background .15s, opacity .15s;
@@ -812,20 +812,20 @@ nav.sidebar-nav {
     }
 
 .notify-item-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     margin: 0;
     color: var(--card-foreground);
 }
 
 .notify-item-sub {
-    font-size: 12px;
+    font-size: 14px;
     margin: 0;
     color: var(--muted-fg);
 }
 
 .notify-empty {
-    font-size: 13px;
+    font-size: 15px;
     padding: 10px 8px;
     color: var(--muted-fg);
 }
@@ -912,7 +912,7 @@ nav.sidebar-nav {
 
 .field label {
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 6px;
     color: var(--foreground);
@@ -986,7 +986,7 @@ nav.sidebar-nav {
 
     .modal-body .field label {
         display: block;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
         margin-bottom: 6px;
         color: var(--foreground);
@@ -1005,7 +1005,7 @@ nav.sidebar-nav {
     border: none;
     border-radius: var(--radius);
     font-family: inherit;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: opacity .15s;

@@ -61,20 +61,20 @@ async function carregarPagina(pag) {
         tbody.innerHTML = filtrada.map(d => {
             const data_ = new Date(d.dataDiagnostico).toLocaleDateString('pt-BR');
             return `<tr data-id="${d.diagnosticoId}" data-json='${JSON.stringify(d).replace(/'/g, "&#39;")}'>
-            <td style="color:var(--text3);font-size:12px;">${data_}</td>
+            <td style="color:var(--text3);font-size:14px;">${data_}</td>
             <td style="color:var(--text);font-weight:600;">${d.hortalicaNome || '—'}</td>
-            <td style="color:var(--text);font-weight:500;">${d.nomeDoenca || '—'}<br><span style="font-size:11px;color:var(--text3);font-style:italic;">${d.nomeCientifico || ''}</span></td>
+            <td style="color:var(--text);font-weight:500;">${d.nomeDoenca || '—'}<br><span style="font-size:13px;color:var(--text3);font-style:italic;">${d.nomeCientifico || ''}</span></td>
             <td>${badgeTipo(d.tipoDiagnostico)}</td>
             <td>${chipGrav(d.gravidade)}</td>
             <td>${chipRisco(d.riscoPropagacao)}</td>
             <td>
                 <div class="conf-bar">
                     <div class="conf-track"><div class="conf-fill" style="width:${d.confianca || 0}%"></div></div>
-                    <span style="font-size:12px;">${d.confianca || 0}%</span>
+                    <span style="font-size:14px;">${d.confianca || 0}%</span>
                 </div>
             </td>
             <td>
-                <button class="pag-btn" style="width:auto;padding:0 12px;font-size:12px;font-weight:600;color:var(--primary);border-color:var(--primary);" onclick="abrirModal(${d.diagnosticoId})">
+                <button class="pag-btn" style="width:auto;padding:0 12px;font-size:14px;font-weight:600;color:var(--primary);border-color:var(--primary);" onclick="abrirModal(${d.diagnosticoId})">
                     👁️ Ver diagnóstico
                 </button>
             </td>
@@ -105,7 +105,7 @@ function abrirModal(id) {
 
     document.getElementById('modalTitle').textContent = d.nomeDoenca || 'Diagnóstico';
     document.getElementById('modalBody').innerHTML = `
-        ${d.hortalicaNome ? `<div style="font-size:13px;color:var(--muted-fg);margin-bottom:2px;">🌱 <strong style="color:var(--foreground);">${d.hortalicaNome}</strong></div>` : ''}
+        ${d.hortalicaNome ? `<div style="font-size:15px;color:var(--muted-fg);margin-bottom:2px;">🌱 <strong style="color:var(--foreground);">${d.hortalicaNome}</strong></div>` : ''}
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
             ${badgeTipo(d.tipoDiagnostico)} ${chipGrav(d.gravidade)} ${chipRisco(d.riscoPropagacao)}
         </div>
@@ -281,7 +281,7 @@ async function exportarDiagnosticoPDF() {
 
     const htmlOriginal = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<span style="font-size:10px;">...</span>';
+    btn.innerHTML = '<span style="font-size:13px;">...</span>';
 
     try {
         if (!window.jspdf || !window.jspdf.jsPDF) {
@@ -407,7 +407,8 @@ async function enviarDiagnosticoEmail() {
     if (!email || !email.includes('@')) return;
 
     const btn = document.getElementById('btnEnviarEmail');
-    if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+    const htmlOriginal = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span style="font-size:13px;">...</span>'; }
 
     try {
         const resp = await Auth.fetchAuth('/api/relatorio/enviar-email', {
@@ -419,7 +420,7 @@ async function enviarDiagnosticoEmail() {
     } catch {
         alert('Erro de conexão ao enviar e-mail.');
     } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '📧 E-mail'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = htmlOriginal; }
     }
 }
 
@@ -431,7 +432,8 @@ async function enviarDiagnosticoWhatsapp() {
     const numero = prompt('Número do WhatsApp (com DDD e código do país, só números — ex: 5511999998888). Deixe em branco para escolher o contato na hora:');
 
     const btn = document.getElementById('btnEnviarWhatsapp');
-    if (btn) { btn.disabled = true; btn.textContent = 'Gerando...'; }
+    const htmlOriginal = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span style="font-size:13px;">...</span>'; }
 
     try {
         const resp = await Auth.fetchAuth('/api/relatorio/link-whatsapp', {
@@ -447,6 +449,6 @@ async function enviarDiagnosticoWhatsapp() {
     } catch {
         alert('Erro de conexão ao gerar link do WhatsApp.');
     } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '💬 WhatsApp'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = htmlOriginal; }
     }
 }

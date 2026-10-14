@@ -122,20 +122,20 @@ html, body {
     }
 
 .notify-item-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     margin: 0;
     color: var(--card-foreground);
 }
 
 .notify-item-sub {
-    font-size: 12px;
+    font-size: 14px;
     margin: 0;
     color: var(--muted-fg);
 }
 
 .notify-empty {
-    font-size: 13px;
+    font-size: 15px;
     padding: 10px 8px;
     color: var(--muted-fg);
 }
@@ -201,13 +201,13 @@ body {
 }
 
     .sidebar-logo-text strong {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 700;
         letter-spacing: -.3px;
     }
 
     .sidebar-logo-text span {
-        font-size: 10px;
+        font-size: 13px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: .12em;
@@ -231,7 +231,7 @@ nav.sidebar-nav {
 
 .nav-group-label {
     padding: 0 8px 6px;
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .12em;
@@ -252,7 +252,7 @@ nav.sidebar-nav {
     gap: 10px;
     padding: 8px 10px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     color: var(--sidebar-fg);
     opacity: 0.75;
@@ -298,7 +298,7 @@ nav.sidebar-nav {
     border-radius: 50%;
     background: var(--sidebar-primary);
     color: var(--sidebar-primary-fg);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -313,12 +313,12 @@ nav.sidebar-nav {
 }
 
     .sidebar-user-info strong {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 500;
     }
 
     .sidebar-user-info span {
-        font-size: 11px;
+        font-size: 13px;
         color: var(--muted-fg);
     }
 
@@ -400,7 +400,7 @@ nav.sidebar-nav {
     border: 1px solid transparent;
     color: var(--foreground);
     font-family: inherit;
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
     transition: background .15s, border-color .15s;
 }
@@ -432,7 +432,7 @@ nav.sidebar-nav {
     border: none;
     border-radius: var(--radius);
     font-family: inherit;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: opacity .15s;
@@ -484,7 +484,7 @@ main {
 }
 
 .page-header-left p.eyebrow {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .14em;
@@ -500,7 +500,7 @@ main {
 
 .page-header-left p.sub {
     margin-top: 4px;
-    font-size: 13px;
+    font-size: 15px;
     color: var(--muted-fg);
 }
 
@@ -517,7 +517,7 @@ main {
     border-radius: var(--radius);
     color: var(--foreground);
     font-family: inherit;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
     cursor: pointer;
     transition: background .15s;
@@ -553,12 +553,12 @@ main {
 }
 
 .card-title {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
 }
 
 .card-sub {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--muted-fg);
     margin-top: 2px;
 }
@@ -609,7 +609,7 @@ main {
     gap: 2px;
     padding: 3px 6px;
     border-radius: 6px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
 }
 
@@ -633,7 +633,7 @@ main {
 }
 
 .kpi-label {
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .12em;
@@ -652,13 +652,13 @@ main {
 
 .kpi-hint {
     margin-top: 4px;
-    font-size: 12px;
+    font-size: 14px;
     color: var(--muted-fg);
 }
 
 /* ── TOOLTIP (ⓘ) ──────────────────────────────────────────── */
 .info-icon {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--muted-fg);
     cursor: help;
     opacity: .7;
@@ -686,7 +686,7 @@ main {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .legend-dot {
@@ -712,7 +712,7 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 13px;
+    font-size: 15px;
 }
 
 .pie-legend-item-left {
@@ -748,7 +748,7 @@ main {
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 15px;
 }
 
 thead tr {
@@ -758,7 +758,7 @@ thead tr {
 th {
     padding: 8px 12px;
     text-align: left;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--muted-fg);
     white-space: nowrap;
@@ -791,7 +791,7 @@ td {
 
 .td-mono {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--muted-fg);
 }
 
@@ -812,7 +812,7 @@ td {
     border: none;
     cursor: pointer;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
     color: var(--muted-fg);
     padding: 4px 8px;
@@ -839,7 +839,7 @@ td {
 .sort-arrow {
     display: inline-block;
     margin-left: 4px;
-    font-size: 10px;
+    font-size: 13px;
     opacity: .5;
 }
 
@@ -857,7 +857,7 @@ td {
     align-items: center;
     padding: 2px 8px;
     border-radius: 6px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     border: 1px solid;
 }
@@ -906,7 +906,7 @@ td {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 14px;
+    font-size: 16px;
 }
 
     .weather-row-left svg {
@@ -934,7 +934,7 @@ td {
 .progress-label {
     display: flex;
     justify-content: space-between;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--muted-fg);
     margin-bottom: 6px;
 }
@@ -988,13 +988,13 @@ td {
     }
 
 .alert-text-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
     line-height: 1.3;
 }
 
 .alert-text-sub {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--muted-fg);
     margin-top: 2px;
 }
@@ -1009,7 +1009,7 @@ td {
     align-items: center;
     padding: 2px 10px;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     background: color-mix(in oklch, var(--primary) 10%, transparent);
     color: var(--primary);
@@ -1101,13 +1101,13 @@ td {
 }
 
 .sidebar-ia-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--sidebar-primary);
 }
 
 .sidebar-ia-sub {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--muted-fg);
     margin-top: 2px;
     margin-bottom: 10px;
@@ -1129,7 +1129,7 @@ td {
 }
 
 .sidebar-ia-pct {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--muted-fg);
     opacity: 0.7;
 }
@@ -1202,7 +1202,7 @@ td {
 
 .field label {
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 6px;
     color: var(--foreground);
@@ -1263,7 +1263,7 @@ td {
     background: color-mix(in oklch, var(--muted) 40%, transparent);
     border-radius: 8px;
     padding: 6px 4px;
-    font-size: 11px;
+    font-size: 13px;
 }
 
     .forecast-day .fd-label {
@@ -1278,7 +1278,7 @@ td {
 /* ── ALERTA COM AÇÃO ──────────────────────────────────────── */
 .alert-item-action {
     margin-top: 6px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--primary);
     text-decoration: none;
@@ -1317,7 +1317,7 @@ td {
 }
 
 .action-card-eyebrow {
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .1em;
@@ -1326,14 +1326,14 @@ td {
 }
 
 .action-card-text {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.5;
     color: var(--foreground);
 }
 
 .action-card-cta {
     flex-shrink: 0;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--primary);
     text-decoration: none;
@@ -1406,7 +1406,7 @@ td {
     align-items: center;
     gap: 4px;
     margin-top: 10px;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--muted-fg);
 }
 

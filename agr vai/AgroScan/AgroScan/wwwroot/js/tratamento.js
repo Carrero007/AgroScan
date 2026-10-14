@@ -265,6 +265,7 @@ async function enviarTratamentoEmail() {
     const email = prompt('Digite o e-mail para envio do relatório:');
     if (!email || !email.includes('@')) return;
     const btn = document.getElementById('btnTratEmail');
+    const htmlOriginal = btn ? btn.innerHTML : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
     try {
         const resp = await Auth.fetchAuth('/api/relatorio/enviar-email', {
@@ -274,12 +275,13 @@ async function enviarTratamentoEmail() {
         const data = await resp.json();
         alert(resp.ok ? `✓ ${data.mensagem}` : `Erro: ${data.erro || 'Falha ao enviar.'}`);
     } catch { alert('Erro de conexão ao enviar e-mail.'); }
-    finally { if (btn) { btn.disabled = false; btn.textContent = '📧 E-mail'; } }
+    finally { if (btn) { btn.disabled = false; btn.innerHTML = htmlOriginal; } }
 }
 
 async function enviarTratamentoWhatsapp() {
     const numero = prompt('Número do WhatsApp (com DDD e código do país, só números — ex: 5511999998888). Deixe em branco para escolher o contato na hora:');
     const btn = document.getElementById('btnTratWhats');
+    const htmlOriginal = btn ? btn.innerHTML : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Gerando...'; }
     try {
         const resp = await Auth.fetchAuth('/api/relatorio/link-whatsapp', {
@@ -290,5 +292,5 @@ async function enviarTratamentoWhatsapp() {
         if (resp.ok && data.linkWhatsapp) window.open(data.linkWhatsapp, '_blank');
         else alert(`Erro: ${data.erro || 'Falha ao gerar link.'}`);
     } catch { alert('Erro de conexão ao gerar link do WhatsApp.'); }
-    finally { if (btn) { btn.disabled = false; btn.textContent = '💬 WhatsApp'; } }
+    finally { if (btn) { btn.disabled = false; btn.innerHTML = htmlOriginal; } }
 }

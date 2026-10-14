@@ -93,10 +93,10 @@ function renderGrid(lista) {
                     <div class="info-item"><label>🌡️ Clima</label><span>${h.temperaturaIdeal || '—'}</span></div>
                 </div>
                 <div style="display:flex;gap:6px;margin-top:10px;">
-    <button class="filter-select" style="flex:1;padding:6px;font-size:11px;cursor:pointer;" onclick="event.stopPropagation();irParaDiagnostico(${i})">🔬 Diagnosticar</button>
-    <button class="filter-select" style="flex:1;padding:6px;font-size:11px;cursor:pointer;" onclick="event.stopPropagation();verDiagnosticos(${i})">📋 Diagnósticos</button>
-    <button class="filter-select" style="padding:6px 10px;font-size:11px;cursor:pointer;" onclick="event.stopPropagation();abrirModalEditar(${i})">✏️</button>
-    <button class="filter-select" style="padding:6px 10px;font-size:11px;cursor:pointer;color:var(--destructive);" onclick="event.stopPropagation();excluirHortalica(${i})">🗑️</button>
+    <button class="filter-select" style="flex:1;padding:6px;font-size:13px;cursor:pointer;" onclick="event.stopPropagation();irParaDiagnostico(${i})">🔬 Diagnosticar</button>
+    <button class="filter-select" style="flex:1;padding:6px;font-size:13px;cursor:pointer;" onclick="event.stopPropagation();verDiagnosticos(${i})">📋 Diagnósticos</button>
+    <button class="filter-select" style="padding:6px 10px;font-size:13px;cursor:pointer;" onclick="event.stopPropagation();abrirModalEditar(${i})">✏️</button>
+    <button class="filter-select" style="padding:6px 10px;font-size:13px;cursor:pointer;color:var(--destructive);" onclick="event.stopPropagation();excluirHortalica(${i})">🗑️</button>
 </div>
             </div>
         </div>`;
@@ -226,7 +226,7 @@ function injetarBotaoEModalAdicionar() {
 function formularioHtml(prefix, titulo, sub) {
     const campo = (id, label, placeholder = '', tipo = 'text') =>
         `<div class="modal-item"><label>${label}</label>
-            <input id="${prefix}${id}" type="${tipo}" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;" placeholder="${placeholder}"></div>`;
+            <input id="${prefix}${id}" type="${tipo}" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:15px;outline:none;" placeholder="${placeholder}"></div>`;
     return `
         <div class="modal" id="${prefix}ModalBox">
             <div class="modal-header">
@@ -235,13 +235,13 @@ function formularioHtml(prefix, titulo, sub) {
                 <button class="modal-close" onclick="${prefix === 'add' ? 'fecharModalAdicionar' : 'fecharModalEditar'}()">×</button>
             </div>
             <div class="modal-body">
-                <div id="${prefix}Erro" style="display:none;color:var(--red);font-size:13px;"></div>
+                <div id="${prefix}Erro" style="display:none;color:var(--red);font-size:15px;"></div>
                 <div class="modal-grid" style="grid-template-columns:1fr 1fr;">
                     ${campo('NomePopular', 'Nome popular *', 'Ex: Tomate')}
                     ${campo('NomeCientifico', 'Nome científico *', 'Ex: Solanum lycopersicum')}
                     ${campo('Familia', 'Família', 'Ex: Solanaceae')}
                     <div class="modal-item"><label>Categoria</label>
-                        <select id="${prefix}Categoria" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;">
+                        <select id="${prefix}Categoria" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:15px;outline:none;">
                             <option value="folhosa">Folhosa</option><option value="fruto">Fruto</option><option value="raiz">Raiz</option>
                             <option value="bulbo">Bulbo</option><option value="legume">Legume</option><option value="brassica">Brássica</option>
                         </select></div>
@@ -254,11 +254,11 @@ function formularioHtml(prefix, titulo, sub) {
                     ${campo('TipoSolo', 'Tipo de solo')}
                     ${campo('Origem', 'Origem')}
                 </div>
-                <div class="modal-block"><label>Adubação</label><textarea id="${prefix}Adubacao" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
-                <div class="modal-block"><label>Principais pragas</label><textarea id="${prefix}Pragas" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
-                <div class="modal-block"><label>Principais doenças</label><textarea id="${prefix}Doencas" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
-                <div class="modal-block"><label>Valor nutricional</label><textarea id="${prefix}ValorNutri" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
-                <div class="modal-block"><label>Observações / dicas de cultivo</label><textarea id="${prefix}Observacoes" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:13px;outline:none;resize:vertical;"></textarea></div>
+                <div class="modal-block"><label>Adubação</label><textarea id="${prefix}Adubacao" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:15px;outline:none;resize:vertical;"></textarea></div>
+                <div class="modal-block"><label>Principais pragas</label><textarea id="${prefix}Pragas" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:15px;outline:none;resize:vertical;"></textarea></div>
+                <div class="modal-block"><label>Principais doenças</label><textarea id="${prefix}Doencas" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:15px;outline:none;resize:vertical;"></textarea></div>
+                <div class="modal-block"><label>Valor nutricional</label><textarea id="${prefix}ValorNutri" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:15px;outline:none;resize:vertical;"></textarea></div>
+                <div class="modal-block"><label>Observações / dicas de cultivo</label><textarea id="${prefix}Observacoes" rows="2" style="width:100%;background:transparent;border:none;color:var(--foreground);font-size:15px;outline:none;resize:vertical;"></textarea></div>
                 <button class="btn-diag-modal" id="btnSalvar${prefix === 'add' ? 'NovaHt' : 'EditarHt'}" onclick="${prefix === 'add' ? 'salvarNovaHortalica' : 'salvarEdicaoHortalica'}()" style="width:100%;justify-content:center;margin-top:6px;">
                     💾 ${prefix === 'add' ? 'Salvar hortaliça' : 'Salvar alterações'}
                 </button>

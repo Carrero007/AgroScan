@@ -39,7 +39,7 @@
 .footer-col-title,
 .impacto-tag,
 .step-num {
-    font-size: 12px !important;
+    font-size: 14px !important;
     letter-spacing: .08em;
 }
 
@@ -59,12 +59,12 @@ th,
 .section-desc,
 .footer-brand p,
 footer ul a {
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .text-xs,
 .text-sm {
-    font-size: 13px !important;
+    font-size: 15px !important;
 }
 
 /* Ícones muito pequenos em botões/cards ficam difíceis de reconhecer à
@@ -99,7 +99,7 @@ a.feat-source-link {
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    font-size: 15px;
+    font-size: 17px;
     display: inline-flex;
     align-items: center;
     justify-content: center;

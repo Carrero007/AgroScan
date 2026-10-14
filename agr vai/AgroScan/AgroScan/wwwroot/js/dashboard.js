@@ -121,19 +121,33 @@ function renderEmptyStateSeNecessario() {
     }
 }
 
-/* ── EXPORTAR CSV ─────────────────────────────────────────── */
-function exportarCsv() {
+/* ── EXPORTAR PDF ─────────────────────────────────────────── */
+function exportarPdf() {
     if (!recentScans.length) { alert("Nenhum dado para exportar."); return; }
-    const linhas = [["ID", "Data", "Cultura", "Diagnóstico", "Severidade", "Confiança"]];
-    recentScans.forEach(s => linhas.push([s.id, s.data, s.cultura, s.problema, s.severidade, s.confianca + "%"]));
-    const csv = linhas.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `agroscan-dashboard-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("Não foi possível carregar o gerador de PDF. Verifique sua conexão e tente novamente.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(16);
+    doc.setTextColor(40);
+    doc.text("AgroScan — Dashboard: diagnósticos recentes", 14, 16);
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    let nome = "";
+    try { nome = Auth.getNome() || ""; } catch (e) { /* sem nome */ }
+    doc.text(`${nome ? "Produtor: " + nome + "  ·  " : ""}Gerado em: ${new Date().toLocaleString("pt-BR")}  ·  ${recentScans.length} registro(s)`, 14, 22);
+    doc.autoTable({
+        startY: 28,
+        head: [["ID", "Data", "Cultura", "Diagnóstico", "Severidade", "Confiança"]],
+        body: recentScans.map(s => [s.id, s.data, s.cultura, s.problema, s.severidade, s.confianca + "%"]),
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [90, 138, 106], textColor: 255 },
+        alternateRowStyles: { fillColor: [245, 240, 232] },
+        margin: { left: 14, right: 14 },
+    });
+    doc.save(`agroscan-dashboard-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
 /* ── BUSCA NO TOPBAR (filtra a tabela de recentes, client-side) ── */
@@ -690,7 +704,7 @@ function populateAlertasCriticos(lista) {
     const alertas = lista || alertasCriticosData;
 
     if (alertas.length === 0) {
-        panel.innerHTML = `<p style="font-size:13px;opacity:.7">Nenhuma notificação crítico no momento.</p>`;
+        panel.innerHTML = `<p style="font-size:15px;opacity:.7">Nenhuma notificação crítico no momento.</p>`;
         return;
     }
 

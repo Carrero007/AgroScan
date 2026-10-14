@@ -30,7 +30,7 @@ body {
 }
 
 .page-header p {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--muted);
     margin: 2px 0 0;
 }
@@ -49,7 +49,7 @@ body {
     .nav-bar a {
         padding: 9px 16px;
         border-radius: 9px;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 600;
         color: var(--text-soft);
         text-decoration: none;
@@ -93,7 +93,7 @@ body {
         padding: 10px 14px;
         border-radius: 8px;
         border: 1.5px solid var(--border);
-        font-size: 14px;
+        font-size: 16px;
         font-family: inherit;
         transition: 0.2s;
         background: var(--surface);
@@ -140,7 +140,7 @@ body {
     padding: 9px 14px;
     border-radius: 8px;
     border: 1.5px solid var(--border);
-    font-size: 14px;
+    font-size: 16px;
     font-family: inherit;
     transition: 0.2s;
     min-width: 220px;
@@ -172,7 +172,7 @@ body {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 10px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     margin: 1px;
 }
@@ -288,7 +288,7 @@ body {
     }
 
     .confirm-box p {
-        font-size: 15px;
+        font-size: 17px;
         color: var(--text-soft);
         margin-bottom: 20px;
     }
@@ -307,7 +307,7 @@ body {
     border-radius: 10px;
     font-weight: 700;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     transition: 0.2s;
 }
 
@@ -317,7 +317,7 @@ body {
 
 td button {
     padding: 6px 10px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 @media (max-width: 600px) {
