@@ -1,13 +1,109 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
+    const VIDEO_TUTORIAL_URL = 'https://www.youtube.com/watch?v=COLOQUE_SEU_VIDEO';
+
     const overlay = document.getElementById('perfilOverlay');
     const btnAbrir = document.getElementById('editPerfilBtn');
     const btnFechar = document.getElementById('perfilClose');
     const btnSalvar = document.getElementById('perfilSalvar');
     if (!overlay || !btnAbrir) return;
 
+    // ── Seção "Chave de API do Gemini" (injetada no modal) ──
+    const secao = document.createElement('div');
+    secao.id = 'geminiKeySecao';
+    secao.innerHTML = `
+        <div class="field">
+            <label>Chave de API do Gemini</label>
+            <div id="geminiKeyStatus" style="font-size:14px;margin-bottom:6px;">Carregando...</div>
+            <input type="text" id="geminiKeyInput" style="width:100%" placeholder="Cole sua chave (AIza...)" autocomplete="off" spellcheck="false">
+            <div id="geminiKeyErro" style="display:none;color:var(--red,var(--destructive));font-size:14px;margin-top:6px;"></div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <button type="button" class="btn-primary" id="geminiKeySalvar" style="flex:1;justify-content:center;">Salvar chave</button>
+                <button type="button" class="btn-primary" id="geminiKeyRemover" style="display:none;justify-content:center;">Remover</button>
+            </div>
+            <details style="margin-top:10px;font-size:14px;">
+                <summary style="cursor:pointer;font-weight:600;">Como criar minha chave (grátis)</summary>
+                <p style="margin:8px 0;"><a href="${VIDEO_TUTORIAL_URL}" target="_blank" rel="noopener noreferrer">▶ Assistir ao vídeo tutorial</a></p>
+                <ol style="padding-left:18px;line-height:1.6;">
+                    <li>Acesse <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a>.</li>
+                    <li>Entre com sua conta Google.</li>
+                    <li>Clique em <strong>Criar chave de API</strong> (Create API key).</li>
+                    <li>Escolha um projeto ou crie um novo, quando solicitado.</li>
+                    <li>Copie a chave gerada (começa com <strong>AIza</strong>).</li>
+                    <li>Cole no campo acima e clique em <strong>Salvar chave</strong>.</li>
+                </ol>
+                <p>Não compartilhe sua chave com ninguém. Você pode removê-la aqui quando quiser.</p>
+            </details>
+        </div>`;
+    if (btnSalvar) btnSalvar.parentNode.insertBefore(secao, btnSalvar);
+
+    const elStatus = secao.querySelector('#geminiKeyStatus');
+    const elInput = secao.querySelector('#geminiKeyInput');
+    const elErro = secao.querySelector('#geminiKeyErro');
+    const btnKeySalvar = secao.querySelector('#geminiKeySalvar');
+    const btnKeyRemover = secao.querySelector('#geminiKeyRemover');
+
+    async function carregarStatusChave() {
+        try {
+            const r = await Auth.fetchAuth('/api/usuario/gemini-key');
+            if (!r.ok) return null;
+            const d = await r.json();
+            elStatus.textContent = d.possui ? `Chave cadastrada: ${d.mascara}` : 'Nenhuma chave cadastrada.';
+            btnKeyRemover.style.display = d.possui ? 'inline-flex' : 'none';
+            btnKeySalvar.textContent = d.possui ? 'Trocar chave' : 'Salvar chave';
+            return d;
+        } catch { elStatus.textContent = 'Não foi possível carregar o status.'; return null; }
+    }
+
+    btnKeySalvar.addEventListener('click', async () => {
+        const chave = elInput.value.trim();
+        elErro.style.display = 'none';
+        if (!chave) { elErro.textContent = 'Cole sua chave.'; elErro.style.display = 'block'; return; }
+        btnKeySalvar.disabled = true;
+        const txt = btnKeySalvar.textContent;
+        btnKeySalvar.textContent = 'Validando...';
+        try {
+            const r = await Auth.fetchAuth('/api/usuario/gemini-key', { method: 'PUT', body: JSON.stringify({ chave }) });
+            const d = await r.json().catch(() => ({}));
+            if (r.ok) { elInput.value = ''; await carregarStatusChave(); removerBanner(); }
+            else { elErro.textContent = d.erro || 'Erro ao salvar.'; elErro.style.display = 'block'; btnKeySalvar.textContent = txt; }
+        } catch { elErro.textContent = 'Erro de conexão.'; elErro.style.display = 'block'; btnKeySalvar.textContent = txt; }
+        finally { btnKeySalvar.disabled = false; }
+    });
+
+    btnKeyRemover.addEventListener('click', async () => {
+        if (!confirm('Remover sua chave de API?')) return;
+        try {
+            await Auth.fetchAuth('/api/usuario/gemini-key', { method: 'DELETE' });
+            await carregarStatusChave();
+            mostrarBanner();
+        } catch { alert('Erro de conexão.'); }
+    });
+
+    // ── Banner no dashboard (só aparece sem chave cadastrada) ──
+    function removerBanner() { document.getElementById('geminiKeyBanner')?.remove(); }
+    function mostrarBanner() {
+        if (!location.pathname.endsWith('dashboard.html') || document.getElementById('geminiKeyBanner')) return;
+        const header = document.querySelector('.page-header');
+        if (!header) return;
+        const div = document.createElement('div');
+        div.id = 'geminiKeyBanner';
+        div.className = 'card';
+        div.style.marginBottom = '16px';
+        div.innerHTML = `<div class="card-content" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span style="flex:1;min-width:220px;">🔑 Cadastre sua chave de API do Gemini para usar a IA com seu próprio limite de uso.</span>
+            <button type="button" class="btn-primary" id="geminiKeyBannerBtn">Cadastrar chave</button></div>`;
+        header.insertAdjacentElement('afterend', div);
+        div.querySelector('#geminiKeyBannerBtn').addEventListener('click', async () => {
+            await abrir();
+            secao.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    }
+
     async function abrir() {
         overlay.classList.add('open');
         document.getElementById('perfilErro').style.display = 'none';
+        elErro.style.display = 'none';
+        carregarStatusChave();
         try {
             const resp = await Auth.fetchAuth('/api/usuario/me');
             if (resp.ok) {
@@ -40,7 +136,6 @@
         btnSalvar.textContent = 'Salvando...';
 
         try {
-            // busca cidade/UF no ViaCEP antes de enviar (o backend também revalida se quiser reforçar)
             let cidade = '', estado = '';
             try {
                 const via = await (await fetch(`https://viacep.com.br/ws/${cep}/json/`)).json();
@@ -54,14 +149,12 @@
             const data = await resp.json();
 
             if (resp.ok) {
-                // atualiza localStorage — nome no header e CEP usado na previsão do tempo
                 localStorage.setItem('as_nome', nome);
                 localStorage.setItem('as_cep', cep);
                 document.getElementById('nomeUsuario').textContent = nome;
                 document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
                 overlay.classList.remove('open');
 
-                // recarrega a previsão do tempo com o novo CEP, sem reload da página
                 if (typeof initClima === 'function') {
                     const weatherJson = await initClima(cep);
                     if (typeof computeAlertasClimaticos === 'function' && typeof populateAlertasCriticos === 'function') {
@@ -80,4 +173,9 @@
             btnSalvar.textContent = '💾 Salvar alterações';
         }
     });
+
+    // Banner do dashboard: checa o status uma vez ao carregar
+    if (location.pathname.endsWith('dashboard.html')) {
+        carregarStatusChave().then(d => { if (d && !d.possui) mostrarBanner(); });
+    }
 });

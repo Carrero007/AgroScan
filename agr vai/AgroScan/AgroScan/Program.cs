@@ -10,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<JwtService>();
+builder.Services.AddSingleton<CryptoService>();
 builder.Services.AddScoped<BrevoService>();
 
 // JWT Bearer - lê config diretamente para não lançar exceção na startup
@@ -24,9 +25,6 @@ builder.Services.AddAuthentication(o =>
 })
 .AddJwtBearer(o =>
 {
-    // CORREÇÃO: desativa o remapeamento real de claims (sub -> URI longa),
-    // que acontecia mesmo com NameClaimType/RoleClaimType configurados abaixo.
-    // Sem isso, User.FindFirst("sub") nos controllers sempre retornava null.
     o.MapInboundClaims = false;
 
     o.TokenValidationParameters = new TokenValidationParameters

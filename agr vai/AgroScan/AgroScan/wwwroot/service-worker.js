@@ -1,7 +1,7 @@
 ﻿// AgroScan Service Worker — cache de shell estático para abrir rápido
 // mesmo com conexão ruim no campo. A análise por IA sempre exige rede
 // (não dá pra rodar Gemini offline), então não é cacheada.
-const CACHE_NAME = 'agroscan-shell-v1';
+const CACHE_NAME = 'agroscan-shell-v2';
 const SHELL_FILES = [
     '/dashboard.html',
     '/diagnosticar.html',

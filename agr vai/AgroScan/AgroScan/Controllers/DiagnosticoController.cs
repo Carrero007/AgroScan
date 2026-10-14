@@ -20,6 +20,7 @@ namespace AgroScan.Controllers
         private readonly IConfiguration _config;
         private readonly HttpClient _http;
         private readonly ILogger<DiagnosticoController> _logger;
+        private readonly CryptoService _crypto;
         private string ConnStr => _config.GetConnectionString("DefaultConnection")!;
 
         // Fonte técnica padrão usada como fallback quando a IA não preenche
@@ -42,12 +43,37 @@ namespace AgroScan.Controllers
         public DiagnosticoController(
             IConfiguration config,
             IHttpClientFactory httpFactory,
-            ILogger<DiagnosticoController> logger)
+            ILogger<DiagnosticoController> logger,
+            CryptoService crypto)
         {
             _config = config;
             _http = httpFactory.CreateClient();
             _logger = logger;
+            _crypto = crypto;
         }
+
+        /// <summary>
+        /// Resolve a chave do Gemini: primeiro a do usuário (criptografada no banco);
+        /// se não houver, usa a do servidor, a menos que Gemini:ExigirChaveUsuario = true.
+        /// </summary>
+        private (string? chave, bool doUsuario) ObterChaveGemini()
+        {
+            try
+            {
+                using var conn = new SqlConnection(ConnStr);
+                using var cmd = new SqlCommand("SELECT GeminiApiKeyEnc FROM Usuarios WHERE UsuarioId=@id", conn);
+                cmd.Parameters.AddWithValue("@id", UsuarioIdAtual);
+                conn.Open();
+                if (cmd.ExecuteScalar() is string enc && !string.IsNullOrWhiteSpace(enc))
+                    return (_crypto.Decrypt(enc), true);
+            }
+            catch (Exception ex) { _logger.LogWarning(ex, "Falha ao ler chave Gemini do usuario."); }
+
+            var servidor = _config["Gemini:ApiKey"];
+            var exigir = _config.GetValue<bool>("Gemini:ExigirChaveUsuario");
+            return (exigir || string.IsNullOrWhiteSpace(servidor) ? null : servidor, false);
+        }
+
         private object? BuscarDiagnosticoDemo(AnaliseRequest req)
         {
             if (string.IsNullOrWhiteSpace(req.NomeArquivo))
@@ -80,9 +106,6 @@ namespace AgroScan.Controllers
                 if (!reader.Read())
                     return null;
 
-                // Diagnóstico demo (vindo do banco) também recebe fonte e
-                // aviso de consulta profissional, para manter consistência
-                // com o retorno da IA real.
                 var confiancaDemo = Convert.ToInt32(reader["Confianca"]);
                 var recomendacaoDemo = confiancaDemo < LimiarConfiancaAviso ? AvisoConsultaPadrao : "";
 
@@ -270,9 +293,6 @@ namespace AgroScan.Controllers
         }
 
         // ── Salvar hortaliça identificada pela IA no catálogo ─────
-        // Endpoint que faltava: identificar.js chamava isto e recebia 404
-        // porque só existia um HortalicaController de plantio, sem esta rota.
-        // Evita duplicata verificando NomeCientifico (case-insensitive).
         [HttpPost("salvar-hortalica")]
         public IActionResult SalvarHortalica([FromBody] SalvarHortalicaRequest req)
         {
@@ -646,13 +666,6 @@ namespace AgroScan.Controllers
             return text;
         }
 
-        /// <summary>
-        /// Verifica se o JSON retornado pela IA tem o formato mínimo esperado,
-        /// de acordo com a ação realizada. Diagnóstico e identificação usam
-        /// schemas diferentes — antes essa checagem só reconhecia o formato
-        /// de diagnóstico (tipoDiagnostico/nomeDoenca), o que fazia toda
-        /// identificação bem-sucedida ser rejeitada como "incompleta".
-        /// </summary>
         private static bool RespostaTemFormatoEsperado(JsonElement root, string acao)
         {
             if (acao == "identificar")
@@ -661,17 +674,6 @@ namespace AgroScan.Controllers
             return root.TryGetProperty("tipoDiagnostico", out _) || root.TryGetProperty("nomeDoenca", out _);
         }
 
-        /// <summary>
-        /// Garante, no servidor (independente do que a IA devolveu), que todo
-        /// diagnóstico traga uma fonte técnica válida, níveis numéricos na
-        /// escala correta (0-10 para gravidade/propagação, 0-100 para
-        /// confiança) e, quando a confiança for menor que
-        /// <see cref="LimiarConfiancaAviso"/>%, um aviso claro recomendando
-        /// consultar um agrônomo antes de aplicar o tratamento.
-        /// Não confia apenas no prompt: mesmo que o Gemini ignore a instrução
-        /// ou mande a escala errada, o usuário final sempre recebe os campos
-        /// corretos.
-        /// </summary>
         private static string GarantirFonteERecomendacao(string json)
         {
             try
@@ -679,19 +681,14 @@ namespace AgroScan.Controllers
                 var node = JsonNode.Parse(json) as JsonObject;
                 if (node == null) return json;
 
-                // ── Normaliza confiança (0-100). A IA às vezes manda fração 0-1 ──
                 double confianca = LerNumero(node, "confianca");
                 if (confianca > 0 && confianca <= 1) confianca *= 100;
                 confianca = Math.Round(Math.Max(0, Math.Min(100, confianca)));
                 node["confianca"] = (int)confianca;
 
-                // ── Normaliza níveis 0-10 (gravidade / risco de propagação) ──
-                // A IA às vezes manda esses campos na escala 0-100 (como se
-                // fosse porcentagem) ou como fração 0-1. Corrige nos dois casos.
                 node["gravidadeNivel"] = (int)NormalizarNivel10(LerNumero(node, "gravidadeNivel"));
                 node["riscoPropagacaoNivel"] = (int)NormalizarNivel10(LerNumero(node, "riscoPropagacaoNivel"));
 
-                // ── Fonte técnica: garante nome + URL sempre preenchidos ──
                 var fonteNome = node["fonteNome"]?.GetValue<string>();
                 if (string.IsNullOrWhiteSpace(fonteNome))
                     node["fonteNome"] = FonteNomePadrao;
@@ -704,7 +701,6 @@ namespace AgroScan.Controllers
                     node["fonteUrl"] = FonteUrlPadrao;
                 }
 
-                // ── Aviso de consulta profissional condicionado à confiança ──
                 var recomendacao = node["recomendacaoProfissional"]?.GetValue<string>();
                 if (confianca < LimiarConfiancaAviso)
                 {
@@ -721,13 +717,10 @@ namespace AgroScan.Controllers
             }
             catch (Exception)
             {
-                // Se algo der errado na normalização, devolve o JSON original
-                // em vez de quebrar a resposta inteira do diagnóstico.
                 return json;
             }
         }
 
-        /// <summary>Lê um número de um JsonNode de forma tolerante (number ou string numérica).</summary>
         private static double LerNumero(JsonObject node, string prop)
         {
             if (!node.TryGetPropertyValue(prop, out var valNode) || valNode == null) return 0;
@@ -735,15 +728,10 @@ namespace AgroScan.Controllers
             return double.TryParse(valNode.ToString(), out var parsed) ? parsed : 0;
         }
 
-        /// <summary>
-        /// Normaliza um valor para a escala 0-10, corrigindo os formatos mais
-        /// comuns que a IA erra: fração 0-1 (ex: 0.8 → 8) e porcentagem 0-100
-        /// (ex: 80 → 8). Valores já dentro de 0-10 permanecem inalterados.
-        /// </summary>
         private static double NormalizarNivel10(double v)
         {
-            if (v > 10 && v <= 100) v /= 10.0;      // veio como 0-100 → escala pra 0-10
-            else if (v > 0 && v <= 1) v *= 10.0;    // veio como fração 0-1 → escala pra 0-10
+            if (v > 10 && v <= 100) v /= 10.0;
+            else if (v > 0 && v <= 1) v *= 10.0;
             return Math.Round(Math.Max(0, Math.Min(10, v)));
         }
 
@@ -798,20 +786,24 @@ namespace AgroScan.Controllers
             int usuarioId,
             string ip)
         {
-            var apiKey = _config["Gemini:ApiKey"];
+            var (apiKey, chaveUsuario) = ObterChaveGemini();
             var model = _config["Gemini:Model"] ?? "gemini-2.5-flash";
 
             if (string.IsNullOrWhiteSpace(apiKey))
-                return StatusCode(500, new { erro = "Gemini:ApiKey nao configurada no appsettings.json." });
+                return StatusCode(400, new
+                {
+                    erro = "Cadastre sua chave de API do Gemini no seu perfil (ícone de lápis na barra lateral) para usar a IA.",
+                    semChave = true
+                });
 
             try
             {
                 imagemBase64 = NormalizarImagemBase64(imagemBase64);
                 mimeType = NormalizarMimeType(mimeType);
 
-                // Igual ao HTML de teste: texto + imagem na mesma mensagem (sem systemInstruction).
                 var textoCompleto = $"{systemPrompt}\n\n{userText}";
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
+                // Chave vai no header (x-goog-api-key), nunca na URL, para não vazar em logs.
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent";
 
                 const int maxTentativas = 3;
                 var delays = new[] { 1000, 2000, 4000 };
@@ -825,12 +817,14 @@ namespace AgroScan.Controllers
                     var payload = MontarPayloadGemini(textoCompleto, imagemBase64, mimeType, jsonMode);
 
                     using var httpReq = new HttpRequestMessage(HttpMethod.Post, url);
+                    httpReq.Headers.Add("x-goog-api-key", apiKey);
                     httpReq.Content = new StringContent(payload, Encoding.UTF8, "application/json");
 
                     resp = await _http.SendAsync(httpReq);
                     raw = await resp.Content.ReadAsStringAsync();
 
-                    if (resp.StatusCode == System.Net.HttpStatusCode.BadRequest && jsonMode)
+                    if (resp.StatusCode == System.Net.HttpStatusCode.BadRequest && jsonMode
+                        && !raw.Contains("API_KEY_INVALID") && !raw.Contains("API key not valid"))
                     {
                         _logger.LogWarning("Gemini 400 com responseMimeType JSON; tentando modo texto. Body: {Body}", raw);
                         jsonMode = false;
@@ -840,6 +834,10 @@ namespace AgroScan.Controllers
                     bool transitorio = resp.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
                         || resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests
                         || (int)resp.StatusCode >= 500;
+
+                    // Com chave do usuário, 429 = limite dele: não adianta repetir.
+                    if (chaveUsuario && resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                        break;
 
                     if (resp.IsSuccessStatusCode || !transitorio)
                         break;
@@ -865,6 +863,20 @@ namespace AgroScan.Controllers
                             detalheErro = msg.GetString() ?? raw;
                     }
                     catch { /* mantém raw */ }
+
+                    if (chaveUsuario && (resp.StatusCode == System.Net.HttpStatusCode.Forbidden
+                        || raw.Contains("API_KEY_INVALID") || raw.Contains("API key not valid")))
+                        return BadRequest(new
+                        {
+                            erro = "Sua chave de API do Gemini é inválida ou foi revogada. Atualize no seu perfil.",
+                            chaveInvalida = true
+                        });
+                    if (chaveUsuario && resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                        return StatusCode(429, new
+                        {
+                            erro = "Sua chave do Gemini atingiu o limite de uso. Aguarde um pouco ou use outra chave.",
+                            transitorio = true
+                        });
 
                     bool eraTransitorio = resp.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
                         || resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests;
@@ -912,8 +924,6 @@ namespace AgroScan.Controllers
                     using var parsed = JsonDocument.Parse(text);
                     var root = parsed.RootElement;
 
-                    // ── Checagem de formato agora é ciente da ação (diagnosticar
-                    // vs identificar) — cada uma tem um schema diferente. ──
                     if (!RespostaTemFormatoEsperado(root, acao))
                     {
                         return StatusCode(502, new
@@ -923,9 +933,6 @@ namespace AgroScan.Controllers
                         });
                     }
 
-                    // Só o fluxo de diagnóstico (não o de identificação) tem
-                    // os campos de fonte/recomendação no schema — aplica o
-                    // reforço apenas aqui.
                     if (acao == "diagnosticar")
                         text = GarantirFonteERecomendacao(text);
 
@@ -1003,8 +1010,6 @@ namespace AgroScan.Controllers
             DataDiagnostico = (DateTime)r["DataDiagnostico"]
         };
 
-        /// <summary>Verifica se o SqlDataReader tem uma coluna com o nome informado (evita
-        /// exceção quando o método é usado em contextos sem o JOIN de hortaliça).</summary>
         private static bool HasColumn(SqlDataReader r, string nomeColuna)
         {
             for (int i = 0; i < r.FieldCount; i++)
