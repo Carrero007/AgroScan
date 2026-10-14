@@ -14,7 +14,7 @@ no diagnosticar criar realmente um PDF para ser baixado, ao invés de baixar a p
 
 
 IMPLEMENTAÇÕES FUTURAS:
-SOCIAL (possibilidade do usuário por sua chave de api do Gemini, com um vídeo tutorial explicativo);
+SOCIAL (possibilidade do usuário por sua chave de api do Gemini, com um vídeo tutorial explicativo);🆗
 
 hospedar o sistema no azure;
 
