@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     const VIDEO_TUTORIAL_URL = 'https://www.youtube.com/watch?v=COLOQUE_SEU_VIDEO';
 
     const overlay = document.getElementById('perfilOverlay');
@@ -6,35 +6,39 @@
     const btnFechar = document.getElementById('perfilClose');
     const btnSalvar = document.getElementById('perfilSalvar');
     if (!overlay || !btnAbrir) return;
+    btnSalvar.textContent = 'Salvar alterações';
 
-    // ── Seção "Chave de API do Gemini" (injetada no modal) ──
     const secao = document.createElement('div');
     secao.id = 'geminiKeySecao';
     secao.innerHTML = `
         <div class="field">
             <label>Chave de API do Gemini</label>
-            <div id="geminiKeyStatus" style="font-size:14px;margin-bottom:6px;">Carregando...</div>
+            <div id="geminiKeyStatus" style="font-size:14px;margin-bottom:6px;color:var(--muted-fg)">Carregando...</div>
             <input type="text" id="geminiKeyInput" style="width:100%" placeholder="Cole sua chave (AIza...)" autocomplete="off" spellcheck="false">
-            <div id="geminiKeyErro" style="display:none;color:var(--red,var(--destructive));font-size:14px;margin-top:6px;"></div>
+            <div id="geminiKeyErro" style="display:none;color:var(--destructive);font-size:14px;margin-top:6px;"></div>
             <div style="display:flex;gap:8px;margin-top:8px;">
                 <button type="button" class="btn-primary" id="geminiKeySalvar" style="flex:1;justify-content:center;">Salvar chave</button>
                 <button type="button" class="btn-primary" id="geminiKeyRemover" style="display:none;justify-content:center;">Remover</button>
             </div>
-            <details style="margin-top:10px;font-size:14px;">
-                <summary style="cursor:pointer;font-weight:600;">Como criar minha chave (grátis)</summary>
-                <p style="margin:8px 0;"><a href="${VIDEO_TUTORIAL_URL}" target="_blank" rel="noopener noreferrer">▶ Assistir ao vídeo tutorial</a></p>
-                <ol style="padding-left:18px;line-height:1.6;">
-                    <li>Acesse <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a>.</li>
+            <details class="more" style="margin-top:10px;border-top:none;padding:0;">
+                <summary>Como criar minha chave (grátis)</summary>
+                <p style="margin:8px 0;"><a href="${VIDEO_TUTORIAL_URL}" target="_blank" rel="noopener noreferrer" style="color:var(--primary)">Assistir ao vídeo tutorial</a></p>
+                <ol style="padding-left:18px;line-height:1.6;font-size:14.5px;">
+                    <li>Acesse <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style="color:var(--primary)">aistudio.google.com/apikey</a>.</li>
                     <li>Entre com sua conta Google.</li>
-                    <li>Clique em <strong>Criar chave de API</strong> (Create API key).</li>
-                    <li>Escolha um projeto ou crie um novo, quando solicitado.</li>
+                    <li>Clique em <strong>Criar chave de API</strong>.</li>
+                    <li>Escolha um projeto ou crie um novo.</li>
                     <li>Copie a chave gerada (começa com <strong>AIza</strong>).</li>
-                    <li>Cole no campo acima e clique em <strong>Salvar chave</strong>.</li>
+                    <li>Cole acima e clique em <strong>Salvar chave</strong>.</li>
                 </ol>
-                <p>Não compartilhe sua chave com ninguém. Você pode removê-la aqui quando quiser.</p>
+                <p style="font-size:14px;color:var(--muted-fg)">Não compartilhe sua chave. Você pode removê-la aqui quando quiser.</p>
             </details>
         </div>`;
     if (btnSalvar) btnSalvar.parentNode.insertBefore(secao, btnSalvar);
+
+    const info = document.createElement('p');
+    info.id = 'perfilInfo';
+    secao.parentNode.insertBefore(info, secao);
 
     const elStatus = secao.querySelector('#geminiKeyStatus');
     const elInput = secao.querySelector('#geminiKeyInput');
@@ -79,7 +83,6 @@
         } catch { alert('Erro de conexão.'); }
     });
 
-    // ── Banner no dashboard (só aparece sem chave cadastrada) ──
     function removerBanner() { document.getElementById('geminiKeyBanner')?.remove(); }
     function mostrarBanner() {
         if (!location.pathname.endsWith('dashboard.html') || document.getElementById('geminiKeyBanner')) return;
@@ -90,7 +93,7 @@
         div.className = 'card';
         div.style.marginBottom = '16px';
         div.innerHTML = `<div class="card-content" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <span style="flex:1;min-width:220px;">🔑 Cadastre sua chave de API do Gemini para usar a IA com seu próprio limite de uso.</span>
+            <span style="flex:1;min-width:220px;">Cadastre sua chave de API do Gemini para usar a IA com seu próprio limite de uso.</span>
             <button type="button" class="btn-primary" id="geminiKeyBannerBtn">Cadastrar chave</button></div>`;
         header.insertAdjacentElement('afterend', div);
         div.querySelector('#geminiKeyBannerBtn').addEventListener('click', async () => {
@@ -110,6 +113,8 @@
                 const d = await resp.json();
                 document.getElementById('perfilNome').value = d.nome || '';
                 document.getElementById('perfilCep').value = d.cep || '';
+                const cpf = d.cpf || '';
+                info.textContent = `CPF ***.***.${cpf.slice(6, 9)}-${cpf.slice(9)}${d.cidade ? ' · ' + d.cidade + ' / ' + d.estado : ''}`;
             }
         } catch { }
     }
@@ -151,6 +156,7 @@
             if (resp.ok) {
                 localStorage.setItem('as_nome', nome);
                 localStorage.setItem('as_cep', cep);
+                localStorage.removeItem('as_regiao');
                 document.getElementById('nomeUsuario').textContent = nome;
                 document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
                 overlay.classList.remove('open');
@@ -170,11 +176,10 @@
             erroEl.style.display = 'block';
         } finally {
             btnSalvar.disabled = false;
-            btnSalvar.textContent = '💾 Salvar alterações';
+            btnSalvar.textContent = 'Salvar alterações';
         }
     });
 
-    // Banner do dashboard: checa o status uma vez ao carregar
     if (location.pathname.endsWith('dashboard.html')) {
         carregarStatusChave().then(d => { if (d && !d.possui) mostrarBanner(); });
     }

@@ -1,73 +1,57 @@
 // Auth vem de js/Auth.js (incluído antes deste script no HTML).
-// Removida a cópia inline duplicada de Auth que existia aqui.
-
 document.addEventListener('DOMContentLoaded', () => {
     const nome = Auth.getNome();
     document.getElementById('nomeUsuario').textContent = nome;
     document.getElementById('avatarLetra').textContent = nome.charAt(0).toUpperCase();
 
     restaurarEstadoLocal();
+
+    // Região preenchida pelo CEP do usuário (editável)
+    Auth.getRegiao().then(v => {
+        const e = document.getElementById('regiaoClima');
+        if (e && !e.value) e.value = v;
+    });
 });
 
 let imagemBase64 = null;
 let mimeType = 'image/jpeg';
 
-// ── PERSISTÊNCIA LOCAL (sobrevive a F5 / fechar aba) ────────────
+const CAT = { fo: 'folhosa', fr: 'fruto', ra: 'raiz', bu: 'bulbo', le: 'legume', tu: 'tubérculo', br: 'brassica' };
+const LEAF_BIG = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>';
+const CAT_LABEL = { folhosa: 'Folhosa', fruto: 'Fruto', raiz: 'Raiz', bulbo: 'Bulbo', legume: 'Legume', tubérculo: 'Tubérculo', brassica: 'Brássica' };
+
 const LS_IDENT_KEY = 'as_ident_estado_' + (typeof Auth !== 'undefined' && Auth.getUsuarioId ? Auth.getUsuarioId() : 'anon');
 
 function salvarEstadoLocal() {
     try {
         localStorage.setItem(LS_IDENT_KEY, JSON.stringify({
-            imagemBase64,
-            mimeType,
+            imagemBase64, mimeType,
             regiaoClima: document.getElementById('regiaoClima')?.value || '',
             resultado: window._resultadoAtual || null,
             salvoEm: Date.now()
         }));
-    } catch (e) {
-        console.warn('AgroScan: não foi possível salvar estado local.', e);
-    }
+    } catch (e) { console.warn('AgroScan: não foi possível salvar estado local.', e); }
 }
 
 function restaurarEstadoLocal() {
     let salvo;
-    try {
-        salvo = JSON.parse(localStorage.getItem(LS_IDENT_KEY));
-    } catch {
-        return;
-    }
+    try { salvo = JSON.parse(localStorage.getItem(LS_IDENT_KEY)); } catch { return; }
     if (!salvo || !salvo.imagemBase64) return;
-
-    // Descarta rascunhos com mais de 24h
-    if (salvo.salvoEm && (Date.now() - salvo.salvoEm) > 24 * 60 * 60 * 1000) {
-        limparEstadoLocal();
-        return;
-    }
+    if (salvo.salvoEm && (Date.now() - salvo.salvoEm) > 24 * 60 * 60 * 1000) { limparEstadoLocal(); return; }
 
     imagemBase64 = salvo.imagemBase64;
     mimeType = salvo.mimeType || 'image/jpeg';
-
     const regiaoEl = document.getElementById('regiaoClima');
     if (regiaoEl) regiaoEl.value = salvo.regiaoClima || '';
-
     const prev = document.getElementById('previewImg');
-    if (prev) {
-        prev.src = `data:${mimeType};base64,${imagemBase64}`;
-        prev.style.display = 'block';
-    }
+    if (prev) { prev.src = `data:${mimeType};base64,${imagemBase64}`; prev.style.display = 'block'; }
     const btn = document.getElementById('btnIdent');
     if (btn) btn.disabled = false;
-
-    if (salvo.resultado) {
-        renderizarResultado(salvo.resultado);
-    }
+    if (salvo.resultado) renderizarResultado(salvo.resultado);
 }
 
-function limparEstadoLocal() {
-    try { localStorage.removeItem(LS_IDENT_KEY); } catch { }
-}
+function limparEstadoLocal() { try { localStorage.removeItem(LS_IDENT_KEY); } catch { } }
 
-// Drag & drop
 const zona = document.getElementById('uploadZone');
 zona.addEventListener('dragover', e => { e.preventDefault(); zona.style.borderColor = 'var(--green-lt)'; });
 zona.addEventListener('dragleave', () => zona.style.borderColor = '');
@@ -98,7 +82,7 @@ async function identificar() {
 
     document.getElementById('resultPanel').innerHTML = `
     <div class="estado-vazio">
-        <div class="emoji" style="animation:spin 2s linear infinite;display:inline-block">🔬</div>
+        <div class="spinner-btn" style="display:inline-block;width:28px;height:28px;border-width:3px;border-color:var(--border);border-top-color:var(--primary);margin-bottom:12px"></div>
         <h3>Identificando...</h3>
         <p>A IA está analisando características botânicas da planta.</p>
     </div>`;
@@ -107,26 +91,21 @@ async function identificar() {
         const resp = await Auth.fetchAuth('/api/diagnostico/identificar', {
             method: 'POST',
             body: JSON.stringify({
-                imagemBase64,
-                mimeType,
+                imagemBase64, mimeType,
                 regiaoClima: document.getElementById('regiaoClima').value.trim() || null
             })
         });
-
         const d = await resp.json();
-
         if (!resp.ok) {
             document.getElementById('resultPanel').innerHTML = `
-            <div class="estado-vazio"><div class="emoji">⚠️</div><h3>Erro</h3><p>${d.erro || 'Falha na análise.'}</p></div>`;
+            <div class="estado-vazio"><h3>Erro</h3><p>${d.erro || 'Falha na análise.'}</p></div>`;
             return;
         }
-
         renderizarResultado(d);
         salvarEstadoLocal();
-
     } catch {
         document.getElementById('resultPanel').innerHTML = `
-        <div class="estado-vazio"><div class="emoji">⚠️</div><h3>Falha de conexão</h3><p>Verifique sua internet e tente novamente.</p></div>`;
+        <div class="estado-vazio"><h3>Falha de conexão</h3><p>Verifique sua internet e tente novamente.</p></div>`;
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
@@ -134,110 +113,58 @@ async function identificar() {
 }
 
 function renderizarResultado(d) {
+    // normaliza a categoria (a IA devolve siglas: fo, fr, ra...)
+    const c = (d.categoria || '').toLowerCase();
+    d.categoria = CAT[c] || c;
     window._resultadoAtual = d;
-    const emojiPlanta = getEmoji(d.categoria);
+    const catTxt = CAT_LABEL[d.categoria] || d.categoria || '—';
 
     document.getElementById('resultPanel').innerHTML = `
     <div class="result-hero">
-        <div class="result-badge-circle">${emojiPlanta}</div>
+        <div class="result-badge-circle" style="color:var(--primary-fg)">${LEAF_BIG}</div>
         <div class="result-hero-text">
             <h2>${d.nomePopular || 'Hortaliça identificada'}</h2>
             <div class="cientifico">${d.nomeCientifico || ''}</div>
-            <div class="familia">Família: <strong>${d.familia || '—'}</strong> · Categoria: <strong>${d.categoria || '—'}</strong></div>
-            <div class="conf-pill">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M13 4L6 11l-3-3"/></svg>
-                ${d.confiancaIdentificacao || 0}% de confiança
-            </div>
+            <div class="familia">Família: <strong>${d.familia || '—'}</strong> · Categoria: <strong>${catTxt}</strong></div>
+            <div class="conf-pill">${d.confiancaIdentificacao || 0}% de confiança</div>
         </div>
     </div>
 
     <div class="agro-grid">
-        <div class="agro-card">
-            <div class="label">⏱️ Ciclo de vida</div>
-            <div class="value">${d.cicloVida || '—'}</div>
-        </div>
-        <div class="agro-card">
-            <div class="label">🌱 Germinação</div>
-            <div class="value">${d.diasGerminacao ? d.diasGerminacao + ' dias' : '—'}</div>
-        </div>
-        <div class="agro-card">
-            <div class="label">🌾 Colheita</div>
-            <div class="value">${d.diasColheita ? d.diasColheita + ' dias' : '—'}</div>
-        </div>
-        <div class="agro-card">
-            <div class="label">☀️ Luminosidade</div>
-            <div class="value">${d.luminosidade || '—'}</div>
-        </div>
-        <div class="agro-card">
-            <div class="label">💧 Irrigação</div>
-            <div class="value">${d.irrigacao || '—'}</div>
-        </div>
-        <div class="agro-card">
-            <div class="label">🌡️ Temperatura ideal</div>
-            <div class="value">${d.temperaturaIdeal || '—'}</div>
-        </div>
+        <div class="agro-card"><div class="label">Ciclo de vida</div><div class="value">${d.cicloVida || '—'}</div></div>
+        <div class="agro-card"><div class="label">Germinação</div><div class="value">${d.diasGerminacao ? d.diasGerminacao + ' dias' : '—'}</div></div>
+        <div class="agro-card"><div class="label">Colheita</div><div class="value">${d.diasColheita ? d.diasColheita + ' dias' : '—'}</div></div>
+        <div class="agro-card"><div class="label">Luminosidade</div><div class="value">${d.luminosidade || '—'}</div></div>
+        <div class="agro-card"><div class="label">Irrigação</div><div class="value">${d.irrigacao || '—'}</div></div>
+        <div class="agro-card"><div class="label">Temperatura ideal</div><div class="value">${d.temperaturaIdeal || '—'}</div></div>
     </div>
 
     <div class="detail-cards">
-        <div class="detail-card">
-            <div class="detail-card-header">🌍 Clima / Solo</div>
-            <div class="detail-card-body">${d.clima || '—'}<br><strong>Solo:</strong> ${d.tipoSolo || '—'}<br><strong>pH:</strong> ${d.phIdeal || '—'}</div>
-        </div>
-        <div class="detail-card">
-            <div class="detail-card-header">📐 Espaçamento</div>
-            <div class="detail-card-body">${d.espacamento || '—'}</div>
-        </div>
-        <div class="detail-card">
-            <div class="detail-card-header">🌿 Adubação recomendada</div>
-            <div class="detail-card-body">${d.adubacao || '—'}</div>
-        </div>
-        <div class="detail-card">
-            <div class="detail-card-header">🥗 Valor nutricional</div>
-            <div class="detail-card-body">${d.valorNutricional || '—'}</div>
-        </div>
-        <div class="detail-card">
-            <div class="detail-card-header">🐛 Principais pragas</div>
-            <div class="detail-card-body">${d.pragasPrincipais || '—'}</div>
-        </div>
-        <div class="detail-card">
-            <div class="detail-card-header">🦠 Principais doenças</div>
-            <div class="detail-card-body">${d.doencasPrincipais || '—'}</div>
-        </div>
+        <div class="detail-card"><div class="detail-card-header">Clima / Solo</div>
+            <div class="detail-card-body">${d.clima || '—'}<br><strong>Solo:</strong> ${d.tipoSolo || '—'}<br><strong>pH:</strong> ${d.phIdeal || '—'}</div></div>
+        <div class="detail-card"><div class="detail-card-header">Espaçamento</div><div class="detail-card-body">${d.espacamento || '—'}</div></div>
+        <div class="detail-card"><div class="detail-card-header">Adubação recomendada</div><div class="detail-card-body">${d.adubacao || '—'}</div></div>
+        <div class="detail-card"><div class="detail-card-header">Valor nutricional</div><div class="detail-card-body">${d.valorNutricional || '—'}</div></div>
+        <div class="detail-card"><div class="detail-card-header">Principais pragas</div><div class="detail-card-body">${d.pragasPrincipais || '—'}</div></div>
+        <div class="detail-card"><div class="detail-card-header">Principais doenças</div><div class="detail-card-body">${d.doencasPrincipais || '—'}</div></div>
     </div>
 
     ${d.dicasCultivo ? `
     <div class="card">
-        <div class="card-header">💡 Dicas de cultivo</div>
-        <div class="card-body" style="font-size:15px;color:var(--text2);line-height:1.7;">${d.dicasCultivo}</div>
+        <div class="card-header">Dicas de cultivo</div>
+        <div class="card-body" style="font-size:15px;color:var(--muted-fg);line-height:1.7;">${d.dicasCultivo}</div>
     </div>` : ''}
 
     <div class="acoes-row">
-        <a href="diagnosticar.html" class="btn-diag-link">
-            🔬 Diagnosticar doença nesta hortaliça →
-        </a>
-        <button class="btn-salvar-ht" id="btnSalvarHt" onclick="salvarHortalica()">
-            💾 Salvar no catálogo
-        </button>
-    </div>
-`;
+        <a href="diagnosticar.html" class="btn-diag-link">Diagnosticar doença nesta hortaliça →</a>
+        <button class="btn-salvar-ht" id="btnSalvarHt" onclick="salvarHortalica()">Salvar no catálogo</button>
+    </div>`;
 }
 
-function getEmoji(cat) {
-    const m = {
-        folhosa: '🥬', fruto: '🍅', raiz: '🥕', bulbo: '🧅',
-        legume: '🫛', tubérculo: '🥔', brássica: '🥦'
-    };
-    return m[(cat || '').toLowerCase()] || '🌱';
-}
-
-// ── SALVAR HORTALIÇA IDENTIFICADA ────────────────────────────
-// Chama /api/diagnostico/salvar-hortalica (endpoint que faltava e
-// agora existe no DiagnosticoController — antes dava 404).
 async function salvarHortalica() {
     if (!window._resultadoAtual) return;
     const btn = document.getElementById('btnSalvarHt');
     if (!btn || btn.classList.contains('salvo')) return;
-
     btn.disabled = true;
     btn.textContent = 'Salvando...';
 
@@ -264,17 +191,11 @@ async function salvarHortalica() {
     };
 
     try {
-        const resp = await Auth.fetchAuth('/api/diagnostico/salvar-hortalica', {
-            method: 'POST',
-            body: JSON.stringify(body)
-        });
-
+        const resp = await Auth.fetchAuth('/api/diagnostico/salvar-hortalica', { method: 'POST', body: JSON.stringify(body) });
         const data = await resp.json();
-
         if (resp.ok) {
             btn.classList.add('salvo');
-            btn.textContent = data.jaExistia ? '✓ Já estava no catálogo' : '✓ Salvo no catálogo!';
-            // Hortaliça já persistida no banco — o rascunho local não é mais necessário
+            btn.textContent = data.jaExistia ? 'Já estava no catálogo' : 'Salvo no catálogo';
             limparEstadoLocal();
         } else {
             btn.classList.add('erro');

@@ -75,7 +75,7 @@ namespace AgroScan.Controllers
             g switch { "alta" => "Alta 🔴", "media" => "Média 🟡", "baixa" => "Baixa 🟢", _ => "—" };
 
         private static string TraduzRisco(string? r) =>
-            r switch { "alto" => "Alto", "medio" => "Médio", "baixo" => "Baixo", _ => "—" };
+            r switch { "alto" or "alta" => "Alto", "medio" or "media" => "Médio", "baixo" or "baixa" => "Baixo", _ => "—" };
 
         // ── ENVIAR POR E-MAIL (Brevo, com PDF anexado) ────────────
         [HttpPost("enviar-email")]

@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
     'use strict';
 
     /* ── Referências ── */
@@ -205,7 +205,7 @@
                 return;
             }
             al.className = 'alert ok';
-            al.textContent = '✓ Conta criada! Redirecionando para o login...';
+            al.textContent = 'Conta criada! Redirecionando para o login...';
             setTimeout(() => switchTo('login'), 1500);
         } catch {
             al.className = 'alert erro';

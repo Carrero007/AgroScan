@@ -39,14 +39,14 @@ async function carregar(diagnosticoId) {
 
 function renderErro(msg) {
     document.getElementById('conteudo').innerHTML = `
-        <div class="estado-vazio"><div class="emoji">⚠️</div><h3>Ops</h3><p>${msg}</p>
+        <div class="estado-vazio"><div class="emoji"></div><h3>Ops</h3><p>${msg}</p>
         <a href="historico.html" style="color:var(--primary);font-weight:600;margin-top:10px;display:inline-block;">← Voltar ao histórico</a></div>`;
 }
 
 const LABEL_STATUS = {
     nao_iniciado: { texto: 'Não iniciado', icone: '⏳' },
-    em_andamento: { texto: 'Em tratamento', icone: '🌱' },
-    curada: { texto: 'Curada', icone: '✅' },
+    em_andamento: { texto: 'Em tratamento', icone: '' },
+    curada: { texto: 'Curada', icone: '' },
 };
 
 function formatarData(iso) {
@@ -73,7 +73,7 @@ function render() {
 
     const celebracao = d.statusTratamento === 'curada' ? `
         <div class="trat-celebracao">
-            <div class="emoji">🎉</div>
+            <div class="emoji"></div>
             <h3>Hortaliça curada!</h3>
             <p>Tratamento concluído em ${concluidoTxt || 'data não registrada'}. Continue monitorando para evitar reincidência.</p>
         </div>` : '';
@@ -85,15 +85,15 @@ function render() {
             </button>
             <div class="trat-step-text">
                 <div class="desc">${e.descricao}</div>
-                ${e.concluida && e.dataConclusao ? `<div class="data-conclusao">✓ Concluído em ${formatarData(e.dataConclusao)}</div>` : ''}
+                ${e.concluida && e.dataConclusao ? `<div class="data-conclusao">Concluído em ${formatarData(e.dataConclusao)}</div>` : ''}
             </div>
         </div>`).join('');
 
     const extrasHtml = (d.tratamentoEcologico || d.tratamentoQuimico || d.prevencao) ? `
         <div class="trat-extra-grid">
-            ${d.tratamentoEcologico ? `<div class="trat-extra-card"><div class="h">🌿 Tratamento ecológico</div><div class="b">${d.tratamentoEcologico}</div></div>` : ''}
-            ${d.tratamentoQuimico ? `<div class="trat-extra-card"><div class="h">🧪 Tratamento químico</div><div class="b">${d.tratamentoQuimico}</div></div>` : ''}
-            ${d.prevencao ? `<div class="trat-extra-card" style="grid-column:1/-1"><div class="h">🛡️ Prevenção</div><div class="b">${d.prevencao}</div></div>` : ''}
+            ${d.tratamentoEcologico ? `<div class="trat-extra-card"><div class="h">Tratamento ecológico</div><div class="b">${d.tratamentoEcologico}</div></div>` : ''}
+            ${d.tratamentoQuimico ? `<div class="trat-extra-card"><div class="h">Tratamento químico</div><div class="b">${d.tratamentoQuimico}</div></div>` : ''}
+            ${d.prevencao ? `<div class="trat-extra-card" style="grid-column:1/-1"><div class="h">Prevenção</div><div class="b">${d.prevencao}</div></div>` : ''}
         </div>` : '';
 
     const acoesHtml = d.statusTratamento === 'curada'
@@ -102,7 +102,7 @@ function render() {
              <a class="trat-btn trat-btn-outline" href="historico.html" style="text-decoration:none;display:inline-flex;align-items:center;">← Voltar ao histórico</a>
            </div>`
         : `<div class="trat-actions">
-             ${concluidas === total && total > 0 ? `<button class="trat-btn trat-btn-primary" onclick="marcarCurada()">✓ Marcar como curada</button>` : ''}
+             ${concluidas === total && total > 0 ? `<button class="trat-btn trat-btn-primary" onclick="marcarCurada()">Marcar como curada</button>` : ''}
              <a class="trat-btn trat-btn-outline" href="historico.html" style="text-decoration:none;display:inline-flex;align-items:center;">← Voltar ao histórico</a>
            </div>`;
 
@@ -113,8 +113,8 @@ function render() {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
                 PDF
             </button>
-            <button class="trat-export-btn" id="btnTratEmail" onclick="enviarTratamentoEmail()" title="Enviar por e-mail">📧 E-mail</button>
-            <button class="trat-export-btn" id="btnTratWhats" onclick="enviarTratamentoWhatsapp()" title="Enviar por WhatsApp">💬 WhatsApp</button>
+            <button class="trat-export-btn" id="btnTratEmail" onclick="enviarTratamentoEmail()" title="Enviar por e-mail">E-mail</button>
+            <button class="trat-export-btn" id="btnTratWhats" onclick="enviarTratamentoWhatsapp()" title="Enviar por WhatsApp">WhatsApp</button>
         </div>`;
 
     document.getElementById('conteudo').innerHTML = `
@@ -142,7 +142,7 @@ function render() {
         </div>
 
         <div class="trat-timeline">
-            <h2>📋 Checklist do tratamento</h2>
+            <h2>Checklist do tratamento</h2>
             ${etapasHtml}
         </div>
 
@@ -273,7 +273,7 @@ async function enviarTratamentoEmail() {
             body: JSON.stringify({ diagnosticoId: estadoAtual.diagnosticoId, email })
         });
         const data = await resp.json();
-        alert(resp.ok ? `✓ ${data.mensagem}` : `Erro: ${data.erro || 'Falha ao enviar.'}`);
+        alert(resp.ok ? `${data.mensagem}` : `Erro: ${data.erro || 'Falha ao enviar.'}`);
     } catch { alert('Erro de conexão ao enviar e-mail.'); }
     finally { if (btn) { btn.disabled = false; btn.innerHTML = htmlOriginal; } }
 }

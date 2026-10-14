@@ -31,6 +31,7 @@ namespace AgroScan.Services
             { "DAF", "Dano Físico" },
             { "SA",  "Saudável" },
             { "IN",  "Inconclusivo" },
+            { "fo", "folhosa" }, { "fr", "fruto" }, { "ra", "raiz" }, { "bu", "bulbo" }, { "le", "legume" }, { "tu", "tubÃ©rculo" }, { "br", "brassica" },
             // gravidade / riscoPropagacao
             { "bx",  "baixa" },
             { "md",  "media" },

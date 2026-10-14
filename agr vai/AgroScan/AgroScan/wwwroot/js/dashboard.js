@@ -1,4 +1,4 @@
-/* ── CONFIGURAÇÃO ──────────────────────────────────────────── */
+﻿/* ── CONFIGURAÇÃO ──────────────────────────────────────────── */
 const API_BASE_URL = ""; // ex: "https://localhost:7123" se o front não for servido pelo mesmo host/porta da API
 
 async function fetchDashboardData(dias = 30) {
@@ -114,7 +114,7 @@ function renderEmptyStateSeNecessario() {
         div.id = "dashEmptyState";
         div.className = "dash-empty";
         div.innerHTML = `
-            <span class="emoji">🌱</span>
+            <span class="emoji"></span>
             Nenhum diagnóstico neste período ainda.
             <a href="diagnosticar.html">Fazer o primeiro diagnóstico →</a>`;
         header.insertAdjacentElement("afterend", div);
@@ -249,10 +249,10 @@ function renderHeatmap() {
 function gerarRecomendacao(alertasClima, alertasCriticos, culturas) {
     if (alertasClima && alertasClima.length > 0) {
         const a = alertasClima[0];
-        let icon = "🌱";
-        if (/geada/i.test(a.titulo)) icon = "❄️";
-        else if (/chuva/i.test(a.titulo)) icon = "🌧️";
-        else if (/calor/i.test(a.titulo)) icon = "🔥";
+        let icon = "";
+        if (/geada/i.test(a.titulo)) icon = "";
+        else if (/chuva/i.test(a.titulo)) icon = "";
+        else if (/calor/i.test(a.titulo)) icon = "";
         return {
             icon,
             texto: `${a.titulo}. ${a.subtitulo}`,
@@ -264,7 +264,7 @@ function gerarRecomendacao(alertasClima, alertasCriticos, culturas) {
     if (alertasCriticos && alertasCriticos.length > 0) {
         const a = alertasCriticos[0];
         return {
-            icon: "⚠️",
+            icon: "",
             texto: `Fique atento à recorrência de "${a.titulo}" em ${a.subtitulo} — diagnósticos de alta gravidade merecem acompanhamento nos próximos dias.`,
             ctaTexto: "Ver histórico →",
             ctaHref: "historico.html?gravidade=alta",
@@ -273,7 +273,7 @@ function gerarRecomendacao(alertasClima, alertasCriticos, culturas) {
 
     if (culturas && culturas.length === 0) {
         return {
-            icon: "🌿",
+            icon: "",
             texto: "Você ainda não tem hortaliças cadastradas no catálogo. Cadastre suas culturas para receber recomendações climáticas mais precisas.",
             ctaTexto: "Cadastrar hortaliça →",
             ctaHref: "hortalicas.html",
@@ -281,7 +281,7 @@ function gerarRecomendacao(alertasClima, alertasCriticos, culturas) {
     }
 
     return {
-        icon: "✅",
+        icon: "",
         texto: "Tudo tranquilo por aqui — nenhum alerta climático ou de recorrência identificado no momento. Continue monitorando sua horta regularmente.",
         ctaTexto: "Novo diagnóstico →",
         ctaHref: "diagnosticar.html",

@@ -1,11 +1,6 @@
-﻿// ══════════════════════════════════════════════════════════════
 // AgroScan — Gerenciador de Autenticação JWT (ÚNICA FONTE)
-// Antes duplicado em historico.js, diagnosticar.js, identificar.js,
-// hortalicas.js. Inclua este arquivo ANTES dos scripts de página.
-// ══════════════════════════════════════════════════════════════
 const Auth = (() => {
-    const K = { t: 'as_token', r: 'as_refresh', n: 'as_nome', u: 'as_uid', e: 'as_exp', c: 'as_cep' };
-
+    const K = { t: 'as_token', r: 'as_refresh', n: 'as_nome', u: 'as_uid', e: 'as_exp', c: 'as_cep', g: 'as_regiao' };
 
     const salvar = d => {
         localStorage.setItem(K.t, d.token);
@@ -13,7 +8,7 @@ const Auth = (() => {
         localStorage.setItem(K.n, d.nome);
         localStorage.setItem(K.u, d.usuarioId);
         localStorage.setItem(K.e, d.expiracao);
-        if (d.cep) localStorage.setItem(K.c, d.cep); 
+        if (d.cep) localStorage.setItem(K.c, d.cep);
     };
     const limpar = () => Object.values(K).forEach(k => localStorage.removeItem(k));
     const getToken = () => localStorage.getItem(K.t);
@@ -52,6 +47,20 @@ const Auth = (() => {
         return fetch(url, { ...opts, headers });
     };
 
+    // "Cidade / UF" do usuário (a partir do CEP cadastrado), com cache local
+    const getRegiao = async () => {
+        const c = localStorage.getItem(K.g);
+        if (c) return c;
+        try {
+            const r = await fetchAuth('/api/usuario/me');
+            if (!r.ok) return '';
+            const d = await r.json();
+            const v = d.cidade ? `${d.cidade} / ${d.estado}` : '';
+            if (v) localStorage.setItem(K.g, v);
+            return v;
+        } catch { return ''; }
+    };
+
     const logout = async () => {
         const refresh = localStorage.getItem(K.r);
         if (refresh) {
@@ -72,10 +81,9 @@ const Auth = (() => {
         }
     };
 
-    return { salvar, limpar, getToken, getUsuarioId, getNome, getCep, estaLogado, fetchAuth, logout, exigirLogin };
+    return { salvar, limpar, getToken, getUsuarioId, getNome, getCep, getRegiao, estaLogado, fetchAuth, logout, exigirLogin };
 })();
 
-// Registro do Service Worker (PWA) — silencioso, não bloqueia nada se falhar.
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js').catch(() => { });
