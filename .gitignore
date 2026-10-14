@@ -1,16 +1,11 @@
-﻿################################################################################
-# Este arquivo .gitignore foi criado automaticamente pelo Microsoft(R) Visual Studio.
-################################################################################
+﻿## Visual Studio / .NET Core
+[Oo]bj/
+[Bb]in/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
-/agr vai/AgroScan/AgroScan/obj
-/.vs/AgroScan/FileContentIndex
-/.vs/AgroScan/v17
-/.vs/ProjectSettings.json
-/.vs
-/agr vai/AgroScan/.vs/AgroScan/FileContentIndex
-/agr vai/AgroScan/AgroScan/appsettings.json
-/agr vai/AgroScan/AgroScan/bin/Debug/net8.0
-/agr vai/AgroScan/AgroScan/appsettings.Development.json
-/agr vai/AgroScan/.vs/ProjectEvaluation
-.vs
-agr vai\AgroScan\.vs
+## Arquivos de configuração de ambiente
+appsettings.Development.json
