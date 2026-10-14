@@ -1,1 +1,21 @@
+arrumar espaçamento da landing Page;🆗
 
+melhorar responsividade da landing Page;
+
+aumentar letras do projeto por completo (da landing Page já foi);
+
+não deixar duplicar cadastro de hortaliças;
+
+quando clica pra enviar por e-mail ou wpp quebra do nada o visual;
+
+na dashboard mudar o download para para PDF ao invés de csv;
+
+no diagnosticar criar realmente um PDF para ser baixado, ao invés de baixar a página.
+
+
+IMPLEMENTAÇÕES FUTURAS:
+SOCIAL (possibilidade do usuário por sua chave de api do Gemini, com um vídeo tutorial explicativo);
+
+hospedar o sistema no azure;
+
+armazenar as imagens no sistema hospedado;
